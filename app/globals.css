@@ -153,6 +153,34 @@ h1 {
   min-height: 1700px;
 }
 
+.has-scene:not(.long-copy) {
+  min-height: calc(100dvh + 520px);
+}
+
+.has-scene:not(.long-copy) .section-inner {
+  position: sticky;
+  top: var(--sticky-top);
+  align-items: end;
+  height: calc(100dvh - var(--sticky-top));
+  min-height: 0;
+}
+
+.has-scene:not(.long-copy) .section-copy,
+.has-scene:not(.long-copy) .section-viz {
+  position: static;
+  align-self: end;
+  padding-top: 0;
+  padding-bottom: 24px;
+}
+
+.scene-criteria:not(.long-copy) {
+  min-height: calc(100dvh + 1100px);
+}
+
+.scene-criteria:not(.long-copy) .section-inner {
+  min-height: 0;
+}
+
 .section-viz {
   display: flex;
   max-height: calc(100vh - var(--sticky-top));
@@ -361,6 +389,25 @@ blockquote {
 
   .scene-criteria .section-inner {
     min-height: 0;
+  }
+
+  .has-scene:not(.long-copy),
+  .scene-criteria:not(.long-copy) {
+    min-height: 0;
+  }
+
+  .has-scene:not(.long-copy) .section-inner {
+    position: static;
+    align-items: stretch;
+    height: auto;
+    min-height: 0;
+  }
+
+  .has-scene:not(.long-copy) .section-copy,
+  .has-scene:not(.long-copy) .section-viz {
+    position: static;
+    align-self: auto;
+    padding-bottom: 0;
   }
 
   .section-viz {

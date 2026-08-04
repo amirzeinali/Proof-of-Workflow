@@ -643,95 +643,42 @@ function drawCoding(ctx: CanvasRenderingContext2D, p: number) {
   });
 }
 
-function drawPieShell(
+function drawPieFrame(
   ctx: CanvasRenderingContext2D,
   centerX: number,
   centerY: number,
   size: number,
 ) {
   const radius = size / 2;
-  const innerRadius = radius * 0.74;
-  const scallops = 28;
-  const points = 224;
+  const innerRadius = radius * 0.84;
 
   ctx.save();
-  ctx.shadowColor = "rgba(96,58,24,.2)";
-  ctx.shadowBlur = Math.max(4, radius * 0.055);
-  ctx.shadowOffsetY = Math.max(2, radius * 0.025);
-  const crustGradient = ctx.createRadialGradient(
-    centerX - radius * 0.24,
-    centerY - radius * 0.28,
-    radius * 0.08,
-    centerX,
-    centerY,
-    radius,
-  );
-  crustGradient.addColorStop(0, "#ffe7a1");
-  crustGradient.addColorStop(0.62, "#e8aa43");
-  crustGradient.addColorStop(0.88, "#c87828");
-  crustGradient.addColorStop(1, "#9d501c");
-  ctx.fillStyle = crustGradient;
-  ctx.strokeStyle = "#9c541f";
-  ctx.lineWidth = Math.max(1.2, radius * 0.012);
+  ctx.shadowColor = "rgba(38,38,36,.1)";
+  ctx.shadowBlur = Math.max(4, radius * 0.04);
+  ctx.shadowOffsetY = Math.max(2, radius * 0.016);
+  ctx.fillStyle = "rgba(255,255,255,.54)";
+  ctx.strokeStyle = "rgba(140,138,128,.84)";
+  ctx.lineWidth = Math.max(1.2, radius * 0.01);
   ctx.beginPath();
-  for (let index = 0; index <= points; index += 1) {
-    const angle = (Math.PI * 2 * index) / points - Math.PI / 2;
-    const wave = Math.sin(angle * scallops) * radius * 0.027;
-    const fineWave = Math.sin(angle * scallops * 2 + 0.8) * radius * 0.008;
-    const edgeRadius = radius + wave + fineWave;
-    const x = centerX + Math.cos(angle) * edgeRadius;
-    const y = centerY + Math.sin(angle) * edgeRadius;
-    if (index === 0) ctx.moveTo(x, y);
-    else ctx.lineTo(x, y);
-  }
-  ctx.closePath();
+  ctx.arc(centerX, centerY, radius, 0, Math.PI * 2);
   ctx.fill();
   ctx.shadowColor = "transparent";
   ctx.stroke();
 
-  const fillingGradient = ctx.createRadialGradient(
-    centerX - innerRadius * 0.22,
-    centerY - innerRadius * 0.26,
-    innerRadius * 0.05,
-    centerX,
-    centerY,
-    innerRadius,
-  );
-  fillingGradient.addColorStop(0, "#fff9e8");
-  fillingGradient.addColorStop(0.72, "#faeac0");
-  fillingGradient.addColorStop(1, "#eac47a");
-  ctx.fillStyle = fillingGradient;
-  ctx.strokeStyle = "rgba(133,75,25,.62)";
-  ctx.lineWidth = Math.max(1, radius * 0.011);
+  ctx.fillStyle = "rgba(244,243,238,.76)";
+  ctx.strokeStyle = "rgba(155,45,45,.34)";
+  ctx.lineWidth = Math.max(1, radius * 0.012);
   ctx.beginPath();
   ctx.arc(centerX, centerY, innerRadius, 0, Math.PI * 2);
   ctx.fill();
   ctx.stroke();
 
-  ctx.strokeStyle = "rgba(255,244,201,.78)";
-  ctx.lineWidth = Math.max(1, radius * 0.018);
+  ctx.strokeStyle = "rgba(140,138,128,.5)";
+  ctx.lineWidth = Math.max(0.9, radius * 0.007);
+  ctx.setLineDash([Math.max(1.5, radius * 0.012), Math.max(4, radius * 0.035)]);
   ctx.beginPath();
-  ctx.arc(centerX, centerY, radius * 0.84, Math.PI * 1.05, Math.PI * 1.83);
+  ctx.arc(centerX, centerY, radius * 0.93, 0, Math.PI * 2);
   ctx.stroke();
-
-  for (let index = 0; index < scallops; index += 1) {
-    const angle = (Math.PI * 2 * index) / scallops - Math.PI / 2;
-    const markRadius = radius * 0.875;
-    const markX = centerX + Math.cos(angle) * markRadius;
-    const markY = centerY + Math.sin(angle) * markRadius;
-    const tangentX = -Math.sin(angle) * radius * 0.035;
-    const tangentY = Math.cos(angle) * radius * 0.035;
-    line(
-      ctx,
-      markX - tangentX,
-      markY - tangentY,
-      markX + tangentX,
-      markY + tangentY,
-      "rgba(118,58,17,.42)",
-      Math.max(0.7, radius * 0.006),
-      0.6,
-    );
-  }
   ctx.restore();
 }
 
@@ -740,24 +687,24 @@ function drawPie(ctx: CanvasRenderingContext2D, p: number) {
   const fiveStage = smootherEase((p - 0.18) / 0.28);
   const tenStage = smootherEase((p - 0.58) / 0.3);
   const size = 158 + fiveStage * 78 + tenStage * 100;
-  const innerRadius = size * 0.365;
+  const innerRadius = size * 0.42;
   const oneOpacity = 1 - smootherEase(fiveStage / 0.48);
   const fiveOpacity = smootherEase(fiveStage / 0.55) * (1 - smootherEase(tenStage / 0.48));
   const tenOpacity = smootherEase(tenStage / 0.55);
 
-  drawPieShell(ctx, center.x, center.y, size);
+  drawPieFrame(ctx, center.x, center.y, size);
 
   const colors = [
-    "#c83e55",
-    "#00798c",
-    "#a76800",
-    "#3066be",
-    "#7b2cbf",
-    "#17815e",
-    "#d9501e",
-    "#1f4e79",
-    "#b22976",
-    "#587a10",
+    "#9d5961",
+    "#557b7d",
+    "#917747",
+    "#60718c",
+    "#756681",
+    "#66806f",
+    "#9a6b59",
+    "#596d76",
+    "#8d6378",
+    "#747a5b",
   ];
   const symbols: Record<string, string> = {
     Software: "</>",
@@ -783,7 +730,7 @@ function drawPie(ctx: CanvasRenderingContext2D, p: number) {
       const middle = (start + end) / 2;
 
       ctx.save();
-      ctx.globalAlpha = opacity * (count === 1 ? 0.34 : count === 5 ? 0.38 : 0.44);
+      ctx.globalAlpha = opacity * (count === 1 ? 0.22 : count === 5 ? 0.26 : 0.3);
       ctx.fillStyle = colors[index % colors.length];
       ctx.beginPath();
       ctx.moveTo(center.x, center.y);
@@ -857,6 +804,14 @@ function drawPie(ctx: CanvasRenderingContext2D, p: number) {
     ["Software", "Legal", "Finance", "Healthcare", "Education", "Retail", "Logistics", "Energy", "Media", "Manufacturing"],
     tenOpacity,
   );
+
+  ctx.save();
+  ctx.strokeStyle = "rgba(140,138,128,.7)";
+  ctx.lineWidth = 1.1;
+  ctx.beginPath();
+  ctx.arc(center.x, center.y, innerRadius, 0, Math.PI * 2);
+  ctx.stroke();
+  ctx.restore();
 }
 
 const drawers: Record<SceneName, (ctx: CanvasRenderingContext2D, progress: number) => void> = {
@@ -904,7 +859,9 @@ function ScrollDiagram({
       context.lineJoin = "round";
       const rect = section.getBoundingClientRect();
       const mobile = window.innerWidth <= 900;
-      const travel = Math.max(300, rect.height - 390);
+      const travel = longCopy
+        ? Math.max(300, rect.height - 390)
+        : Math.max(300, rect.height - (window.innerHeight - 56));
       const progress = reduced || mobile ? 0.999 : clamp((56 - rect.top) / travel, 0, 0.999);
       drawers[scene](context, progress);
     };
@@ -930,7 +887,7 @@ function ScrollDiagram({
       window.removeEventListener("scroll", requestPaint);
       window.removeEventListener("resize", requestPaint);
     };
-  }, [scene]);
+  }, [longCopy, scene]);
 
   return (
     <div className={`scroll-section has-scene scene-${scene}${longCopy ? " long-copy" : ""}`} ref={sectionRef}>
