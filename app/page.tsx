@@ -483,8 +483,8 @@ export default function Home() {
           <span className="section-label" id="tldr-title">TL;DR</span>
           <p>
             Fixed benchmarks are becoming less useful for evaluating AI. This is because they measure
-            performance against fixed criteria, even though each user, whether an organization, has different
-            criteria that change with the needs of their work. Evaluation should therefore <u>prove</u> that an
+            performance against fixed criteria, even though each organization has different criteria that
+            change with the needs of their work. Evaluation should therefore <u>prove</u> that an
             AI-generated outcome meets those criteria within the <u>workflow</u> as it actually operates and is
             thus <strong>accepted</strong> by the people who are responsible for the work.
           </p>
@@ -528,7 +528,7 @@ export default function Home() {
               approve the invalid transaction. Airlines also make different tradeoffs around payment rules,
               cost, and latency, so a faster but expensive process may be fine for one airline and not for
               another. Within each airline, the rules keep changing too, which means even an internal benchmark
-              can become outdated, as the Ryanair example shows
+              can become outdated, as the Ryanair example shows.<sup><a href="#note-3">3</a></sup>
             </p>
           </TextSection>
         </section>
@@ -586,7 +586,7 @@ export default function Home() {
               can interpret with limited company context. Codex and Claude Code show this pattern. Since they
               can observe whether a proposed code change was reviewed and merged, they can see whether the
               AI-generated work cleared a real workflow without placing an evaluator inside every company. The
-              organization still makes the final decision; the evaluator just sees the results.
+              organization still makes the final decision; the evaluator just sees the results.<sup><a href="#note-4">4</a></sup>
             </p>
             <p>
               Keep in mind that working outside the organization does not mean being disconnected from the
@@ -601,13 +601,13 @@ export default function Home() {
               to our airline example, it would need to learn the airline’s current fare rules, privacy
               requirements, and definition of a successful resolution. Still, the workflows remain similar
               enough across organizations for Sierra to reuse the same basic evaluation process across customers
-              while adapting it to each airline’s standards.
+              while adapting it to each airline’s standards.<sup><a href="#note-5">5</a></sup>
             </p>
             <p>
               A similar pattern appears in other workflows. Ramp can observe whether an expense recommendation
               stands, Harvey whether lawyers approve a draft, and Abridge whether clinicians sign a note. In
               each case, the organization can make enough of its requirements clear for the platform to evaluate
-              the outcome meaningfully.
+              the outcome meaningfully.<sup><a href="#note-6">6</a></sup>
             </p>
             <p>
               Working alongside the organization is enough only when the acceptance can be clearly explained
@@ -627,7 +627,7 @@ export default function Home() {
               viewed through the company’s understanding of its proprietary vehicle design, safety standards,
               and operating conditions. An outside provider may help run parts of the process, but explaining
               enough of the complicated context for it to make the final decision would be impractical. Zoox
-              would therefore keep the final PoW evaluation inside the organization.
+              would therefore keep the final PoW evaluation inside the organization.<sup><a href="#note-7">7</a></sup>
             </p>
           </ScrollDiagram>
 
@@ -641,7 +641,7 @@ export default function Home() {
               offers a clear example of how the evaluator moves closer as more organizational context is needed.
               Codex can observe a merge from <em>outside</em>, CodeRabbit works <em>alongside</em> teams by
               adapting to their repository rules, and Uber keeps its own code review system, uReview,
-              <em> inside</em> because useful judgment depends on its own codebase and developer feedback.
+              <em> inside</em> because useful judgment depends on its own codebase and developer feedback.<sup><a href="#note-8">8</a></sup>
             </p>
             <p>
               Together, we see across these examples is that PoW does not need to come from a company whose
@@ -682,7 +682,7 @@ export default function Home() {
             <p>
               Subsequently, when accepted work becomes the unit of cost, providers can also use it as the basis
               for pricing. Back to customer support, Sierra already applies this logic by charging when its
-              agents achieve business outcomes agreed upon with the customer. The same commercial logic is
+              agents achieve business outcomes agreed upon with the customer.<sup><a href="#note-9">9</a></sup> The same commercial logic is
               appearing elsewhere in
               <a href="https://www.intercom.com/help/en/articles/8205718-fin-ai-agent-outcomes"> customer support</a>, and in fields such
               <a href="https://www.eudia.com/blog/the-roi-of-an-ai-native-law-firm"> legal services</a>,
@@ -745,6 +745,13 @@ export default function Home() {
           <ol className="source-notes">
             <li id="note-1">Measuring Agents in Production: <a href="https://arxiv.org/abs/2512.04123">https://arxiv.org/abs/2512.04123</a></li>
             <li id="note-2"><a href="https://scale.com/blog/dialect">https://scale.com/blog/dialect</a></li>
+            <li id="note-3"><a href="https://github.com/sierra-research/tau2-bench/blob/main/data/tau2/domains/airline/tasks.json#L444-L543">Sierra Research, τ²-bench airline task and policy data</a></li>
+            <li id="note-4"><a href="https://openai.com/index/introducing-codex/">OpenAI, Introducing Codex</a>; <a href="https://code.claude.com/docs/en/github-actions">Anthropic, Claude Code GitHub Actions</a></li>
+            <li id="note-5"><a href="https://github.com/sierra-research/tau2-bench">Sierra Research, τ²-bench</a></li>
+            <li id="note-6"><a href="https://support.ramp.com/policy-agent-overview/">Ramp, Policy Agent</a>; <a href="https://www.harvey.ai/blog/ai-for-legal-drafting">Harvey, AI for legal drafting</a>; <a href="https://www.abridge.com/press-release/highmark-health-ahn-abridge-prior-authorization">Abridge, real-time clinical notes</a></li>
+            <li id="note-7"><a href="https://zoox.com/common/files/zoox-safety-report-volume-3-0-published-2024.pdf">Zoox, Operational Safety</a></li>
+            <li id="note-8"><a href="https://docs.coderabbit.ai/knowledge-base/learnings">CodeRabbit, Learnings</a>; <a href="https://www.uber.com/us/en/blog/ureview/">Uber, uReview</a></li>
+            <li id="note-9"><a href="https://sierra.ai/product">Sierra, Product overview and outcome-based pricing</a></li>
           </ol>
         </section>
       </article>
