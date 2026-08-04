@@ -223,6 +223,12 @@ sup a {
   padding: 0.35rem 0 1rem;
 }
 
+.prose-only {
+  max-width: 850px;
+  margin: 0 auto;
+  padding: 0.35rem 0 2rem;
+}
+
 blockquote {
   margin: 1.35rem 0;
   padding: 0 0 0 1rem;
@@ -374,6 +380,10 @@ blockquote {
   }
 
   .text-only {
+    max-width: none;
+  }
+
+  .prose-only {
     max-width: none;
   }
 

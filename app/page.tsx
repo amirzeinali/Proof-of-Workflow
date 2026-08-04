@@ -4,7 +4,6 @@ import { ReactNode, useEffect, useRef } from "react";
 
 type SceneName =
   | "criteria"
-  | "acceptance"
   | "proximity"
   | "coding"
   | "economics"
@@ -436,89 +435,175 @@ function drawCriteria(ctx: CanvasRenderingContext2D, p: number) {
   });
 }
 
-function drawAcceptance(ctx: CanvasRenderingContext2D, p: number) {
-  const split = ease((p - 0.08) / 0.3);
-  label(ctx, "fixed benchmark", 130, 35, { color: TEXT, size: 13, weight: 600 });
-  label(ctx, "Proof-of-Workflow", 374, 35, { color: ACCENT, size: 13, weight: 600 });
-
-  box(ctx, 40, 62, 180, 250, false, 1);
-  ["same task", "same rubric", "same test setup"].forEach((item, index) => {
-    box(ctx, 65, 91 + index * 62, 130, 38, false, 1);
-    label(ctx, item, 130, 110 + index * 62, { color: index === 1 ? ACCENT : MUTED, size: 11 });
-  });
-  arrow(ctx, 130, 270, 130, 335, MUTED, 1);
-  label(ctx, "score", 130, 355, { color: TEXT, size: 12, weight: 600 });
-
-  box(ctx, 280, 62, 180, 250, p > 0.48, split || 0.08);
-  ["real work", "current rules", "people responsible"].forEach((item, index) => {
-    box(ctx, 305, 91 + index * 62, 130, 38, index === 2 && p > 0.55, split || 0.08);
-    label(ctx, item, 370, 110 + index * 62, { color: index === 2 ? ACCENT : MUTED, size: 11, opacity: split || 0.08 });
-  });
-  arrow(ctx, 370, 270, 370, 335, ACCENT, split);
-  label(ctx, "accepted", 370, 355, { color: ACCENT, size: 12, weight: 600, opacity: split });
-
-  const travel = ease((p - 0.72) / 0.22);
-  if (travel > 0) {
-    dot(ctx, 130 + 240 * travel, 355, 5, ACCENT, ACCENT);
-    label(ctx, "value moves from a proxy to the real decision", 250, 386, {
-      color: ACCENT,
-      size: 11,
-      italic: true,
-      opacity: travel,
-    });
-  }
-}
-
 function drawMagnifier(ctx: CanvasRenderingContext2D, x: number, y: number, opacity = 1) {
   ctx.save();
   ctx.globalAlpha = opacity;
+  ctx.shadowColor = "rgba(38,38,36,.16)";
+  ctx.shadowBlur = 8;
+  ctx.shadowOffsetY = 3;
+  ctx.fillStyle = "rgba(255,255,255,.42)";
+  ctx.beginPath();
+  ctx.arc(x, y, 33, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.shadowColor = "transparent";
+  ctx.strokeStyle = INK;
+  ctx.lineWidth = 5.5;
+  ctx.stroke();
   ctx.strokeStyle = ACCENT;
+  ctx.lineWidth = 2.2;
+  ctx.beginPath();
+  ctx.arc(x, y, 28.5, 0, Math.PI * 2);
+  ctx.stroke();
+
+  ctx.strokeStyle = "rgba(255,255,255,.92)";
   ctx.lineWidth = 3;
   ctx.beginPath();
-  ctx.arc(x, y, 34, 0, Math.PI * 2);
+  ctx.arc(x, y, 21, Math.PI * 1.08, Math.PI * 1.55);
   ctx.stroke();
-  line(ctx, x + 24, y + 24, x + 56, y + 56, ACCENT, 5, opacity);
+
+  ctx.lineCap = "round";
+  ctx.strokeStyle = INK;
+  ctx.lineWidth = 11;
+  ctx.beginPath();
+  ctx.moveTo(x + 24, y + 24);
+  ctx.lineTo(x + 55, y + 55);
+  ctx.stroke();
+  ctx.strokeStyle = ACCENT;
+  ctx.lineWidth = 6;
+  ctx.beginPath();
+  ctx.moveTo(x + 25, y + 25);
+  ctx.lineTo(x + 55, y + 55);
+  ctx.stroke();
   ctx.restore();
+}
+
+function drawRepositorySymbol(ctx: CanvasRenderingContext2D, x: number, y: number) {
+  ctx.save();
+  ctx.strokeStyle = INK;
+  ctx.fillStyle = "rgba(255,255,255,.5)";
+  ctx.lineWidth = 1.5;
+  [[-8, -8], [-4, -4], [0, 0]].forEach(([offsetX, offsetY], index) => {
+    ctx.globalAlpha = 0.42 + index * 0.27;
+    ctx.beginPath();
+    ctx.roundRect(x - 35 + offsetX, y - 22 + offsetY, 70, 46, 7);
+    ctx.fill();
+    ctx.stroke();
+  });
+  ctx.globalAlpha = 1;
+  ctx.strokeStyle = ACCENT;
+  ctx.lineWidth = 1.8;
+  ctx.beginPath();
+  ctx.moveTo(x - 15, y - 6);
+  ctx.lineTo(x - 15, y + 10);
+  ctx.lineTo(x + 14, y + 10);
+  ctx.stroke();
+  [
+    [x - 15, y - 8],
+    [x - 15, y + 10],
+    [x + 14, y + 10],
+  ].forEach(([dotX, dotY]) => {
+    ctx.beginPath();
+    ctx.arc(dotX, dotY, 3.3, 0, Math.PI * 2);
+    ctx.fillStyle = PAPER;
+    ctx.fill();
+    ctx.stroke();
+  });
+  ctx.restore();
+}
+
+function drawAirlineSymbol(ctx: CanvasRenderingContext2D, x: number, y: number) {
+  ctx.save();
+  ctx.translate(x, y);
+  ctx.fillStyle = ACCENT;
+  ctx.strokeStyle = INK;
+  ctx.lineWidth = 1.1;
+  ctx.beginPath();
+  ctx.moveTo(-38, 6);
+  ctx.lineTo(-8, 0);
+  ctx.lineTo(5, -27);
+  ctx.lineTo(13, -27);
+  ctx.lineTo(8, -1);
+  ctx.lineTo(34, -6);
+  ctx.quadraticCurveTo(41, -6, 43, 0);
+  ctx.quadraticCurveTo(39, 5, 32, 5);
+  ctx.lineTo(8, 4);
+  ctx.lineTo(-3, 26);
+  ctx.lineTo(-11, 26);
+  ctx.lineTo(-7, 4);
+  ctx.lineTo(-34, 11);
+  ctx.closePath();
+  ctx.fill();
+  ctx.stroke();
+  ctx.restore();
+}
+
+function drawZooxSymbol(ctx: CanvasRenderingContext2D, x: number, y: number) {
+  ctx.save();
+  ctx.strokeStyle = INK;
+  ctx.fillStyle = "rgba(155,45,45,.13)";
+  ctx.lineWidth = 1.8;
+  ctx.beginPath();
+  ctx.roundRect(x - 42, y - 19, 84, 38, 16);
+  ctx.fill();
+  ctx.stroke();
+  ctx.beginPath();
+  ctx.moveTo(x - 17, y - 18);
+  ctx.quadraticCurveTo(x, y - 30, x + 17, y - 18);
+  ctx.stroke();
+  ctx.strokeStyle = ACCENT;
+  ctx.beginPath();
+  ctx.moveTo(x, y - 28);
+  ctx.lineTo(x, y - 22);
+  ctx.stroke();
+  ctx.beginPath();
+  ctx.arc(x, y - 30, 2.5, 0, Math.PI * 2);
+  ctx.fillStyle = ACCENT;
+  ctx.fill();
+  [-27, 27].forEach((offset) => {
+    ctx.beginPath();
+    ctx.arc(x + offset, y + 18, 6, 0, Math.PI * 2);
+    ctx.fillStyle = PAPER;
+    ctx.fill();
+    ctx.strokeStyle = INK;
+    ctx.stroke();
+  });
+  ctx.restore();
+}
+
+function drawOrganizationSymbol(ctx: CanvasRenderingContext2D, stage: number) {
+  const names = ["Repositories", "Airline", "Zoox"];
+  label(ctx, names[stage], 407, 72, { color: stage === 2 ? ACCENT : TEXT, size: 13, weight: 600 });
+  if (stage === 0) drawRepositorySymbol(ctx, 407, 172);
+  if (stage === 1) drawAirlineSymbol(ctx, 407, 174);
+  if (stage === 2) drawZooxSymbol(ctx, 407, 173);
 }
 
 function drawProximity(ctx: CanvasRenderingContext2D, p: number) {
   const stage = Math.min(2, Math.floor(p * 3));
   const local = ease((p * 3) % 1);
-  const positions = [85, 235, 385];
+  const positions = [88, 246, 394];
   const from = positions[Math.max(0, stage - 1)];
   const lensX = stage === 0 ? positions[0] : from + (positions[stage] - from) * local;
-  const companies = ["Customer repo", "Airline", "Zoox"];
   const evaluators = ["Codex / Claude Code", "Sierra", "Zoox evaluator"];
   const modes = ["outside", "alongside", "inside"];
+  const acceptanceCues = [
+    "acceptance is directly observable",
+    "acceptance can be explained",
+    "acceptance must be interpreted inside",
+  ];
 
-  line(ctx, 65, 342, 438, 342, MUTED, 1.2);
+  label(ctx, acceptanceCues[stage], 250, 35, { color: ACCENT, size: 11, weight: 500, italic: true });
+  arrow(ctx, 448, 314, 52, 314, MUTED, 0.9);
+  arrow(ctx, 52, 314, 448, 314, MUTED, 0.9);
   positions.forEach((x, index) => {
-    line(ctx, x, 335, x, 350, index === stage ? ACCENT : MUTED, index === stage ? 2 : 1);
-    label(ctx, modes[index], x, 370, { color: index === stage ? ACCENT : MUTED, size: 11, weight: index === stage ? 600 : 400 });
+    dot(ctx, x, 314, index === stage ? 5 : 3.5, index === stage ? ACCENT : PAPER, index === stage ? ACCENT : MUTED);
+    label(ctx, modes[index], x, 339, { color: index === stage ? ACCENT : MUTED, size: 11, weight: index === stage ? 600 : 400 });
   });
 
-  box(ctx, 312, 54, 148, 245, stage === 2, 1, 10);
-  label(ctx, companies[stage], 386, 78, { color: stage === 2 ? ACCENT : TEXT, size: 15, weight: 600 });
-  label(ctx, "people", 386, 126, { size: 11 });
-  label(ctx, "rules", 386, 176, { size: 11 });
-  label(ctx, "private context", 386, 226, { size: 11 });
-  [126, 176, 226].forEach((y, index) => {
-    const visible = stage === 0 ? index === 0 : stage === 1 ? index < 2 : true;
-    dot(ctx, 340, y, 4, visible ? ACCENT_LIGHT : PAPER, visible ? ACCENT : MUTED, visible ? 1 : 0.28);
-    line(ctx, 349, y, 425, y, visible ? ACCENT : MUTED, 0.9, visible ? 0.55 : 0.2);
-  });
-
-  drawMagnifier(ctx, lensX, 185, 1);
-  label(ctx, evaluators[stage], lensX, 116, { color: ACCENT, size: 12, weight: 600 });
-  wrappedLabel(
-    ctx,
-    stage === 0 ? "sees the accepted result" : stage === 1 ? "learns the organization’s bar" : "interprets proprietary context",
-    lensX,
-    271,
-    145,
-    13,
-    { color: TEXT, size: 10 },
-  );
+  drawOrganizationSymbol(ctx, stage);
+  drawMagnifier(ctx, lensX, 177, 1);
+  label(ctx, evaluators[stage], lensX, 101, { color: ACCENT, size: 11.5, weight: 600 });
+  label(ctx, "Magnifier = evaluator", 250, 374, { color: MUTED, size: 9.5, italic: true });
 }
 
 function drawCoding(ctx: CanvasRenderingContext2D, p: number) {
@@ -608,7 +693,6 @@ function drawFuture(ctx: CanvasRenderingContext2D, p: number) {
 
 const drawers: Record<SceneName, (ctx: CanvasRenderingContext2D, progress: number) => void> = {
   criteria: drawCriteria,
-  acceptance: drawAcceptance,
   proximity: drawProximity,
   coding: drawCoding,
   economics: drawEconomics,
@@ -698,6 +782,15 @@ function TextSection({ labelText, children }: { labelText: string; children: Rea
   );
 }
 
+function ProseSection({ labelText, children }: { labelText: string; children: ReactNode }) {
+  return (
+    <div className="scroll-section prose-only">
+      <span className="section-label">{labelText}</span>
+      {children}
+    </div>
+  );
+}
+
 export default function Home() {
   return (
     <main className="wrapper">
@@ -763,12 +856,7 @@ export default function Home() {
 
         <section className="act-group" aria-labelledby="act-two">
           <h2 className="act-heading" id="act-two">2. A Better Way to Judge AI Work</h2>
-          <ScrollDiagram
-            scene="acceptance"
-            labelText="Proof-of-Workflow"
-            caption="Evaluate whether an organization actually accepts AI-generated work in its real workflow."
-            longCopy
-          >
+          <ProseSection labelText="Proof-of-Workflow">
             <p>
               <a href="https://metr.org/notes/2026-03-10-many-swe-bench-passing-prs-would-not-be-merged-into-main/">Academic studies</a> and
               <a href="https://aws.amazon.com/blogs/machine-learning/evaluating-ai-agents-real-world-lessons-from-building-agentic-systems-at-amazon/"> industry reports</a> have also identified the same gap between benchmark criteria and real approval criteria in practice. As a result, organizations increasingly pair benchmark scores with evaluation approaches that use live measures such as A/B tests and user feedback.<sup><a href="#note-1">1</a></sup> Among these approaches, the most direct, and <em>in our belief</em> the most useful, is to evaluate whether an organization actually accepts AI-generated work in its real workflow. We refer to such approaches collectively as <strong>Proof-of-Workflow</strong>.
@@ -792,7 +880,7 @@ export default function Home() {
               </li>
             </ol>
             <p>Now that we know what PoW measures, we still need to figure out who should actually evaluate the work.</p>
-          </ScrollDiagram>
+          </ProseSection>
         </section>
 
         <section className="act-group" aria-labelledby="act-three">
