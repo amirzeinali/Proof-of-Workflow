@@ -26,6 +26,11 @@ const ease = (value: number) => {
   return t * t * (3 - 2 * t);
 };
 
+const smootherEase = (value: number) => {
+  const t = clamp(value);
+  return t * t * t * (t * (t * 6 - 15) + 10);
+};
+
 function line(
   ctx: CanvasRenderingContext2D,
   x1: number,
@@ -169,42 +174,166 @@ function arrow(ctx: CanvasRenderingContext2D, x1: number, y1: number, x2: number
   line(ctx, x2, y2, x2 - 8 * Math.cos(angle + 0.55), y2 - 8 * Math.sin(angle + 0.55), color, 1.4, opacity);
 }
 
+function curvedArrow(
+  ctx: CanvasRenderingContext2D,
+  x1: number,
+  y1: number,
+  x2: number,
+  y2: number,
+  progress: number,
+  color = MUTED,
+  opacity = 1,
+) {
+  const amount = smootherEase(progress);
+  if (amount <= 0) return;
+  const control1 = { x: x1 + 30, y: y1 };
+  const control2 = { x: x2 - 40, y: y2 };
+  const pointAt = (t: number) => {
+    const inverse = 1 - t;
+    return {
+      x: inverse ** 3 * x1 + 3 * inverse ** 2 * t * control1.x + 3 * inverse * t ** 2 * control2.x + t ** 3 * x2,
+      y: inverse ** 3 * y1 + 3 * inverse ** 2 * t * control1.y + 3 * inverse * t ** 2 * control2.y + t ** 3 * y2,
+    };
+  };
+  ctx.save();
+  ctx.globalAlpha = opacity;
+  ctx.strokeStyle = color;
+  ctx.lineWidth = 1.4;
+  ctx.beginPath();
+  ctx.moveTo(x1, y1);
+  const segments = 36;
+  for (let index = 1; index <= segments; index += 1) {
+    const t = amount * (index / segments);
+    const point = pointAt(t);
+    ctx.lineTo(point.x, point.y);
+  }
+  ctx.stroke();
+  if (amount > 0.96) {
+    const end = pointAt(amount);
+    const previous = pointAt(Math.max(0, amount - 0.035));
+    const angle = Math.atan2(end.y - previous.y, end.x - previous.x);
+    ctx.beginPath();
+    ctx.moveTo(end.x, end.y);
+    ctx.lineTo(end.x - 7 * Math.cos(angle - 0.55), end.y - 7 * Math.sin(angle - 0.55));
+    ctx.moveTo(end.x, end.y);
+    ctx.lineTo(end.x - 7 * Math.cos(angle + 0.55), end.y - 7 * Math.sin(angle + 0.55));
+    ctx.stroke();
+  }
+  ctx.restore();
+}
+
+function shadeOutdated(
+  ctx: CanvasRenderingContext2D,
+  x: number,
+  y: number,
+  width: number,
+  height: number,
+  opacity: number,
+) {
+  if (opacity <= 0) return;
+  ctx.save();
+  ctx.globalAlpha = opacity * 0.46;
+  ctx.fillStyle = "rgba(140,138,128,.14)";
+  ctx.beginPath();
+  ctx.roundRect(x, y, width, height, 7);
+  ctx.fill();
+  ctx.beginPath();
+  ctx.roundRect(x, y, width, height, 7);
+  ctx.clip();
+  ctx.strokeStyle = MUTED;
+  ctx.lineWidth = 0.8;
+  for (let offset = -height; offset < width + height; offset += 12) {
+    ctx.beginPath();
+    ctx.moveTo(x + offset, y + height);
+    ctx.lineTo(x + offset + height, y);
+    ctx.stroke();
+  }
+  ctx.restore();
+}
+
 function drawCriteria(ctx: CanvasRenderingContext2D, p: number) {
-  label(ctx, "one request, different definitions of success", 250, 20, {
+  label(ctx, "one task, different live policies", 250, 16, {
     color: TEXT,
     size: 13,
     weight: 600,
   });
-  box(ctx, 30, 42, 440, 66, p < 0.2, 1);
-  label(ctx, "benchmark task", 48, 62, { color: ACCENT, size: 11, weight: 600, align: "left" });
-  wrappedLabel(ctx, "Rebook two travelers and pay with one stored travel credit", 48, 82, 395, 13, {
+
+  box(ctx, 17, 37, 181, 92, p < 0.12, 1, 8);
+  label(ctx, "benchmark task", 31, 53, { color: ACCENT, size: 10.5, weight: 600, align: "left" });
+  wrappedLabel(ctx, "Repeat a booking for two travelers, retrieve profile information, and pay with one stored travel credit.", 31, 72, 151, 12, {
     color: TEXT,
-    size: 11,
+    size: 9.2,
+    align: "left",
+  });
+
+  box(ctx, 17, 142, 181, 123, false, 1, 8);
+  label(ctx, "expected benchmark rubric", 31, 159, { color: ACCENT, size: 10.2, weight: 600, align: "left" });
+  wrappedLabel(ctx, "Access the profile and complete both tickets using that credit. Identity verification or another payment method counts as failure.", 31, 179, 151, 12, {
+    color: TEXT,
+    size: 9.2,
     align: "left",
   });
 
   const rows = [
-    { name: "Delta", rule: "use the customer’s gift card", ok: true },
-    { name: "American", rule: "credit only for its named traveler", ok: false },
-    { name: "Ryanair · before", rule: "verify identity before access", ok: false },
-    { name: "Ryanair · now", rule: "access without separate verification", ok: true },
+    { name: "Delta", reason: "Both tickets use one stored credit.", ok: true, y: 64, start: 0.1 },
+    { name: "American Airlines", reason: "Credit is for its named traveler; a second payment is required.", ok: false, y: 146, start: 0.29 },
+    { name: "Ryanair · before", reason: "Identity must be verified before profile access.", ok: false, y: 228, start: 0.48 },
+    { name: "Ryanair · now", reason: "Separate identity verification is no longer required.", ok: true, y: 326, start: 0.78 },
   ];
-  label(ctx, "live setting", 43, 129, { size: 10, align: "left", italic: true });
-  label(ctx, "what counts as success?", 204, 129, { size: 10, align: "left", italic: true });
-  label(ctx, "fixed test", 454, 129, { size: 10, align: "right", italic: true });
+
+  label(ctx, "live setting", 282, 32, { size: 9, italic: true });
+  label(ctx, "fixed rubric", 359, 32, { size: 9, italic: true });
+  label(ctx, "why?", 435, 32, { size: 9, italic: true });
+
   rows.forEach((row, index) => {
-    const reveal = ease((p - 0.08 - index * 0.13) / 0.18);
-    const y = 143 + index * 57;
-    box(ctx, 30, y, 440, 47, index === 3 && p > 0.72, reveal, 4);
-    label(ctx, row.name, 43, y + 23, { color: TEXT, size: 11, weight: 600, align: "left", opacity: reveal });
-    wrappedLabel(ctx, row.rule, 184, y + 18, 210, 12, { color: MUTED, size: 10, align: "left", opacity: reveal });
-    check(ctx, 446, y + 23, row.ok, reveal);
+    const arrowReveal = smootherEase((p - row.start) / 0.12);
+    const reveal = smootherEase((p - row.start - 0.035) / 0.13);
+    const nextStart = index < rows.length - 1 ? rows[index + 1].start : 1.2;
+    const recede = smootherEase((p - nextStart + 0.015) / 0.11);
+    const active = reveal * (1 - recede);
+    const y = row.y + (1 - reveal) * 9;
+    const outdated = index === 2 ? smootherEase((p - 0.67) / 0.12) : 0;
+    const rowOpacity = reveal * (index === 2 ? 1 - outdated * 0.48 : 1);
+
+    curvedArrow(ctx, 198, 83, 226, y, arrowReveal, MUTED, Math.max(0.28, rowOpacity));
+    curvedArrow(ctx, 198, 83, 226, y, arrowReveal, ACCENT, active * 0.95);
+
+    box(ctx, 229, y - 17, 107, 34, false, rowOpacity, 7);
+    box(ctx, 229, y - 17, 107, 34, true, active * (1 - outdated), 7);
+    label(ctx, row.name, 282.5, y, {
+      color: TEXT,
+      size: row.name === "American Airlines" ? 9.2 : 10.2,
+      weight: 600,
+      opacity: rowOpacity,
+    });
+
+    box(ctx, 343, y - 17, 34, 34, row.ok && active > 0.1, rowOpacity, 7);
+    check(ctx, 360, y, row.ok, rowOpacity);
+
+    box(ctx, 384, y - 28, 103, 56, false, rowOpacity, 7);
+    wrappedLabel(ctx, row.reason, 393, y - 15, 84, 11, {
+      color: TEXT,
+      size: 8.4,
+      align: "left",
+      opacity: rowOpacity,
+    });
+
+    if (index === 2) {
+      shadeOutdated(ctx, 225, y - 31, 265, 62, outdated * reveal);
+      label(ctx, "outdated policy", 281, y + 39, {
+        color: ACCENT,
+        size: 9.2,
+        weight: 600,
+        opacity: outdated * reveal,
+      });
+    }
   });
-  label(ctx, "the benchmark’s answer stays fixed; the workflow’s answer does not", 250, 384, {
+
+  label(ctx, "the task stays fixed; acceptance changes with the live policy", 250, 387, {
     color: ACCENT,
-    size: 11,
+    size: 10.6,
     italic: true,
-    opacity: ease((p - 0.72) / 0.2),
+    opacity: smootherEase((p - 0.9) / 0.09),
   });
 }
 
@@ -446,7 +575,7 @@ function ScrollDiagram({
   }, [scene]);
 
   return (
-    <div className={`scroll-section has-scene${longCopy ? " long-copy" : ""}`} ref={sectionRef}>
+    <div className={`scroll-section has-scene scene-${scene}${longCopy ? " long-copy" : ""}`} ref={sectionRef}>
       <div className="section-inner">
         <div className="section-copy">
           <span className="section-label">{labelText}</span>
@@ -457,15 +586,6 @@ function ScrollDiagram({
           <p className="viz-caption">{caption}</p>
         </div>
       </div>
-    </div>
-  );
-}
-
-function TextSection({ labelText, children }: { labelText: string; children: ReactNode }) {
-  return (
-    <div className="scroll-section text-only">
-      <span className="section-label">{labelText}</span>
-      {children}
     </div>
   );
 }
@@ -505,6 +625,7 @@ export default function Home() {
             scene="criteria"
             labelText="One request, different definitions of success"
             caption="One request, different definitions of success."
+            longCopy
           >
             <p>
               Benchmarks are getting much better at testing AI on end-to-end professional tasks across
@@ -519,8 +640,7 @@ export default function Home() {
               To see why this matters, let’s consider a
               <a href="https://github.com/sierra-research/tau2-bench/blob/main/data/tau2/domains/airline/tasks.json#L444-L543"> simple airline customer-support task</a> from the τ²-bench.
             </p>
-          </ScrollDiagram>
-          <TextSection labelText="The benchmark’s rubric is not universal">
+            <span className="section-label criteria-explanation-label">The benchmark’s rubric is not universal</span>
             <p>
               You can see in the diagram that a benchmark&apos;s rubric only shows what works for one airline for
               the airline it was designed around; it’s not a universal definition of success. The agent could
@@ -530,7 +650,7 @@ export default function Home() {
               another. Within each airline, the rules keep changing too, which means even an internal benchmark
               can become outdated, as the Ryanair example shows.<sup><a href="#note-3">3</a></sup>
             </p>
-          </TextSection>
+          </ScrollDiagram>
         </section>
 
         <section className="act-group" aria-labelledby="act-two">

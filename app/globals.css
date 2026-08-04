@@ -149,6 +149,14 @@ h1 {
   min-height: 860px;
 }
 
+.scene-criteria .section-inner {
+  min-height: 1700px;
+}
+
+.criteria-explanation-label {
+  margin-top: 1.5rem;
+}
+
 .section-viz {
   display: flex;
   max-height: calc(100vh - var(--sticky-top));
@@ -342,6 +350,10 @@ blockquote {
   }
 
   .long-copy .section-inner {
+    min-height: 0;
+  }
+
+  .scene-criteria .section-inner {
     min-height: 0;
   }
 
