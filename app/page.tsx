@@ -6,7 +6,7 @@ type SceneName =
   | "criteria"
   | "proximity"
   | "coding"
-  | "economics"
+  | "pie"
   | "future";
 
 const INK = "#262624";
@@ -208,6 +208,7 @@ const logoPaths = [
   "/logos/ryanair.svg",
   "/logos/zoox.svg",
 ];
+const piePaths = ["/pie-shell.webp"];
 const canvasImages = new Map<string, HTMLImageElement>();
 
 function canvasImage(path: string) {
@@ -644,33 +645,116 @@ function drawCoding(ctx: CanvasRenderingContext2D, p: number) {
   });
 }
 
-function drawEconomics(ctx: CanvasRenderingContext2D, p: number) {
-  label(ctx, "what we count", 130, 30, { color: TEXT, size: 13, weight: 600 });
-  label(ctx, "what we value", 370, 30, { color: ACCENT, size: 13, weight: 600 });
-  box(ctx, 40, 57, 180, 240, false, 1);
-  label(ctx, "AI activity", 130, 84, { color: TEXT, size: 14, weight: 600 });
-  [0.48, 0.74, 0.9, 0.62].forEach((amount, index) => {
-    const y = 121 + index * 36;
-    label(ctx, index === 0 ? "tokens" : `retry ${index}`, 61, y, { size: 10, align: "left" });
-    line(ctx, 110, y, 195, y, "#d8d5cd", 7, 1);
-    line(ctx, 110, y, 110 + 85 * amount, y, index === 0 ? ACCENT : MUTED, 7, 1);
-  });
-  label(ctx, "$ activity", 130, 273, { color: MUTED, size: 12, weight: 600 });
+function drawPie(ctx: CanvasRenderingContext2D, p: number) {
+  const center = { x: 250, y: 188 };
+  const fiveStage = smootherEase((p - 0.18) / 0.28);
+  const tenStage = smootherEase((p - 0.58) / 0.3);
+  const size = 158 + fiveStage * 78 + tenStage * 100;
+  const innerRadius = size * 0.385;
+  const oneOpacity = 1 - smootherEase(fiveStage / 0.48);
+  const fiveOpacity = smootherEase(fiveStage / 0.55) * (1 - smootherEase(tenStage / 0.48));
+  const tenOpacity = smootherEase(tenStage / 0.55);
 
-  const reveal = ease((p - 0.22) / 0.32);
-  box(ctx, 280, 57, 180, 240, p > 0.55, reveal || 0.06);
-  label(ctx, "accepted workflow", 370, 84, { color: ACCENT, size: 14, weight: 600, opacity: reveal });
-  ["AI attempt", "expert review", "accepted work"].forEach((item, index) => {
-    const y = 126 + index * 54;
-    box(ctx, 312, y - 16, 116, 32, index === 2, reveal, 5);
-    label(ctx, item, 370, y, { color: index === 2 ? ACCENT : TEXT, size: 10, weight: index === 2 ? 600 : 400, opacity: reveal });
-    if (index < 2) arrow(ctx, 370, y + 17, 370, y + 35, index === 1 ? ACCENT : MUTED, reveal);
-  });
-  label(ctx, "$ accepted outcome", 370, 273, { color: ACCENT, size: 12, weight: 600, opacity: reveal });
+  containedImage(
+    ctx,
+    "/pie-shell.webp",
+    center.x - size / 2,
+    center.y - size / 2,
+    size,
+    size,
+  );
 
-  const shift = ease((p - 0.65) / 0.25);
-  arrow(ctx, 224, 327, 276, 327, ACCENT, shift);
-  label(ctx, "cost and pricing move to the same unit", 250, 362, { color: ACCENT, size: 11, italic: true, opacity: shift });
+  const colors = [
+    "#9b2d2d",
+    "#d09a36",
+    "#4f718c",
+    "#68845e",
+    "#a86b49",
+    "#77678f",
+    "#b78843",
+    "#4d8580",
+    "#b15b67",
+    "#6f6f65",
+  ];
+
+  const drawSlices = (industries: string[], opacity: number) => {
+    if (opacity <= 0.001) return;
+    const count = industries.length;
+    const startOffset = -Math.PI / 2;
+    industries.forEach((industry, index) => {
+      const start = startOffset + (Math.PI * 2 * index) / count;
+      const end = startOffset + (Math.PI * 2 * (index + 1)) / count;
+      const middle = (start + end) / 2;
+
+      ctx.save();
+      ctx.globalAlpha = opacity * (count === 1 ? 0.055 : 0.09);
+      ctx.fillStyle = colors[index % colors.length];
+      ctx.beginPath();
+      ctx.moveTo(center.x, center.y);
+      ctx.arc(center.x, center.y, innerRadius, start, end);
+      ctx.closePath();
+      ctx.fill();
+      ctx.restore();
+
+      if (count > 1) {
+        line(
+          ctx,
+          center.x,
+          center.y,
+          center.x + Math.cos(start) * innerRadius,
+          center.y + Math.sin(start) * innerRadius,
+          "rgba(117,91,55,.62)",
+          0.9,
+          opacity,
+        );
+      }
+
+      const labelRadius = count === 5 ? innerRadius * 0.59 : innerRadius * 0.64;
+      const labelX = center.x + Math.cos(middle) * labelRadius;
+      const labelY = center.y + Math.sin(middle) * labelRadius;
+      if (count === 1) {
+        wrappedLabel(ctx, "Software development", center.x, center.y - 5, innerRadius * 1.45, 13, {
+          color: ACCENT,
+          size: 11.5,
+          weight: 600,
+          opacity,
+        });
+      } else {
+        label(ctx, industry, labelX, labelY, {
+          color: TEXT,
+          size: count === 5 ? 8.8 : industry.length > 10 ? 6.5 : 7.2,
+          weight: 600,
+          opacity,
+        });
+      }
+    });
+  };
+
+  drawSlices(["Software development"], oneOpacity);
+  drawSlices(["Software", "Legal", "Finance", "Healthcare", "Education"], fiveOpacity);
+  drawSlices(
+    ["Software", "Legal", "Finance", "Healthcare", "Education", "Retail", "Logistics", "Energy", "Media", "Manufacturing"],
+    tenOpacity,
+  );
+
+  label(ctx, "one field", 250, 365, {
+    color: ACCENT,
+    size: 11,
+    weight: 600,
+    opacity: oneOpacity,
+  });
+  label(ctx, "five fields", 250, 365, {
+    color: ACCENT,
+    size: 11,
+    weight: 600,
+    opacity: fiveOpacity,
+  });
+  label(ctx, "a larger market · ten kinds of work", 250, 365, {
+    color: ACCENT,
+    size: 11,
+    weight: 600,
+    opacity: tenOpacity,
+  });
 }
 
 function drawFuture(ctx: CanvasRenderingContext2D, p: number) {
@@ -702,7 +786,7 @@ const drawers: Record<SceneName, (ctx: CanvasRenderingContext2D, progress: numbe
   criteria: drawCriteria,
   proximity: drawProximity,
   coding: drawCoding,
-  economics: drawEconomics,
+  pie: drawPie,
   future: drawFuture,
 };
 
@@ -751,14 +835,13 @@ function ScrollDiagram({
     const requestPaint = () => {
       if (!frame) frame = window.requestAnimationFrame(paint);
     };
-    const logoImageCleanups = scene === "proximity"
-      ? logoPaths.map((path) => {
-          const image = canvasImage(path);
-          if (!image) return () => undefined;
-          image.addEventListener("load", requestPaint);
-          return () => image.removeEventListener("load", requestPaint);
-        })
-      : [];
+    const assetPaths = scene === "proximity" ? logoPaths : scene === "pie" ? piePaths : [];
+    const imageCleanups = assetPaths.map((path) => {
+      const image = canvasImage(path);
+      if (!image) return () => undefined;
+      image.addEventListener("load", requestPaint);
+      return () => image.removeEventListener("load", requestPaint);
+    });
     const observer = new ResizeObserver(requestPaint);
     observer.observe(section);
     window.addEventListener("scroll", requestPaint, { passive: true });
@@ -767,7 +850,7 @@ function ScrollDiagram({
     return () => {
       if (frame) window.cancelAnimationFrame(frame);
       observer.disconnect();
-      logoImageCleanups.forEach((cleanup) => cleanup());
+      imageCleanups.forEach((cleanup) => cleanup());
       window.removeEventListener("scroll", requestPaint);
       window.removeEventListener("resize", requestPaint);
     };
@@ -989,12 +1072,7 @@ export default function Home() {
 
         <section className="act-group" aria-labelledby="act-four">
           <h2 className="act-heading" id="act-four">4. From AI Use to AI Value</h2>
-          <ScrollDiagram
-            scene="economics"
-            labelText="Two linked stages"
-            caption="Cost shifts from AI activity to accepted work."
-            longCopy
-          >
+          <ProseSection labelText="Two linked stages">
             <p>
               More specifically, it is easier to see how PoW reshapes AI economics when we break the shift into
               two linked stages. First, it changes how we measure cost, and once accepted work becomes the basis
@@ -1026,17 +1104,12 @@ export default function Home() {
               examples, the direction is consistent. Pricing is shifting away from AI activity and toward work
               that meets the customer’s needs.
             </p>
-          </ScrollDiagram>
+          </ProseSection>
         </section>
 
         <section className="act-group" aria-labelledby="act-five">
           <h2 className="act-heading" id="act-five">5. What Better Evaluation Could Unlock</h2>
-          <ScrollDiagram
-            scene="future"
-            labelText="What better evaluation could unlock"
-            caption="Each acceptance decision gives the next version a better target."
-            longCopy
-          >
+          <ProseSection labelText="What better evaluation could unlock">
             <p>
               Outcome-based pricing is only the first visible consequence of a broader shift toward PoW. The
               idea of moving beyond static benchmarks and evaluating AI in real workflows, however, is not new,
@@ -1055,6 +1128,12 @@ export default function Home() {
               has also discussed. And this scarcity is, in fact, what makes reliable evaluation, including PoW,
               increasingly valuable.
             </p>
+          </ProseSection>
+          <ScrollDiagram
+            scene="pie"
+            labelText="A growing, diverse market"
+            caption="As Proof-of-Workflow spreads, the market grows—and its slices become more diverse."
+          >
             <p>
               And as value begins to accumulate around judgment, more players will naturally offer these
               evaluations, including the groups we discussed above. Yet the pie is huge, and because acceptance
@@ -1063,6 +1142,12 @@ export default function Home() {
               part too. Scale AI, for example, is moving in this direction by turning expert approvals from real
               work into organization-specific evaluations.<sup><a href="#note-2">2</a></sup>
             </p>
+          </ScrollDiagram>
+          <ScrollDiagram
+            scene="future"
+            labelText="A compounding feedback loop"
+            caption="Each acceptance decision gives the next version a better target."
+          >
             <p>
               No matter who runs PoW, its larger value is that it connects fast-growing AI capability to work
               people actually need. As enterprises make their standards clearer, vendors can test and improve
