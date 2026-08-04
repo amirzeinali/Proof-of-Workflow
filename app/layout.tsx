@@ -11,17 +11,17 @@ export async function generateMetadata(): Promise<Metadata> {
   return {
     metadataBase: new URL(origin),
     title: "Proof-of-Workflow",
-    description: "AI evaluation based on real workflows and organizational acceptance.",
+    description: "AI Evaluation Based on Real Workflows",
     openGraph: {
       title: "Proof-of-Workflow",
-      description: "AI evaluation based on real workflows and organizational acceptance.",
+      description: "AI Evaluation Based on Real Workflows",
       type: "article",
       images: [{ url: `${origin}/og-proof-of-workflow.png`, width: 1774, height: 887 }],
     },
     twitter: {
       card: "summary_large_image",
       title: "Proof-of-Workflow",
-      description: "AI evaluation based on real workflows and organizational acceptance.",
+      description: "AI Evaluation Based on Real Workflows",
       images: [`${origin}/og-proof-of-workflow.png`],
     },
   };

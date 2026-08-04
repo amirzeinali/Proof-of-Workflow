@@ -200,6 +200,20 @@ h1 {
   line-height: 1.5;
 }
 
+.pow-list {
+  margin: 0.9rem 0 1rem;
+  padding-left: 1.6rem;
+}
+
+.pow-list li {
+  margin: 0.75rem 0;
+  padding-left: 0.35rem;
+}
+
+sup a {
+  text-decoration: none;
+}
+
 .text-only {
   max-width: calc(50% - 20px);
   padding: 0.35rem 0 1rem;
@@ -249,6 +263,21 @@ blockquote {
 
 .final-question em {
   color: var(--doc-accent);
+}
+
+.source-notes {
+  max-width: 850px;
+  margin: 3rem auto 0;
+  padding-top: 1rem;
+  padding-left: 1.8rem;
+  border-top: 1px solid rgba(140, 138, 128, 0.34);
+  color: var(--doc-muted);
+  font-size: 0.82rem;
+}
+
+.source-notes li {
+  margin: 0.35rem 0;
+  padding-left: 0.25rem;
 }
 
 .post-footer {
