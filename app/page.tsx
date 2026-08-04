@@ -150,10 +150,14 @@ function box(
 function statusEmoji(ctx: CanvasRenderingContext2D, x: number, y: number, ok: boolean, opacity = 1) {
   ctx.save();
   ctx.globalAlpha = opacity;
-  ctx.textAlign = "center";
-  ctx.textBaseline = "middle";
   ctx.font = '18px "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji", sans-serif';
-  ctx.fillText(ok ? "✅" : "❌", x, y);
+  ctx.textAlign = "left";
+  ctx.textBaseline = "alphabetic";
+  const glyph = ok ? "✅" : "❌";
+  const metrics = ctx.measureText(glyph);
+  const originX = x + (metrics.actualBoundingBoxLeft - metrics.actualBoundingBoxRight) / 2;
+  const baselineY = y + (metrics.actualBoundingBoxAscent - metrics.actualBoundingBoxDescent) / 2;
+  ctx.fillText(glyph, originX, baselineY);
   ctx.restore();
 }
 
@@ -201,16 +205,12 @@ function curvedArrow(
   ctx.stroke();
   if (amount > 0.96) {
     const end = pointAt(amount);
-    const previous = pointAt(Math.max(0, amount - 0.035));
-    const angle = Math.atan2(end.y - previous.y, end.x - previous.x);
     const arrowLength = 8;
     const arrowWidth = 4;
-    const baseX = end.x - arrowLength * Math.cos(angle);
-    const baseY = end.y - arrowLength * Math.sin(angle);
     ctx.beginPath();
     ctx.moveTo(end.x, end.y);
-    ctx.lineTo(baseX - arrowWidth * Math.sin(angle), baseY + arrowWidth * Math.cos(angle));
-    ctx.lineTo(baseX + arrowWidth * Math.sin(angle), baseY - arrowWidth * Math.cos(angle));
+    ctx.lineTo(end.x - arrowLength, end.y - arrowWidth);
+    ctx.lineTo(end.x - arrowLength, end.y + arrowWidth);
     ctx.closePath();
     ctx.fillStyle = color;
     ctx.fill();
@@ -255,9 +255,9 @@ function drawCriteria(ctx: CanvasRenderingContext2D, p: number) {
     size: 8.7,
   });
 
-  box(ctx, 14, 270, 176, 106, false, 1, 8);
-  label(ctx, "Expected Benchmark Rubric", 102, 287, { color: ACCENT, size: 9.7, weight: 600 });
-  wrappedLabel(ctx, "Only acceptable option: the agent accesses the profile and completes both tickets using that credit. Stopping for identity verification or requesting another payment method is scored as a failure.", 102, 306, 148, 10.2, {
+  box(ctx, 14, 250, 176, 106, false, 1, 8);
+  label(ctx, "Expected Benchmark Rubric", 102, 267, { color: ACCENT, size: 9.7, weight: 600 });
+  wrappedLabel(ctx, "The only acceptable option is for the agent to access the profile and complete both tickets using that credit. Stopping for identity verification or requesting another payment method is scored as a failure.", 102, 286, 148, 10.2, {
     color: TEXT,
     size: 8.25,
   });
