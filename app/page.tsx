@@ -201,6 +201,50 @@ type EmojiSprite = {
 };
 
 const emojiSprites = new Map<string, EmojiSprite>();
+const logoPaths = [
+  "/logos/github.svg",
+  "/logos/delta.svg",
+  "/logos/american-airlines.svg",
+  "/logos/ryanair.svg",
+  "/logos/zoox.svg",
+];
+const canvasImages = new Map<string, HTMLImageElement>();
+
+function canvasImage(path: string) {
+  const cached = canvasImages.get(path);
+  if (cached) return cached;
+  if (typeof window === "undefined") return null;
+  const image = new window.Image();
+  image.src = path;
+  canvasImages.set(path, image);
+  return image;
+}
+
+function containedImage(
+  ctx: CanvasRenderingContext2D,
+  path: string,
+  x: number,
+  y: number,
+  width: number,
+  height: number,
+  opacity = 1,
+) {
+  const image = canvasImage(path);
+  if (!image?.complete || !image.naturalWidth || !image.naturalHeight) return;
+  const scale = Math.min(width / image.naturalWidth, height / image.naturalHeight);
+  const renderedWidth = image.naturalWidth * scale;
+  const renderedHeight = image.naturalHeight * scale;
+  ctx.save();
+  ctx.globalAlpha = opacity;
+  ctx.drawImage(
+    image,
+    x + (width - renderedWidth) / 2,
+    y + (height - renderedHeight) / 2,
+    renderedWidth,
+    renderedHeight,
+  );
+  ctx.restore();
+}
 
 function emojiSprite(glyph: string) {
   const cached = emojiSprites.get(glyph);
@@ -477,105 +521,19 @@ function drawMagnifier(ctx: CanvasRenderingContext2D, x: number, y: number, opac
   ctx.restore();
 }
 
-function drawRepositorySymbol(ctx: CanvasRenderingContext2D, x: number, y: number) {
-  ctx.save();
-  ctx.strokeStyle = INK;
-  ctx.fillStyle = "rgba(255,255,255,.5)";
-  ctx.lineWidth = 1.5;
-  [[-8, -8], [-4, -4], [0, 0]].forEach(([offsetX, offsetY], index) => {
-    ctx.globalAlpha = 0.42 + index * 0.27;
-    ctx.beginPath();
-    ctx.roundRect(x - 35 + offsetX, y - 22 + offsetY, 70, 46, 7);
-    ctx.fill();
-    ctx.stroke();
-  });
-  ctx.globalAlpha = 1;
-  ctx.strokeStyle = ACCENT;
-  ctx.lineWidth = 1.8;
-  ctx.beginPath();
-  ctx.moveTo(x - 15, y - 6);
-  ctx.lineTo(x - 15, y + 10);
-  ctx.lineTo(x + 14, y + 10);
-  ctx.stroke();
-  [
-    [x - 15, y - 8],
-    [x - 15, y + 10],
-    [x + 14, y + 10],
-  ].forEach(([dotX, dotY]) => {
-    ctx.beginPath();
-    ctx.arc(dotX, dotY, 3.3, 0, Math.PI * 2);
-    ctx.fillStyle = PAPER;
-    ctx.fill();
-    ctx.stroke();
-  });
-  ctx.restore();
-}
-
-function drawAirlineSymbol(ctx: CanvasRenderingContext2D, x: number, y: number) {
-  ctx.save();
-  ctx.translate(x, y);
-  ctx.fillStyle = ACCENT;
-  ctx.strokeStyle = INK;
-  ctx.lineWidth = 1.1;
-  ctx.beginPath();
-  ctx.moveTo(-38, 6);
-  ctx.lineTo(-8, 0);
-  ctx.lineTo(5, -27);
-  ctx.lineTo(13, -27);
-  ctx.lineTo(8, -1);
-  ctx.lineTo(34, -6);
-  ctx.quadraticCurveTo(41, -6, 43, 0);
-  ctx.quadraticCurveTo(39, 5, 32, 5);
-  ctx.lineTo(8, 4);
-  ctx.lineTo(-3, 26);
-  ctx.lineTo(-11, 26);
-  ctx.lineTo(-7, 4);
-  ctx.lineTo(-34, 11);
-  ctx.closePath();
-  ctx.fill();
-  ctx.stroke();
-  ctx.restore();
-}
-
-function drawZooxSymbol(ctx: CanvasRenderingContext2D, x: number, y: number) {
-  ctx.save();
-  ctx.strokeStyle = INK;
-  ctx.fillStyle = "rgba(155,45,45,.13)";
-  ctx.lineWidth = 1.8;
-  ctx.beginPath();
-  ctx.roundRect(x - 42, y - 19, 84, 38, 16);
-  ctx.fill();
-  ctx.stroke();
-  ctx.beginPath();
-  ctx.moveTo(x - 17, y - 18);
-  ctx.quadraticCurveTo(x, y - 30, x + 17, y - 18);
-  ctx.stroke();
-  ctx.strokeStyle = ACCENT;
-  ctx.beginPath();
-  ctx.moveTo(x, y - 28);
-  ctx.lineTo(x, y - 22);
-  ctx.stroke();
-  ctx.beginPath();
-  ctx.arc(x, y - 30, 2.5, 0, Math.PI * 2);
-  ctx.fillStyle = ACCENT;
-  ctx.fill();
-  [-27, 27].forEach((offset) => {
-    ctx.beginPath();
-    ctx.arc(x + offset, y + 18, 6, 0, Math.PI * 2);
-    ctx.fillStyle = PAPER;
-    ctx.fill();
-    ctx.strokeStyle = INK;
-    ctx.stroke();
-  });
-  ctx.restore();
-}
-
 function drawOrganizationSymbol(ctx: CanvasRenderingContext2D, stage: number) {
-  const names = ["Repositories", "Airline", "Zoox"];
-  label(ctx, names[stage], 407, 72, { color: stage === 2 ? ACCENT : TEXT, size: 13, weight: 600 });
-  if (stage === 0) drawRepositorySymbol(ctx, 407, 172);
-  if (stage === 1) drawAirlineSymbol(ctx, 407, 174);
-  if (stage === 2) drawZooxSymbol(ctx, 407, 173);
+  const names = ["Repositories", "Airlines", "Zoox"];
+  box(ctx, 340, 118, 134, 110, stage === 2, 1, 10);
+  label(ctx, names[stage], 407, 139, { color: stage === 2 ? ACCENT : TEXT, size: 11.5, weight: 600 });
+  if (stage === 0) {
+    containedImage(ctx, "/logos/github.svg", 378, 151, 58, 58);
+  } else if (stage === 1) {
+    containedImage(ctx, "/logos/delta.svg", 350, 161, 32, 40);
+    containedImage(ctx, "/logos/american-airlines.svg", 391, 161, 32, 40);
+    containedImage(ctx, "/logos/ryanair.svg", 432, 161, 32, 40);
+  } else {
+    containedImage(ctx, "/logos/zoox.svg", 356, 165, 102, 34);
+  }
 }
 
 function drawProximity(ctx: CanvasRenderingContext2D, p: number) {
@@ -607,34 +565,78 @@ function drawProximity(ctx: CanvasRenderingContext2D, p: number) {
 }
 
 function drawCoding(ctx: CanvasRenderingContext2D, p: number) {
-  const items = [
-    { name: "Codex", mode: "outside", detail: "observes whether the change merged", x: 32 },
-    { name: "CodeRabbit", mode: "alongside", detail: "adapts to repository rules", x: 184 },
-    { name: "uReview", mode: "inside Uber", detail: "uses codebase + developer feedback", x: 336 },
-  ];
-  line(ctx, 70, 235, 430, 235, MUTED, 1.2);
-  arrow(ctx, 82, 235, 420, 235, MUTED, 0.75);
-  items.forEach((item, index) => {
-    const reveal = ease((p - index * 0.2) / 0.24);
-    const active = p >= index * 0.3 && p < (index + 1) * 0.34;
-    box(ctx, item.x, 91, 132, 110, active || index === 2 && p > 0.72, reveal, 8);
-    label(ctx, item.name, item.x + 66, 119, { color: active ? ACCENT : TEXT, size: 14, weight: 600, opacity: reveal });
-    label(ctx, item.mode, item.x + 66, 143, { color: active ? ACCENT : MUTED, italic: true, size: 10, opacity: reveal });
-    wrappedLabel(ctx, item.detail, item.x + 66, 169, 108, 12, { color: TEXT, size: 9.5, opacity: reveal });
-    dot(ctx, item.x + 66, 235, active ? 6 : 4, active ? ACCENT : PAPER, active ? ACCENT : MUTED, reveal);
-    const context = index + 1;
-    for (let ring = 0; ring < context; ring += 1) {
-      ctx.save();
-      ctx.globalAlpha = reveal * (0.48 - ring * 0.08);
-      ctx.strokeStyle = index === 2 ? ACCENT : MUTED;
-      ctx.lineWidth = 1;
-      ctx.beginPath();
-      ctx.arc(item.x + 66, 304, 13 + ring * 10, 0, Math.PI * 2);
-      ctx.stroke();
-      ctx.restore();
-    }
+  const center = { x: 183, y: 190 };
+  const radii = [126, 86, 47];
+  const middleShift = ease((p - 0.25) / 0.19);
+  const innerShift = ease((p - 0.61) / 0.19);
+  const weights = [1 - middleShift, middleShift * (1 - innerShift), innerShift];
+  const reveals = [ease((p - 0.02) / 0.12), ease((p - 0.27) / 0.13), ease((p - 0.61) / 0.13)];
+
+  label(ctx, "evaluation moves inward as acceptance needs more context", 250, 26, {
+    color: ACCENT,
+    size: 10.5,
+    italic: true,
   });
-  label(ctx, "more organizational context →", 250, 374, { color: ACCENT, size: 11, italic: true, opacity: ease((p - 0.7) / 0.2) });
+
+  const fillRing = (outerRadius: number, innerRadius: number, opacity: number) => {
+    if (opacity <= 0) return;
+    ctx.save();
+    ctx.globalAlpha = opacity * 0.78;
+    ctx.fillStyle = ACCENT_LIGHT;
+    ctx.beginPath();
+    ctx.arc(center.x, center.y, outerRadius, 0, Math.PI * 2);
+    if (innerRadius > 0) ctx.arc(center.x, center.y, innerRadius, 0, Math.PI * 2, true);
+    ctx.fill("evenodd");
+    ctx.restore();
+  };
+
+  fillRing(radii[0], radii[1], weights[0]);
+  fillRing(radii[1], radii[2], weights[1]);
+  fillRing(radii[2], 0, weights[2]);
+
+  radii.forEach((radius, index) => {
+    ctx.save();
+    ctx.globalAlpha = 0.5 + weights[index] * 0.5;
+    ctx.strokeStyle = weights[index] > 0.05 ? ACCENT : MUTED;
+    ctx.lineWidth = 1.3 + weights[index] * 1.4;
+    ctx.beginPath();
+    ctx.arc(center.x, center.y, radius, 0, Math.PI * 2);
+    ctx.stroke();
+    ctx.restore();
+  });
+  dot(ctx, center.x, center.y, 4.5, ACCENT, ACCENT);
+
+  const callouts = [
+    { name: "Codex", detail: "outside · merge is observable", y: 84, ringX: 267, ringY: 96 },
+    { name: "CodeRabbit", detail: "alongside · learns repository rules", y: 171, ringX: 267, ringY: 171 },
+    { name: "uReview", detail: "inside Uber", y: 258, ringX: 218, ringY: 223 },
+  ];
+  callouts.forEach((item, index) => {
+    const reveal = reveals[index];
+    const active = weights[index];
+    line(ctx, item.ringX, item.ringY, 326, item.y, active > 0.05 ? ACCENT : MUTED, 1.1, reveal * (0.55 + active * 0.45));
+    box(ctx, 330, item.y - 23, 154, 46, false, reveal, 8);
+    box(ctx, 330, item.y - 23, 154, 46, true, reveal * active, 8);
+    label(ctx, item.name, 407, item.y - 7, {
+      color: active > 0.05 ? ACCENT : TEXT,
+      size: 11.5,
+      weight: 600,
+      opacity: reveal,
+    });
+    label(ctx, item.detail, 407, item.y + 10, {
+      color: active > 0.05 ? TEXT : MUTED,
+      size: 8.2,
+      italic: true,
+      opacity: reveal,
+    });
+  });
+
+  wrappedLabel(ctx, "Uber’s own codebases + internal developer feedback", 250, 349, 300, 13, {
+    color: ACCENT,
+    size: 10.5,
+    weight: 600,
+    opacity: ease((p - 0.72) / 0.16),
+  });
 }
 
 function drawEconomics(ctx: CanvasRenderingContext2D, p: number) {
@@ -744,6 +746,14 @@ function ScrollDiagram({
     const requestPaint = () => {
       if (!frame) frame = window.requestAnimationFrame(paint);
     };
+    const logoImageCleanups = scene === "proximity"
+      ? logoPaths.map((path) => {
+          const image = canvasImage(path);
+          if (!image) return () => undefined;
+          image.addEventListener("load", requestPaint);
+          return () => image.removeEventListener("load", requestPaint);
+        })
+      : [];
     const observer = new ResizeObserver(requestPaint);
     observer.observe(section);
     window.addEventListener("scroll", requestPaint, { passive: true });
@@ -752,6 +762,7 @@ function ScrollDiagram({
     return () => {
       if (frame) window.cancelAnimationFrame(frame);
       observer.disconnect();
+      logoImageCleanups.forEach((cleanup) => cleanup());
       window.removeEventListener("scroll", requestPaint);
       window.removeEventListener("resize", requestPaint);
     };
