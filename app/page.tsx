@@ -147,23 +147,13 @@ function box(
   ctx.restore();
 }
 
-function check(ctx: CanvasRenderingContext2D, x: number, y: number, ok: boolean, opacity = 1) {
+function statusEmoji(ctx: CanvasRenderingContext2D, x: number, y: number, ok: boolean, opacity = 1) {
   ctx.save();
   ctx.globalAlpha = opacity;
-  ctx.strokeStyle = ok ? ACCENT : MUTED;
-  ctx.lineWidth = 2.2;
-  ctx.beginPath();
-  if (ok) {
-    ctx.moveTo(x - 7, y);
-    ctx.lineTo(x - 1, y + 6);
-    ctx.lineTo(x + 9, y - 8);
-  } else {
-    ctx.moveTo(x - 6, y - 6);
-    ctx.lineTo(x + 6, y + 6);
-    ctx.moveTo(x + 6, y - 6);
-    ctx.lineTo(x - 6, y + 6);
-  }
-  ctx.stroke();
+  ctx.textAlign = "center";
+  ctx.textBaseline = "middle";
+  ctx.font = '18px "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji", sans-serif';
+  ctx.fillText(ok ? "✅" : "❌", x, y + 1);
   ctx.restore();
 }
 
@@ -186,8 +176,9 @@ function curvedArrow(
 ) {
   const amount = smootherEase(progress);
   if (amount <= 0) return;
-  const control1 = { x: x1 + 30, y: y1 };
-  const control2 = { x: x2 - 40, y: y2 };
+  const distance = x2 - x1;
+  const control1 = { x: x1 + distance * 0.4, y: y1 };
+  const control2 = { x: x1 + distance * 0.76, y: y2 };
   const pointAt = (t: number) => {
     const inverse = 1 - t;
     return {
@@ -252,38 +243,32 @@ function shadeOutdated(
 }
 
 function drawCriteria(ctx: CanvasRenderingContext2D, p: number) {
-  label(ctx, "one task, different live policies", 250, 16, {
+  box(ctx, 14, 78, 176, 118, p < 0.12, 1, 8);
+  label(ctx, "Benchmark Task", 28, 95, { color: ACCENT, size: 10.5, weight: 600, align: "left" });
+  wrappedLabel(ctx, "A customer asks the agent to repeat a booking for two travelers, retrieve personal information from her profile, and pay with one stored travel credit.", 28, 115, 148, 11.2, {
     color: TEXT,
-    size: 13,
-    weight: 600,
-  });
-
-  box(ctx, 17, 37, 181, 92, p < 0.12, 1, 8);
-  label(ctx, "benchmark task", 31, 53, { color: ACCENT, size: 10.5, weight: 600, align: "left" });
-  wrappedLabel(ctx, "Repeat a booking for two travelers, retrieve profile information, and pay with one stored travel credit.", 31, 72, 151, 12, {
-    color: TEXT,
-    size: 9.2,
+    size: 8.7,
     align: "left",
   });
 
-  box(ctx, 17, 142, 181, 123, false, 1, 8);
-  label(ctx, "expected benchmark rubric", 31, 159, { color: ACCENT, size: 10.2, weight: 600, align: "left" });
-  wrappedLabel(ctx, "Access the profile and complete both tickets using that credit. Identity verification or another payment method counts as failure.", 31, 179, 151, 12, {
+  box(ctx, 14, 228, 176, 148, false, 1, 8);
+  label(ctx, "Expected Benchmark Rubric", 28, 245, { color: ACCENT, size: 9.7, weight: 600, align: "left" });
+  wrappedLabel(ctx, "Only acceptable option: the agent accesses the profile and completes both tickets using that credit. Stopping for identity verification or requesting another payment method is scored as a failure.", 28, 265, 148, 10.8, {
     color: TEXT,
-    size: 9.2,
+    size: 8.25,
     align: "left",
   });
 
   const rows = [
-    { name: "Delta", reason: "Both tickets use one stored credit.", ok: true, y: 64, start: 0.1 },
-    { name: "American Airlines", reason: "Credit is for its named traveler; a second payment is required.", ok: false, y: 146, start: 0.29 },
-    { name: "Ryanair · before", reason: "Identity must be verified before profile access.", ok: false, y: 228, start: 0.48 },
-    { name: "Ryanair · now", reason: "Separate identity verification is no longer required.", ok: true, y: 326, start: 0.78 },
+    { name: "Delta", reason: "Complete both tickets using the customer’s gift card", ok: true, y: 66, start: 0.1, portY: 104 },
+    { name: "American Airlines", reason: "Use the flight credit only for its named traveler, then request payment for the second ticket", ok: false, y: 149, start: 0.29, portY: 130 },
+    { name: "Ryanair · before", reason: "Verify the customer’s identity before allowing access to the reservation", ok: false, y: 232, start: 0.48, portY: 156 },
+    { name: "Ryanair · now", reason: "Access the reservation without separate verification and continue", ok: true, y: 327, start: 0.78, portY: 182 },
   ];
 
-  label(ctx, "live setting", 282, 32, { size: 9, italic: true });
-  label(ctx, "fixed rubric", 359, 32, { size: 9, italic: true });
-  label(ctx, "why?", 435, 32, { size: 9, italic: true });
+  label(ctx, "Live Setting", 273, 18, { color: TEXT, size: 9.2, weight: 600 });
+  wrappedLabel(ctx, "Passes the Rubric?", 342, 13, 70, 10, { color: TEXT, size: 8.5, weight: 600 });
+  wrappedLabel(ctx, "What should count as success?", 426, 13, 118, 10, { color: TEXT, size: 8.5, weight: 600 });
 
   rows.forEach((row, index) => {
     const arrowReveal = smootherEase((p - row.start) / 0.12);
@@ -295,45 +280,38 @@ function drawCriteria(ctx: CanvasRenderingContext2D, p: number) {
     const outdated = index === 2 ? smootherEase((p - 0.67) / 0.12) : 0;
     const rowOpacity = reveal * (index === 2 ? 1 - outdated * 0.48 : 1);
 
-    curvedArrow(ctx, 198, 83, 226, y, arrowReveal, MUTED, Math.max(0.28, rowOpacity));
-    curvedArrow(ctx, 198, 83, 226, y, arrowReveal, ACCENT, active * 0.95);
+    curvedArrow(ctx, 190, row.portY, 222, y, arrowReveal, MUTED, Math.max(0.28, rowOpacity));
+    curvedArrow(ctx, 190, row.portY, 222, y, arrowReveal, ACCENT, active * 0.95);
 
-    box(ctx, 229, y - 17, 107, 34, false, rowOpacity, 7);
-    box(ctx, 229, y - 17, 107, 34, true, active * (1 - outdated), 7);
-    label(ctx, row.name, 282.5, y, {
+    box(ctx, 226, y - 17, 94, 34, false, rowOpacity, 7);
+    box(ctx, 226, y - 17, 94, 34, true, active * (1 - outdated), 7);
+    label(ctx, row.name, 273, y, {
       color: TEXT,
-      size: row.name === "American Airlines" ? 9.2 : 10.2,
+      size: row.name === "American Airlines" ? 8.5 : 9.8,
       weight: 600,
       opacity: rowOpacity,
     });
 
-    box(ctx, 343, y - 17, 34, 34, row.ok && active > 0.1, rowOpacity, 7);
-    check(ctx, 360, y, row.ok, rowOpacity);
+    box(ctx, 326, y - 17, 32, 34, false, rowOpacity, 7);
+    statusEmoji(ctx, 342, y, row.ok, rowOpacity);
 
-    box(ctx, 384, y - 28, 103, 56, false, rowOpacity, 7);
-    wrappedLabel(ctx, row.reason, 393, y - 15, 84, 11, {
+    box(ctx, 364, y - 34, 124, 68, false, rowOpacity, 7);
+    wrappedLabel(ctx, row.reason, 373, y - 22, 106, 10.4, {
       color: TEXT,
-      size: 8.4,
+      size: 8.15,
       align: "left",
       opacity: rowOpacity,
     });
 
     if (index === 2) {
-      shadeOutdated(ctx, 225, y - 31, 265, 62, outdated * reveal);
-      label(ctx, "outdated policy", 281, y + 39, {
+      shadeOutdated(ctx, 222, y - 37, 269, 74, outdated * reveal);
+      label(ctx, "Policy outdated", 273, y + 42, {
         color: ACCENT,
         size: 9.2,
         weight: 600,
         opacity: outdated * reveal,
       });
     }
-  });
-
-  label(ctx, "the task stays fixed; acceptance changes with the live policy", 250, 387, {
-    color: ACCENT,
-    size: 10.6,
-    italic: true,
-    opacity: smootherEase((p - 0.9) / 0.09),
   });
 }
 
@@ -578,7 +556,7 @@ function ScrollDiagram({
     <div className={`scroll-section has-scene scene-${scene}${longCopy ? " long-copy" : ""}`} ref={sectionRef}>
       <div className="section-inner">
         <div className="section-copy">
-          <span className="section-label">{labelText}</span>
+          {labelText ? <span className="section-label">{labelText}</span> : null}
           {children}
         </div>
         <div className="section-viz">
@@ -623,8 +601,8 @@ export default function Home() {
           <h2 className="act-heading" id="act-one">1. When Work Changes, Evaluation Must Too</h2>
           <ScrollDiagram
             scene="criteria"
-            labelText="One request, different definitions of success"
-            caption="One request, different definitions of success."
+            labelText=""
+            caption="One task, different definitions of success."
             longCopy
           >
             <p>

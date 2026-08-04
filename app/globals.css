@@ -244,6 +244,10 @@ blockquote {
   aspect-ratio: 5 / 4;
 }
 
+.scene-criteria .diagram-canvas {
+  max-width: 500px;
+}
+
 .viz-caption {
   max-width: 360px;
   min-height: 1em;
