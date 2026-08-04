@@ -147,17 +147,74 @@ function box(
   ctx.restore();
 }
 
+type EmojiSprite = {
+  canvas: HTMLCanvasElement;
+  left: number;
+  top: number;
+  width: number;
+  height: number;
+};
+
+const emojiSprites = new Map<string, EmojiSprite>();
+
+function emojiSprite(glyph: string) {
+  const cached = emojiSprites.get(glyph);
+  if (cached) return cached;
+
+  const scale = 2;
+  const size = 72;
+  const canvas = document.createElement("canvas");
+  canvas.width = size;
+  canvas.height = size;
+  const context = canvas.getContext("2d", { willReadFrequently: true });
+  if (!context) return null;
+  context.font = `${18 * scale}px "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji", sans-serif`;
+  context.textAlign = "center";
+  context.textBaseline = "middle";
+  context.fillText(glyph, size / 2, size / 2);
+
+  const pixels = context.getImageData(0, 0, size, size).data;
+  let left = size;
+  let right = -1;
+  let top = size;
+  let bottom = -1;
+  for (let pixel = 0; pixel < pixels.length; pixel += 4) {
+    if (pixels[pixel + 3] === 0) continue;
+    const index = pixel / 4;
+    const pixelX = index % size;
+    const pixelY = Math.floor(index / size);
+    left = Math.min(left, pixelX);
+    right = Math.max(right, pixelX);
+    top = Math.min(top, pixelY);
+    bottom = Math.max(bottom, pixelY);
+  }
+  if (right < left || bottom < top) return null;
+
+  const sprite = { canvas, left, top, width: right - left + 1, height: bottom - top + 1 };
+  emojiSprites.set(glyph, sprite);
+  return sprite;
+}
+
 function statusEmoji(ctx: CanvasRenderingContext2D, x: number, y: number, ok: boolean, opacity = 1) {
   ctx.save();
   ctx.globalAlpha = opacity;
-  ctx.font = '18px "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji", sans-serif';
-  ctx.textAlign = "left";
-  ctx.textBaseline = "alphabetic";
   const glyph = ok ? "✅" : "❌";
-  const metrics = ctx.measureText(glyph);
-  const originX = x + (metrics.actualBoundingBoxLeft - metrics.actualBoundingBoxRight) / 2;
-  const baselineY = y + (metrics.actualBoundingBoxAscent - metrics.actualBoundingBoxDescent) / 2;
-  ctx.fillText(glyph, originX, baselineY);
+  const sprite = emojiSprite(glyph);
+  if (sprite) {
+    const width = sprite.width / 2;
+    const height = sprite.height / 2;
+    ctx.drawImage(
+      sprite.canvas,
+      sprite.left,
+      sprite.top,
+      sprite.width,
+      sprite.height,
+      x - width / 2,
+      y - height / 2,
+      width,
+      height,
+    );
+  }
   ctx.restore();
 }
 
@@ -205,15 +262,21 @@ function curvedArrow(
   ctx.stroke();
   if (amount > 0.96) {
     const end = pointAt(amount);
+    const previous = pointAt(Math.max(0, amount - 0.035));
+    const angle = Math.atan2(end.y - previous.y, end.x - previous.x);
     const arrowLength = 8;
-    const arrowWidth = 4;
+    const spread = 0.55;
     ctx.beginPath();
-    ctx.moveTo(end.x, end.y);
-    ctx.lineTo(end.x - arrowLength, end.y - arrowWidth);
-    ctx.lineTo(end.x - arrowLength, end.y + arrowWidth);
-    ctx.closePath();
-    ctx.fillStyle = color;
-    ctx.fill();
+    ctx.moveTo(
+      end.x - arrowLength * Math.cos(angle - spread),
+      end.y - arrowLength * Math.sin(angle - spread),
+    );
+    ctx.lineTo(end.x, end.y);
+    ctx.lineTo(
+      end.x - arrowLength * Math.cos(angle + spread),
+      end.y - arrowLength * Math.sin(angle + spread),
+    );
+    ctx.stroke();
   }
   ctx.restore();
 }
@@ -264,7 +327,7 @@ function drawCriteria(ctx: CanvasRenderingContext2D, p: number) {
 
   const rows = [
     { name: "Delta", reason: "Complete both tickets using the customer’s gift card", ok: true, y: 58, start: 0.1, portY: 126, nameHeight: 30, reasonHeight: 40, reasonLines: 2 },
-    { name: "American Airlines", reason: "Use the flight credit only for its named traveler, then request payment for the second ticket", ok: false, y: 139, start: 0.29, portY: 149, nameHeight: 38, reasonHeight: 60, reasonLines: 4 },
+    { name: "American Airlines", reason: "Use the flight credit only for its named traveler, then request payment for the second ticket", ok: false, y: 139, start: 0.29, portY: 149, nameHeight: 38, reasonHeight: 48, reasonLines: 4 },
     { name: "Ryanair · before", reason: "Verify the customer’s identity before allowing access to the reservation", ok: false, y: 220, start: 0.48, portY: 172, nameHeight: 38, reasonHeight: 50, reasonLines: 3 },
     { name: "Ryanair · now", reason: "Access the reservation without separate verification and continue", ok: true, y: 323, start: 0.78, portY: 195, nameHeight: 38, reasonHeight: 50, reasonLines: 3 },
   ];
@@ -614,7 +677,6 @@ export default function Home() {
             scene="criteria"
             labelText=""
             caption="One task, different definitions of success."
-            longCopy
           >
             <p>
               Benchmarks are getting much better at testing AI on end-to-end professional tasks across
