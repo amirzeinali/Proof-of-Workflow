@@ -6,8 +6,7 @@ type SceneName =
   | "criteria"
   | "proximity"
   | "coding"
-  | "pie"
-  | "future";
+  | "pie";
 
 const INK = "#262624";
 const TEXT = "#2a2926";
@@ -208,7 +207,6 @@ const logoPaths = [
   "/logos/ryanair.svg",
   "/logos/zoox.svg",
 ];
-const piePaths = ["/pie-shell.webp"];
 const canvasImages = new Map<string, HTMLImageElement>();
 
 function canvasImage(path: string) {
@@ -645,37 +643,135 @@ function drawCoding(ctx: CanvasRenderingContext2D, p: number) {
   });
 }
 
+function drawPieShell(
+  ctx: CanvasRenderingContext2D,
+  centerX: number,
+  centerY: number,
+  size: number,
+) {
+  const radius = size / 2;
+  const innerRadius = radius * 0.74;
+  const scallops = 28;
+  const points = 224;
+
+  ctx.save();
+  ctx.shadowColor = "rgba(96,58,24,.2)";
+  ctx.shadowBlur = Math.max(4, radius * 0.055);
+  ctx.shadowOffsetY = Math.max(2, radius * 0.025);
+  const crustGradient = ctx.createRadialGradient(
+    centerX - radius * 0.24,
+    centerY - radius * 0.28,
+    radius * 0.08,
+    centerX,
+    centerY,
+    radius,
+  );
+  crustGradient.addColorStop(0, "#ffe7a1");
+  crustGradient.addColorStop(0.62, "#e8aa43");
+  crustGradient.addColorStop(0.88, "#c87828");
+  crustGradient.addColorStop(1, "#9d501c");
+  ctx.fillStyle = crustGradient;
+  ctx.strokeStyle = "#9c541f";
+  ctx.lineWidth = Math.max(1.2, radius * 0.012);
+  ctx.beginPath();
+  for (let index = 0; index <= points; index += 1) {
+    const angle = (Math.PI * 2 * index) / points - Math.PI / 2;
+    const wave = Math.sin(angle * scallops) * radius * 0.027;
+    const fineWave = Math.sin(angle * scallops * 2 + 0.8) * radius * 0.008;
+    const edgeRadius = radius + wave + fineWave;
+    const x = centerX + Math.cos(angle) * edgeRadius;
+    const y = centerY + Math.sin(angle) * edgeRadius;
+    if (index === 0) ctx.moveTo(x, y);
+    else ctx.lineTo(x, y);
+  }
+  ctx.closePath();
+  ctx.fill();
+  ctx.shadowColor = "transparent";
+  ctx.stroke();
+
+  const fillingGradient = ctx.createRadialGradient(
+    centerX - innerRadius * 0.22,
+    centerY - innerRadius * 0.26,
+    innerRadius * 0.05,
+    centerX,
+    centerY,
+    innerRadius,
+  );
+  fillingGradient.addColorStop(0, "#fff9e8");
+  fillingGradient.addColorStop(0.72, "#faeac0");
+  fillingGradient.addColorStop(1, "#eac47a");
+  ctx.fillStyle = fillingGradient;
+  ctx.strokeStyle = "rgba(133,75,25,.62)";
+  ctx.lineWidth = Math.max(1, radius * 0.011);
+  ctx.beginPath();
+  ctx.arc(centerX, centerY, innerRadius, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.stroke();
+
+  ctx.strokeStyle = "rgba(255,244,201,.78)";
+  ctx.lineWidth = Math.max(1, radius * 0.018);
+  ctx.beginPath();
+  ctx.arc(centerX, centerY, radius * 0.84, Math.PI * 1.05, Math.PI * 1.83);
+  ctx.stroke();
+
+  for (let index = 0; index < scallops; index += 1) {
+    const angle = (Math.PI * 2 * index) / scallops - Math.PI / 2;
+    const markRadius = radius * 0.875;
+    const markX = centerX + Math.cos(angle) * markRadius;
+    const markY = centerY + Math.sin(angle) * markRadius;
+    const tangentX = -Math.sin(angle) * radius * 0.035;
+    const tangentY = Math.cos(angle) * radius * 0.035;
+    line(
+      ctx,
+      markX - tangentX,
+      markY - tangentY,
+      markX + tangentX,
+      markY + tangentY,
+      "rgba(118,58,17,.42)",
+      Math.max(0.7, radius * 0.006),
+      0.6,
+    );
+  }
+  ctx.restore();
+}
+
 function drawPie(ctx: CanvasRenderingContext2D, p: number) {
   const center = { x: 250, y: 188 };
   const fiveStage = smootherEase((p - 0.18) / 0.28);
   const tenStage = smootherEase((p - 0.58) / 0.3);
   const size = 158 + fiveStage * 78 + tenStage * 100;
-  const innerRadius = size * 0.385;
+  const innerRadius = size * 0.365;
   const oneOpacity = 1 - smootherEase(fiveStage / 0.48);
   const fiveOpacity = smootherEase(fiveStage / 0.55) * (1 - smootherEase(tenStage / 0.48));
   const tenOpacity = smootherEase(tenStage / 0.55);
 
-  containedImage(
-    ctx,
-    "/pie-shell.webp",
-    center.x - size / 2,
-    center.y - size / 2,
-    size,
-    size,
-  );
+  drawPieShell(ctx, center.x, center.y, size);
 
   const colors = [
-    "#9b2d2d",
-    "#d09a36",
-    "#4f718c",
-    "#68845e",
-    "#a86b49",
-    "#77678f",
-    "#b78843",
-    "#4d8580",
-    "#b15b67",
-    "#6f6f65",
+    "#c83e55",
+    "#00798c",
+    "#a76800",
+    "#3066be",
+    "#7b2cbf",
+    "#17815e",
+    "#d9501e",
+    "#1f4e79",
+    "#b22976",
+    "#587a10",
   ];
+  const symbols: Record<string, string> = {
+    Software: "</>",
+    "Software development": "</>",
+    Legal: "§",
+    Finance: "$",
+    Healthcare: "+",
+    Education: "▤",
+    Retail: "◇",
+    Logistics: "→",
+    Energy: "ϟ",
+    Media: "▶",
+    Manufacturing: "⚙",
+  };
 
   const drawSlices = (industries: string[], opacity: number) => {
     if (opacity <= 0.001) return;
@@ -687,7 +783,7 @@ function drawPie(ctx: CanvasRenderingContext2D, p: number) {
       const middle = (start + end) / 2;
 
       ctx.save();
-      ctx.globalAlpha = opacity * (count === 1 ? 0.055 : 0.09);
+      ctx.globalAlpha = opacity * (count === 1 ? 0.34 : count === 5 ? 0.38 : 0.44);
       ctx.fillStyle = colors[index % colors.length];
       ctx.beginPath();
       ctx.moveTo(center.x, center.y);
@@ -703,27 +799,52 @@ function drawPie(ctx: CanvasRenderingContext2D, p: number) {
           center.y,
           center.x + Math.cos(start) * innerRadius,
           center.y + Math.sin(start) * innerRadius,
-          "rgba(117,91,55,.62)",
-          0.9,
+          "rgba(255,255,255,.88)",
+          count === 5 ? 1.7 : 1.35,
           opacity,
         );
       }
 
-      const labelRadius = count === 5 ? innerRadius * 0.59 : innerRadius * 0.64;
+      const iconRadius = count === 5 ? innerRadius * 0.31 : innerRadius * 0.39;
+      const labelRadius = count === 5 ? innerRadius * 0.67 : innerRadius * 0.7;
+      const iconX = center.x + Math.cos(middle) * iconRadius;
+      const iconY = center.y + Math.sin(middle) * iconRadius;
       const labelX = center.x + Math.cos(middle) * labelRadius;
       const labelY = center.y + Math.sin(middle) * labelRadius;
       if (count === 1) {
-        wrappedLabel(ctx, "Software development", center.x, center.y - 5, innerRadius * 1.45, 13, {
-          color: ACCENT,
+        dot(ctx, center.x, center.y - 18, 10, "rgba(255,255,255,.82)", colors[index], opacity);
+        label(ctx, symbols[industry], center.x, center.y - 18, {
+          color: colors[index],
+          size: 7.5,
+          weight: 700,
+          opacity,
+        });
+        wrappedLabel(ctx, "Software development", center.x, center.y + 4, innerRadius * 1.45, 13, {
+          color: TEXT,
           size: 11.5,
           weight: 600,
           opacity,
         });
       } else {
+        dot(
+          ctx,
+          iconX,
+          iconY,
+          count === 5 ? 8.5 : 6.8,
+          "rgba(255,255,255,.84)",
+          colors[index],
+          opacity,
+        );
+        label(ctx, symbols[industry], iconX, iconY, {
+          color: colors[index],
+          size: count === 5 ? 7.2 : 5.8,
+          weight: 700,
+          opacity,
+        });
         label(ctx, industry, labelX, labelY, {
-          color: TEXT,
-          size: count === 5 ? 8.8 : industry.length > 10 ? 6.5 : 7.2,
-          weight: 600,
+          color: colors[index],
+          size: count === 5 ? 8.8 : industry.length > 10 ? 6.2 : 7,
+          weight: 700,
           opacity,
         });
       }
@@ -736,50 +857,6 @@ function drawPie(ctx: CanvasRenderingContext2D, p: number) {
     ["Software", "Legal", "Finance", "Healthcare", "Education", "Retail", "Logistics", "Energy", "Media", "Manufacturing"],
     tenOpacity,
   );
-
-  label(ctx, "one field", 250, 365, {
-    color: ACCENT,
-    size: 11,
-    weight: 600,
-    opacity: oneOpacity,
-  });
-  label(ctx, "five fields", 250, 365, {
-    color: ACCENT,
-    size: 11,
-    weight: 600,
-    opacity: fiveOpacity,
-  });
-  label(ctx, "a larger market · ten kinds of work", 250, 365, {
-    color: ACCENT,
-    size: 11,
-    weight: 600,
-    opacity: tenOpacity,
-  });
-}
-
-function drawFuture(ctx: CanvasRenderingContext2D, p: number) {
-  const nodes = [
-    { name: "AI capability", x: 250, y: 59 },
-    { name: "real work", x: 410, y: 148 },
-    { name: "acceptance", x: 371, y: 307 },
-    { name: "evaluation data", x: 129, y: 307 },
-    { name: "better target", x: 90, y: 148 },
-  ];
-  nodes.forEach((node, index) => {
-    const reveal = ease((p - index * 0.12) / 0.18);
-    if (index > 0) {
-      const prev = nodes[index - 1];
-      arrow(ctx, prev.x, prev.y, node.x, node.y, index >= 2 ? ACCENT : MUTED, reveal * 0.75);
-    }
-    box(ctx, node.x - 55, node.y - 19, 110, 38, index === 2 || index === 3, reveal, 20);
-    label(ctx, node.name, node.x, node.y, { color: index === 2 || index === 3 ? ACCENT : TEXT, size: 10.5, weight: index === 2 ? 600 : 400, opacity: reveal });
-  });
-  const close = ease((p - 0.62) / 0.2);
-  arrow(ctx, nodes[4].x, nodes[4].y, nodes[0].x, nodes[0].y, ACCENT, close);
-  dot(ctx, 250, 190, 48, WHITE, ACCENT, ease((p - 0.68) / 0.16));
-  label(ctx, "Did the work", 250, 183, { color: TEXT, size: 13, weight: 600, opacity: ease((p - 0.7) / 0.14) });
-  label(ctx, "count?", 250, 204, { color: ACCENT, size: 15, weight: 600, opacity: ease((p - 0.74) / 0.14) });
-  label(ctx, "real acceptance keeps the improvement loop tied to utility", 250, 382, { color: ACCENT, size: 11, italic: true, opacity: ease((p - 0.82) / 0.14) });
 }
 
 const drawers: Record<SceneName, (ctx: CanvasRenderingContext2D, progress: number) => void> = {
@@ -787,7 +864,6 @@ const drawers: Record<SceneName, (ctx: CanvasRenderingContext2D, progress: numbe
   proximity: drawProximity,
   coding: drawCoding,
   pie: drawPie,
-  future: drawFuture,
 };
 
 function ScrollDiagram({
@@ -835,7 +911,7 @@ function ScrollDiagram({
     const requestPaint = () => {
       if (!frame) frame = window.requestAnimationFrame(paint);
     };
-    const assetPaths = scene === "proximity" ? logoPaths : scene === "pie" ? piePaths : [];
+    const assetPaths = scene === "proximity" ? logoPaths : [];
     const imageCleanups = assetPaths.map((path) => {
       const image = canvasImage(path);
       if (!image) return () => undefined;
@@ -1132,7 +1208,7 @@ export default function Home() {
           <ScrollDiagram
             scene="pie"
             labelText="A growing, diverse market"
-            caption="As Proof-of-Workflow spreads, the market grows—and its slices become more diverse."
+            caption="As Proof-of-Workflow spreads, the market grows and its slices become more diverse."
           >
             <p>
               And as value begins to accumulate around judgment, more players will naturally offer these
@@ -1143,11 +1219,7 @@ export default function Home() {
               work into organization-specific evaluations.<sup><a href="#note-2">2</a></sup>
             </p>
           </ScrollDiagram>
-          <ScrollDiagram
-            scene="future"
-            labelText="A compounding feedback loop"
-            caption="Each acceptance decision gives the next version a better target."
-          >
+          <ProseSection labelText="A compounding feedback loop">
             <p>
               No matter who runs PoW, its larger value is that it connects fast-growing AI capability to work
               people actually need. As enterprises make their standards clearer, vendors can test and improve
@@ -1159,7 +1231,7 @@ export default function Home() {
               self-improvement, making the shift deeply positive-sum and turning more AI capability into more
               utility for everyone.
             </p>
-          </ScrollDiagram>
+          </ProseSection>
           <p className="final-question">Finally, as AI takes on more of the world’s work, one question will matter most. <em>Did the work count?</em></p>
           <ol className="source-notes">
             <li id="note-1">Measuring Agents in Production: <a href="https://arxiv.org/abs/2512.04123">https://arxiv.org/abs/2512.04123</a></li>
