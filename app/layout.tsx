@@ -10,19 +10,19 @@ export async function generateMetadata(): Promise<Metadata> {
 
   return {
     metadataBase: new URL(origin),
-    title: "The Quiet Work of Reliable AI",
-    description: "Why dependable systems are built from loops, not leaps.",
+    title: "Proof-of-Workflow",
+    description: "AI evaluation based on real workflows and organizational acceptance.",
     openGraph: {
-      title: "The Quiet Work of Reliable AI",
-      description: "Why dependable systems are built from loops, not leaps.",
+      title: "Proof-of-Workflow",
+      description: "AI evaluation based on real workflows and organizational acceptance.",
       type: "article",
-      images: [{ url: `${origin}/og.png`, width: 1536, height: 1024 }],
+      images: [{ url: `${origin}/og-proof-of-workflow.png`, width: 1774, height: 887 }],
     },
     twitter: {
       card: "summary_large_image",
-      title: "The Quiet Work of Reliable AI",
-      description: "Why dependable systems are built from loops, not leaps.",
-      images: [`${origin}/og.png`],
+      title: "Proof-of-Workflow",
+      description: "AI evaluation based on real workflows and organizational acceptance.",
+      images: [`${origin}/og-proof-of-workflow.png`],
     },
   };
 }

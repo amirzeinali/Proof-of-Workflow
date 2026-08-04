@@ -2,7 +2,13 @@
 
 import { ReactNode, useEffect, useRef } from "react";
 
-type SceneName = "system" | "loop" | "memory" | "parallel" | "stability";
+type SceneName =
+  | "criteria"
+  | "acceptance"
+  | "proximity"
+  | "coding"
+  | "economics"
+  | "future";
 
 const INK = "#262624";
 const TEXT = "#2a2926";
@@ -10,9 +16,15 @@ const MUTED = "#8c8a80";
 const ACCENT = "#9b2d2d";
 const ACCENT_LIGHT = "rgba(155,45,45,.16)";
 const PAPER = "#f4f3ee";
+const WHITE = "rgba(255,255,255,.68)";
 
 const clamp = (value: number, min = 0, max = 1) =>
   Math.max(min, Math.min(max, value));
+
+const ease = (value: number) => {
+  const t = clamp(value);
+  return t * t * (3 - 2 * t);
+};
 
 function line(
   ctx: CanvasRenderingContext2D,
@@ -82,237 +94,297 @@ function label(
   ctx.restore();
 }
 
+function wrappedLabel(
+  ctx: CanvasRenderingContext2D,
+  value: string,
+  x: number,
+  y: number,
+  maxWidth: number,
+  lineHeight = 14,
+  options: Parameters<typeof label>[4] = {},
+) {
+  const words = value.split(" ");
+  const lines: string[] = [];
+  let current = "";
+  ctx.save();
+  ctx.font = `${options.italic ? "italic " : ""}${options.weight ?? 400} ${options.size ?? 12}px "Avenir Next", "Helvetica Neue", Arial, sans-serif`;
+  words.forEach((word) => {
+    const next = current ? `${current} ${word}` : word;
+    if (ctx.measureText(next).width > maxWidth && current) {
+      lines.push(current);
+      current = word;
+    } else current = next;
+  });
+  if (current) lines.push(current);
+  ctx.restore();
+  lines.forEach((row, index) => label(ctx, row, x, y + index * lineHeight, options));
+}
+
 function box(
   ctx: CanvasRenderingContext2D,
   x: number,
   y: number,
   width: number,
   height: number,
-  textValue: string,
   active = false,
   opacity = 1,
+  radius = 8,
 ) {
   ctx.save();
   ctx.globalAlpha = opacity;
-  ctx.fillStyle = active ? ACCENT_LIGHT : "rgba(255,255,255,.64)";
-  ctx.strokeStyle = active ? ACCENT : INK;
-  ctx.lineWidth = active ? 2 : 1.5;
+  ctx.fillStyle = active ? ACCENT_LIGHT : WHITE;
+  ctx.strokeStyle = active ? ACCENT : MUTED;
+  ctx.lineWidth = active ? 1.8 : 1.1;
   ctx.beginPath();
-  ctx.roundRect(x, y, width, height, 8);
+  ctx.roundRect(x, y, width, height, radius);
   ctx.fill();
   ctx.stroke();
   ctx.restore();
-  label(ctx, textValue, x + width / 2, y + height / 2 + 1, {
-    color: active ? ACCENT : TEXT,
-    size: 13,
-    weight: active ? 600 : 400,
-    opacity,
-  });
 }
 
-function drawSystem(ctx: CanvasRenderingContext2D, p: number) {
-  label(ctx, "same request", 250, 27, { italic: true, size: 12 });
-  dot(ctx, 145, 52, 5);
-  dot(ctx, 355, 52, 5);
-  label(ctx, "one-shot answer", 145, 92, { size: 12 });
-  label(ctx, "working system", 355, 92, { size: 12 });
-
-  const count = Math.max(1, Math.ceil(p * 7));
-  const left = [
-    [145, 135],
-    [137, 163],
-    [151, 191],
-  ];
-  left.forEach(([x, y], index) => {
-    const visible = p > index * 0.11 ? 1 : 0;
-    line(ctx, 145, 57, x, y - 5, MUTED, 0.8, visible * 0.5);
-    dot(ctx, x, y, 4, PAPER, INK, visible);
-  });
-
-  const right = [
-    [306, 134],
-    [350, 122],
-    [397, 139],
-    [314, 174],
-    [364, 166],
-    [409, 187],
-    [337, 205],
-  ];
-  right.forEach(([x, y], index) => {
-    const visible = index < count ? 1 : 0;
-    line(ctx, 355, 57, x, y - 5, MUTED, 0.8, visible * 0.5);
-    dot(ctx, x, y, 4, PAPER, INK, visible);
-  });
-
-  const axisY = 318;
-  line(ctx, 58, axisY, 454, axisY, MUTED, 1.2);
-  label(ctx, "fragile", 58, 338, { size: 11, align: "left" });
-  label(ctx, "reliable", 454, 338, { size: 11, align: "right" });
-  const threshold = 366;
-  line(ctx, threshold, axisY - 12, threshold, axisY + 12, ACCENT, 2);
-  label(ctx, "holds up", threshold, axisY - 20, {
-    color: ACCENT,
-    italic: true,
-    size: 11,
-  });
-
-  const project = (x: number) => 82 + ((x - 120) / 320) * 346;
-  [...left, ...right].forEach(([x, y], index) => {
-    const sideIndex = index < left.length ? index : index - left.length;
-    const visible = index < left.length ? p > sideIndex * 0.11 : sideIndex < count;
-    if (!visible || p < 0.48) return;
-    const q = index < left.length ? 112 + sideIndex * 18 : project(x);
-    line(ctx, x, y + 5, q, axisY - 3, MUTED, 0.7, 0.42);
-    const best = index === left.length + 5 && p > 0.82;
-    dot(ctx, q, axisY, best ? 5 : 2.6, best ? ACCENT : MUTED, best ? ACCENT : MUTED);
-    if (best) label(ctx, "best", q, axisY + 26, { color: ACCENT, size: 11, weight: 600 });
-  });
-}
-
-function drawLoop(ctx: CanvasRenderingContext2D, p: number) {
-  const stages = [
-    { name: "observe", x: 250, y: 72 },
-    { name: "plan", x: 388, y: 190 },
-    { name: "act", x: 250, y: 308 },
-    { name: "inspect", x: 112, y: 190 },
-  ];
-  const active = Math.min(3, Math.floor(p * 4));
+function check(ctx: CanvasRenderingContext2D, x: number, y: number, ok: boolean, opacity = 1) {
   ctx.save();
-  ctx.strokeStyle = MUTED;
-  ctx.lineWidth = 1.2;
-  ctx.setLineDash([4, 5]);
+  ctx.globalAlpha = opacity;
+  ctx.strokeStyle = ok ? ACCENT : MUTED;
+  ctx.lineWidth = 2.2;
   ctx.beginPath();
-  ctx.arc(250, 190, 116, -Math.PI / 2, Math.PI * 1.5 * clamp(p + 0.08));
+  if (ok) {
+    ctx.moveTo(x - 7, y);
+    ctx.lineTo(x - 1, y + 6);
+    ctx.lineTo(x + 9, y - 8);
+  } else {
+    ctx.moveTo(x - 6, y - 6);
+    ctx.lineTo(x + 6, y + 6);
+    ctx.moveTo(x + 6, y - 6);
+    ctx.lineTo(x - 6, y + 6);
+  }
   ctx.stroke();
   ctx.restore();
+}
 
-  stages.forEach((stage, index) => {
-    const visible = p >= index * 0.13 || index === 0;
-    box(ctx, stage.x - 46, stage.y - 21, 92, 42, stage.name, index === active, visible ? 1 : 0.14);
+function arrow(ctx: CanvasRenderingContext2D, x1: number, y1: number, x2: number, y2: number, color = MUTED, opacity = 1) {
+  line(ctx, x1, y1, x2, y2, color, 1.4, opacity);
+  const angle = Math.atan2(y2 - y1, x2 - x1);
+  line(ctx, x2, y2, x2 - 8 * Math.cos(angle - 0.55), y2 - 8 * Math.sin(angle - 0.55), color, 1.4, opacity);
+  line(ctx, x2, y2, x2 - 8 * Math.cos(angle + 0.55), y2 - 8 * Math.sin(angle + 0.55), color, 1.4, opacity);
+}
+
+function drawCriteria(ctx: CanvasRenderingContext2D, p: number) {
+  label(ctx, "one request, different definitions of success", 250, 20, {
+    color: TEXT,
+    size: 13,
+    weight: 600,
+  });
+  box(ctx, 30, 42, 440, 66, p < 0.2, 1);
+  label(ctx, "benchmark task", 48, 62, { color: ACCENT, size: 11, weight: 600, align: "left" });
+  wrappedLabel(ctx, "Rebook two travelers and pay with one stored travel credit", 48, 82, 395, 13, {
+    color: TEXT,
+    size: 11,
+    align: "left",
   });
 
-  dot(ctx, 250, 190, 38, "rgba(255,255,255,.7)", INK);
-  label(ctx, "feedback", 250, 184, { color: TEXT, size: 14, weight: 600 });
-  label(ctx, "changes the next move", 250, 204, { size: 10 });
+  const rows = [
+    { name: "Delta", rule: "use the customer’s gift card", ok: true },
+    { name: "American", rule: "credit only for its named traveler", ok: false },
+    { name: "Ryanair · before", rule: "verify identity before access", ok: false },
+    { name: "Ryanair · now", rule: "access without separate verification", ok: true },
+  ];
+  label(ctx, "live setting", 43, 129, { size: 10, align: "left", italic: true });
+  label(ctx, "what counts as success?", 204, 129, { size: 10, align: "left", italic: true });
+  label(ctx, "fixed test", 454, 129, { size: 10, align: "right", italic: true });
+  rows.forEach((row, index) => {
+    const reveal = ease((p - 0.08 - index * 0.13) / 0.18);
+    const y = 143 + index * 57;
+    box(ctx, 30, y, 440, 47, index === 3 && p > 0.72, reveal, 4);
+    label(ctx, row.name, 43, y + 23, { color: TEXT, size: 11, weight: 600, align: "left", opacity: reveal });
+    wrappedLabel(ctx, row.rule, 184, y + 18, 210, 12, { color: MUTED, size: 10, align: "left", opacity: reveal });
+    check(ctx, 446, y + 23, row.ok, reveal);
+  });
+  label(ctx, "the benchmark’s answer stays fixed; the workflow’s answer does not", 250, 384, {
+    color: ACCENT,
+    size: 11,
+    italic: true,
+    opacity: ease((p - 0.72) / 0.2),
+  });
+}
 
-  if (p > 0.72) {
-    const a = (p * 5 - 0.5) * Math.PI * 2;
-    const x = 250 + Math.cos(a) * 116;
-    const y = 190 + Math.sin(a) * 116;
-    dot(ctx, x, y, 5, ACCENT, ACCENT);
+function drawAcceptance(ctx: CanvasRenderingContext2D, p: number) {
+  const split = ease((p - 0.08) / 0.3);
+  label(ctx, "fixed benchmark", 130, 35, { color: TEXT, size: 13, weight: 600 });
+  label(ctx, "Proof-of-Workflow", 374, 35, { color: ACCENT, size: 13, weight: 600 });
+
+  box(ctx, 40, 62, 180, 250, false, 1);
+  ["same task", "same rubric", "same test setup"].forEach((item, index) => {
+    box(ctx, 65, 91 + index * 62, 130, 38, false, 1);
+    label(ctx, item, 130, 110 + index * 62, { color: index === 1 ? ACCENT : MUTED, size: 11 });
+  });
+  arrow(ctx, 130, 270, 130, 335, MUTED, 1);
+  label(ctx, "score", 130, 355, { color: TEXT, size: 12, weight: 600 });
+
+  box(ctx, 280, 62, 180, 250, p > 0.48, split || 0.08);
+  ["real work", "current rules", "people responsible"].forEach((item, index) => {
+    box(ctx, 305, 91 + index * 62, 130, 38, index === 2 && p > 0.55, split || 0.08);
+    label(ctx, item, 370, 110 + index * 62, { color: index === 2 ? ACCENT : MUTED, size: 11, opacity: split || 0.08 });
+  });
+  arrow(ctx, 370, 270, 370, 335, ACCENT, split);
+  label(ctx, "accepted", 370, 355, { color: ACCENT, size: 12, weight: 600, opacity: split });
+
+  const travel = ease((p - 0.72) / 0.22);
+  if (travel > 0) {
+    dot(ctx, 130 + 240 * travel, 355, 5, ACCENT, ACCENT);
+    label(ctx, "value moves from a proxy to the real decision", 250, 386, {
+      color: ACCENT,
+      size: 11,
+      italic: true,
+      opacity: travel,
+    });
   }
 }
 
-function drawMemory(ctx: CanvasRenderingContext2D, p: number) {
-  label(ctx, "everything that happened", 120, 48, { italic: true, size: 12 });
-  label(ctx, "what changes the future", 391, 48, { italic: true, size: 12 });
-  const events = Array.from({ length: 14 }, (_, index) => ({
-    x: 58 + (index % 4) * 38 + Math.sin(index * 2.1) * 8,
-    y: 94 + Math.floor(index / 4) * 50 + (index % 2) * 8,
-    keep: [1, 4, 7, 10, 12].includes(index),
-  }));
-  events.forEach((event, index) => {
-    const visible = p > index / 20;
-    if (!visible) return;
-    dot(ctx, event.x, event.y, 4, event.keep ? ACCENT_LIGHT : PAPER, event.keep ? ACCENT : MUTED);
-  });
-
-  line(ctx, 238, 72, 238, 304, MUTED, 1.2);
-  label(ctx, "filter", 238, 326, { italic: true, size: 11 });
-  const slots = [110, 153, 196, 239, 282];
-  const kept = events.filter((event) => event.keep);
-  box(ctx, 338, 84, 120, 218, "", p > 0.72, clamp((p - 0.45) / 0.2));
-  kept.forEach((event, index) => {
-    const travel = clamp((p - 0.34 - index * 0.06) / 0.32);
-    if (travel <= 0) return;
-    const targetX = 350;
-    const targetY = slots[index];
-    const x = event.x + (targetX - event.x) * travel;
-    const y = event.y + (targetY - event.y) * travel;
-    line(ctx, event.x, event.y, x, y, ACCENT, 0.8, 0.35);
-    dot(ctx, x, y, 4.5, ACCENT, ACCENT);
-  });
-  label(ctx, "working memory", 398, 324, { color: p > 0.72 ? ACCENT : MUTED, size: 12 });
-}
-
-function drawParallel(ctx: CanvasRenderingContext2D, p: number) {
-  box(ctx, 194, 38, 112, 44, "question", false);
-  const workers = [
-    { x: 58, y: 172, name: "research" },
-    { x: 194, y: 172, name: "reason" },
-    { x: 330, y: 172, name: "challenge" },
-  ];
-  workers.forEach((worker, index) => {
-    const visible = clamp((p - 0.12 - index * 0.07) / 0.12);
-    line(ctx, 250, 82, worker.x + 56, worker.y, MUTED, 1.1, visible);
-    box(ctx, worker.x, worker.y, 112, 44, worker.name, p > 0.42 && p < 0.7, visible);
-  });
-  box(ctx, 194, 304, 112, 44, "decision", p > 0.78, clamp((p - 0.52) / 0.16));
-  workers.forEach((worker, index) => {
-    const visible = clamp((p - 0.46 - index * 0.04) / 0.2);
-    line(ctx, worker.x + 56, worker.y + 44, 250, 304, MUTED, 1.1, visible);
-    if (visible > 0) {
-      const x = worker.x + 56 + (250 - (worker.x + 56)) * visible;
-      const y = worker.y + 44 + (304 - (worker.y + 44)) * visible;
-      dot(ctx, x, y, 4, ACCENT, ACCENT);
-    }
-  });
-  label(ctx, "independent work fans out; judgment comes back together", 250, 380, {
-    italic: true,
-    size: 11,
-    opacity: clamp((p - 0.75) / 0.2),
-  });
-}
-
-function drawStability(ctx: CanvasRenderingContext2D, p: number) {
-  const left = 62;
-  const bottom = 326;
-  const width = 390;
-  const height = 244;
-  line(ctx, left, bottom, left + width, bottom, MUTED, 1.3);
-  line(ctx, left, bottom, left, bottom - height, MUTED, 1.3);
-  label(ctx, "iterations →", left + width / 2, 350, { size: 11 });
-  label(ctx, "error", 33, bottom - height / 2, { size: 11 });
-  const targetY = 270;
+function drawMagnifier(ctx: CanvasRenderingContext2D, x: number, y: number, opacity = 1) {
   ctx.save();
-  ctx.setLineDash([4, 5]);
-  line(ctx, left, targetY, left + width, targetY, MUTED, 1, 0.7);
+  ctx.globalAlpha = opacity;
+  ctx.strokeStyle = ACCENT;
+  ctx.lineWidth = 3;
+  ctx.beginPath();
+  ctx.arc(x, y, 34, 0, Math.PI * 2);
+  ctx.stroke();
+  line(ctx, x + 24, y + 24, x + 56, y + 56, ACCENT, 5, opacity);
   ctx.restore();
-  label(ctx, "safe range", left + width, targetY - 12, { align: "right", italic: true, size: 11 });
-
-  const drawCurve = (stable: boolean, color: string, opacity: number) => {
-    ctx.save();
-    ctx.globalAlpha = opacity;
-    ctx.strokeStyle = color;
-    ctx.lineWidth = stable ? 2.2 : 1.2;
-    ctx.beginPath();
-    const points = 90;
-    const shown = Math.max(2, Math.floor(points * p));
-    for (let i = 0; i < shown; i += 1) {
-      const t = i / (points - 1);
-      const x = left + t * width;
-      const wave = stable
-        ? Math.sin(t * 28) * 82 * Math.exp(-t * 4.4)
-        : Math.sin(t * 22) * 70 + Math.sin(t * 55) * 24;
-      const y = targetY - 3 - wave;
-      if (i === 0) ctx.moveTo(x, y);
-      else ctx.lineTo(x, y);
-    }
-    ctx.stroke();
-    ctx.restore();
-  };
-  drawCurve(false, MUTED, 0.5);
-  drawCurve(true, ACCENT, 1);
-  label(ctx, "unchecked", 448, 112, { color: MUTED, size: 11, align: "right", opacity: p > 0.82 ? 1 : 0 });
-  label(ctx, "self-correcting", 448, 242, { color: ACCENT, size: 11, align: "right", weight: 600, opacity: p > 0.82 ? 1 : 0 });
 }
 
-const drawers: Record<SceneName, (ctx: CanvasRenderingContext2D, p: number) => void> = {
-  system: drawSystem,
-  loop: drawLoop,
-  memory: drawMemory,
-  parallel: drawParallel,
-  stability: drawStability,
+function drawProximity(ctx: CanvasRenderingContext2D, p: number) {
+  const stage = Math.min(2, Math.floor(p * 3));
+  const local = ease((p * 3) % 1);
+  const positions = [85, 235, 385];
+  const from = positions[Math.max(0, stage - 1)];
+  const lensX = stage === 0 ? positions[0] : from + (positions[stage] - from) * local;
+  const companies = ["Customer repo", "Airline", "Zoox"];
+  const evaluators = ["Codex / Claude Code", "Sierra", "Zoox evaluator"];
+  const modes = ["outside", "alongside", "inside"];
+
+  line(ctx, 65, 342, 438, 342, MUTED, 1.2);
+  positions.forEach((x, index) => {
+    line(ctx, x, 335, x, 350, index === stage ? ACCENT : MUTED, index === stage ? 2 : 1);
+    label(ctx, modes[index], x, 370, { color: index === stage ? ACCENT : MUTED, size: 11, weight: index === stage ? 600 : 400 });
+  });
+
+  box(ctx, 312, 54, 148, 245, stage === 2, 1, 10);
+  label(ctx, companies[stage], 386, 78, { color: stage === 2 ? ACCENT : TEXT, size: 15, weight: 600 });
+  label(ctx, "people", 386, 126, { size: 11 });
+  label(ctx, "rules", 386, 176, { size: 11 });
+  label(ctx, "private context", 386, 226, { size: 11 });
+  [126, 176, 226].forEach((y, index) => {
+    const visible = stage === 0 ? index === 0 : stage === 1 ? index < 2 : true;
+    dot(ctx, 340, y, 4, visible ? ACCENT_LIGHT : PAPER, visible ? ACCENT : MUTED, visible ? 1 : 0.28);
+    line(ctx, 349, y, 425, y, visible ? ACCENT : MUTED, 0.9, visible ? 0.55 : 0.2);
+  });
+
+  drawMagnifier(ctx, lensX, 185, 1);
+  label(ctx, evaluators[stage], lensX, 116, { color: ACCENT, size: 12, weight: 600 });
+  wrappedLabel(
+    ctx,
+    stage === 0 ? "sees the accepted result" : stage === 1 ? "learns the organization’s bar" : "interprets proprietary context",
+    lensX,
+    271,
+    145,
+    13,
+    { color: TEXT, size: 10 },
+  );
+}
+
+function drawCoding(ctx: CanvasRenderingContext2D, p: number) {
+  const items = [
+    { name: "Codex", mode: "outside", detail: "observes whether the change merged", x: 32 },
+    { name: "CodeRabbit", mode: "alongside", detail: "adapts to repository rules", x: 184 },
+    { name: "uReview", mode: "inside Uber", detail: "uses codebase + developer feedback", x: 336 },
+  ];
+  line(ctx, 70, 235, 430, 235, MUTED, 1.2);
+  arrow(ctx, 82, 235, 420, 235, MUTED, 0.75);
+  items.forEach((item, index) => {
+    const reveal = ease((p - index * 0.2) / 0.24);
+    const active = p >= index * 0.3 && p < (index + 1) * 0.34;
+    box(ctx, item.x, 91, 132, 110, active || index === 2 && p > 0.72, reveal, 8);
+    label(ctx, item.name, item.x + 66, 119, { color: active ? ACCENT : TEXT, size: 14, weight: 600, opacity: reveal });
+    label(ctx, item.mode, item.x + 66, 143, { color: active ? ACCENT : MUTED, italic: true, size: 10, opacity: reveal });
+    wrappedLabel(ctx, item.detail, item.x + 66, 169, 108, 12, { color: TEXT, size: 9.5, opacity: reveal });
+    dot(ctx, item.x + 66, 235, active ? 6 : 4, active ? ACCENT : PAPER, active ? ACCENT : MUTED, reveal);
+    const context = index + 1;
+    for (let ring = 0; ring < context; ring += 1) {
+      ctx.save();
+      ctx.globalAlpha = reveal * (0.48 - ring * 0.08);
+      ctx.strokeStyle = index === 2 ? ACCENT : MUTED;
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      ctx.arc(item.x + 66, 304, 13 + ring * 10, 0, Math.PI * 2);
+      ctx.stroke();
+      ctx.restore();
+    }
+  });
+  label(ctx, "more organizational context →", 250, 374, { color: ACCENT, size: 11, italic: true, opacity: ease((p - 0.7) / 0.2) });
+}
+
+function drawEconomics(ctx: CanvasRenderingContext2D, p: number) {
+  label(ctx, "what we count", 130, 30, { color: TEXT, size: 13, weight: 600 });
+  label(ctx, "what we value", 370, 30, { color: ACCENT, size: 13, weight: 600 });
+  box(ctx, 40, 57, 180, 240, false, 1);
+  label(ctx, "AI activity", 130, 84, { color: TEXT, size: 14, weight: 600 });
+  [0.48, 0.74, 0.9, 0.62].forEach((amount, index) => {
+    const y = 121 + index * 36;
+    label(ctx, index === 0 ? "tokens" : `retry ${index}`, 61, y, { size: 10, align: "left" });
+    line(ctx, 110, y, 195, y, "#d8d5cd", 7, 1);
+    line(ctx, 110, y, 110 + 85 * amount, y, index === 0 ? ACCENT : MUTED, 7, 1);
+  });
+  label(ctx, "$ activity", 130, 273, { color: MUTED, size: 12, weight: 600 });
+
+  const reveal = ease((p - 0.22) / 0.32);
+  box(ctx, 280, 57, 180, 240, p > 0.55, reveal || 0.06);
+  label(ctx, "accepted workflow", 370, 84, { color: ACCENT, size: 14, weight: 600, opacity: reveal });
+  ["AI attempt", "expert review", "accepted work"].forEach((item, index) => {
+    const y = 126 + index * 54;
+    box(ctx, 312, y - 16, 116, 32, index === 2, reveal, 5);
+    label(ctx, item, 370, y, { color: index === 2 ? ACCENT : TEXT, size: 10, weight: index === 2 ? 600 : 400, opacity: reveal });
+    if (index < 2) arrow(ctx, 370, y + 17, 370, y + 35, index === 1 ? ACCENT : MUTED, reveal);
+  });
+  label(ctx, "$ accepted outcome", 370, 273, { color: ACCENT, size: 12, weight: 600, opacity: reveal });
+
+  const shift = ease((p - 0.65) / 0.25);
+  arrow(ctx, 224, 327, 276, 327, ACCENT, shift);
+  label(ctx, "cost and pricing move to the same unit", 250, 362, { color: ACCENT, size: 11, italic: true, opacity: shift });
+}
+
+function drawFuture(ctx: CanvasRenderingContext2D, p: number) {
+  const nodes = [
+    { name: "AI capability", x: 250, y: 59 },
+    { name: "real work", x: 410, y: 148 },
+    { name: "acceptance", x: 371, y: 307 },
+    { name: "evaluation data", x: 129, y: 307 },
+    { name: "better target", x: 90, y: 148 },
+  ];
+  nodes.forEach((node, index) => {
+    const reveal = ease((p - index * 0.12) / 0.18);
+    if (index > 0) {
+      const prev = nodes[index - 1];
+      arrow(ctx, prev.x, prev.y, node.x, node.y, index >= 2 ? ACCENT : MUTED, reveal * 0.75);
+    }
+    box(ctx, node.x - 55, node.y - 19, 110, 38, index === 2 || index === 3, reveal, 20);
+    label(ctx, node.name, node.x, node.y, { color: index === 2 || index === 3 ? ACCENT : TEXT, size: 10.5, weight: index === 2 ? 600 : 400, opacity: reveal });
+  });
+  const close = ease((p - 0.62) / 0.2);
+  arrow(ctx, nodes[4].x, nodes[4].y, nodes[0].x, nodes[0].y, ACCENT, close);
+  dot(ctx, 250, 190, 48, WHITE, ACCENT, ease((p - 0.68) / 0.16));
+  label(ctx, "Did the work", 250, 183, { color: TEXT, size: 13, weight: 600, opacity: ease((p - 0.7) / 0.14) });
+  label(ctx, "count?", 250, 204, { color: ACCENT, size: 15, weight: 600, opacity: ease((p - 0.74) / 0.14) });
+  label(ctx, "real acceptance keeps the improvement loop tied to utility", 250, 382, { color: ACCENT, size: 11, italic: true, opacity: ease((p - 0.82) / 0.14) });
+}
+
+const drawers: Record<SceneName, (ctx: CanvasRenderingContext2D, progress: number) => void> = {
+  criteria: drawCriteria,
+  acceptance: drawAcceptance,
+  proximity: drawProximity,
+  coding: drawCoding,
+  economics: drawEconomics,
+  future: drawFuture,
 };
 
 function ScrollDiagram({
@@ -320,11 +392,13 @@ function ScrollDiagram({
   labelText,
   caption,
   children,
+  longCopy = false,
 }: {
   scene: SceneName;
   labelText: string;
   caption: string;
   children: ReactNode;
+  longCopy?: boolean;
 }) {
   const sectionRef = useRef<HTMLDivElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -335,18 +409,15 @@ function ScrollDiagram({
     if (!section || !canvas) return;
     const context = canvas.getContext("2d");
     if (!context) return;
-
     const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     let frame = 0;
 
     const paint = () => {
       frame = 0;
       const ratio = Math.min(window.devicePixelRatio || 1, 2);
-      const pixelWidth = Math.round(500 * ratio);
-      const pixelHeight = Math.round(400 * ratio);
-      if (canvas.width !== pixelWidth || canvas.height !== pixelHeight) {
-        canvas.width = pixelWidth;
-        canvas.height = pixelHeight;
+      if (canvas.width !== Math.round(500 * ratio) || canvas.height !== Math.round(400 * ratio)) {
+        canvas.width = Math.round(500 * ratio);
+        canvas.height = Math.round(400 * ratio);
       }
       context.setTransform(ratio, 0, 0, ratio, 0, 0);
       context.clearRect(0, 0, 500, 400);
@@ -354,11 +425,10 @@ function ScrollDiagram({
       context.lineJoin = "round";
       const rect = section.getBoundingClientRect();
       const mobile = window.innerWidth <= 900;
-      const travel = Math.max(280, rect.height - 390);
+      const travel = Math.max(300, rect.height - 390);
       const progress = reduced || mobile ? 0.999 : clamp((56 - rect.top) / travel, 0, 0.999);
       drawers[scene](context, progress);
     };
-
     const requestPaint = () => {
       if (!frame) frame = window.requestAnimationFrame(paint);
     };
@@ -376,19 +446,14 @@ function ScrollDiagram({
   }, [scene]);
 
   return (
-    <div className="scroll-section has-scene" ref={sectionRef}>
+    <div className={`scroll-section has-scene${longCopy ? " long-copy" : ""}`} ref={sectionRef}>
       <div className="section-inner">
         <div className="section-copy">
           <span className="section-label">{labelText}</span>
           {children}
         </div>
         <div className="section-viz">
-          <canvas
-            className="diagram-canvas"
-            ref={canvasRef}
-            role="img"
-            aria-label={caption}
-          />
+          <canvas className="diagram-canvas" ref={canvasRef} role="img" aria-label={caption} />
           <p className="viz-caption">{caption}</p>
         </div>
       </div>
@@ -410,149 +475,229 @@ export default function Home() {
     <main className="wrapper">
       <article className="post">
         <header className="scroll-header">
-          <h1>The Quiet Work of Reliable AI</h1>
-          <p className="post-subtitle">Why dependable systems are built from loops, not leaps</p>
-          <p className="post-meta">
-            A field note · <time dateTime="2026-08-04">August 2026</time>
-          </p>
+          <h1>Proof-of-Workflow</h1>
+          <p className="post-subtitle">AI evaluation based on real workflows</p>
+          <p className="post-meta">A research note · <time dateTime="2026-08-04">August 2026</time></p>
         </header>
 
-        <p className="mobile-notice">
-          The diagrams are scroll-driven on larger screens and shown in their complete state here.
-        </p>
+        <aside className="tldr" aria-labelledby="tldr-title">
+          <span className="section-label" id="tldr-title">TL;DR</span>
+          <p>
+            Fixed benchmarks are becoming less useful for evaluating AI because they test fixed criteria,
+            while every organization has different criteria that change with its work. Evaluation should
+            instead prove that an AI-generated outcome meets those criteria inside the workflow as it
+            actually operates—and is <strong>accepted</strong> by the people responsible for the work.
+          </p>
+          <p>
+            We use <strong>Proof-of-Workflow</strong>, or <strong>PoW</strong>, as an umbrella term for these
+            acceptance-based evaluation approaches. This essay explains why the shift is happening, why PoW
+            is a better measure, who is best positioned to run it, how it changes AI economics, and what it
+            could unlock.
+          </p>
+        </aside>
+
+        <p className="mobile-notice">The diagrams are scroll-driven on larger screens and shown complete here.</p>
 
         <section className="act-group" aria-labelledby="act-one">
-          <h2 className="act-heading" id="act-one">The myth of the perfect prompt</h2>
+          <h2 className="act-heading" id="act-one">When work changes, evaluation must too</h2>
           <ScrollDiagram
-            scene="system"
-            labelText="§ 1.1 — A system, not a sentence"
-            caption="The same request. One path ends; the other learns."
+            scene="criteria"
+            labelText="§ 1.1 — One request, four definitions of success"
+            caption="A fixed rubric can pass the wrong workflow—and fail the right one."
           >
             <p>
-              We like to imagine that reliability begins with the right sentence: a prompt so precise that
-              the model has no room to wander. But a prompt can only describe the first move. It cannot see
-              the result, notice what went wrong, or decide what should happen next.
+              Benchmarks are getting much better at testing AI on end-to-end professional tasks.
+              <a href="https://www.swebench.com/original.html"> SWE-bench</a> asks agents to fix real software
+              issues, <a href="https://www.mercor.com/apex/apex-agents-leaderboard/">APEX-Agents</a> covers
+              investment banking, consulting, and law, <a href="https://arxiv.org/abs/2605.16679">χ-Bench</a>
+              tests healthcare, and <a href="https://taubench.com/">τ-bench</a> evaluates customer-service agents.
             </p>
             <p>
-              A dependable workflow treats the first answer as evidence, not closure. It observes the output,
-              checks it against the goal, and uses what it learns to shape the next attempt. The intelligence
-              is not in any single leap. It is in the loop that keeps making smaller, better-informed moves.
+              Yet every benchmark applies the same criteria to everyone. Real workflow criteria differ across
+              organizations and change over time. Consider an
+              <a href="https://github.com/sierra-research/tau2-bench/blob/main/data/tau2/domains/airline/tasks.json#L444-L543"> airline support task</a>:
+              rebook two travelers and pay with one stored travel credit.
             </p>
           </ScrollDiagram>
-          <TextSection labelText="§ 1.2 — Reliability compounds">
+          <TextSection labelText="§ 1.2 — The rubric is not the workflow">
             <p>
-              One-shot systems hide uncertainty behind a polished response. Working systems expose it. They
-              separate what is known from what is assumed, keep risky actions reversible, and stop when the
-              evidence no longer supports the plan.
+              The benchmark’s rubric only captures what works for the airline it was designed around. The
+              same agent behavior might be correct for Delta, misuse a named credit at American Airlines, or
+              violate Ryanair’s current identity rules. An agent can pass the test and still break company
+              policy, expose customer data, or approve an invalid transaction.
             </p>
             <p>
-              Each pass may look modest. Together, the passes compound: context gets cleaner, errors get
-              cheaper, and confidence is earned by inspection rather than tone.
+              Airlines also make different tradeoffs around payment rules, cost, and latency. Even an internal
+              benchmark can become outdated as those rules change. A fixed score is evidence, but it is not a
+              universal definition of success.
             </p>
           </TextSection>
         </section>
 
         <section className="act-group" aria-labelledby="act-two">
-          <h2 className="act-heading" id="act-two">Build the loop</h2>
+          <h2 className="act-heading" id="act-two">A better way to judge AI work</h2>
           <ScrollDiagram
-            scene="loop"
-            labelText="§ 2.1 — Observe, plan, act, inspect"
-            caption="A useful loop changes its next move with every pass."
+            scene="acceptance"
+            labelText="§ 2.1 — From a proxy score to real acceptance"
+            caption="Proof-of-Workflow asks whether the work cleared the real production bar."
           >
             <p>
-              The smallest useful operating cycle has four verbs. Observe the current state. Plan a bounded
-              move. Act where the change is safe. Inspect the new state before continuing. Skip any one of
-              them and the loop loses its grip on reality.
+              <a href="https://metr.org/notes/2026-03-10-many-swe-bench-passing-prs-would-not-be-merged-into-main/">Academic studies</a> and
+              <a href="https://aws.amazon.com/blogs/machine-learning/evaluating-ai-agents-real-world-lessons-from-building-agentic-systems-at-amazon/"> industry reports</a> identify the same gap between benchmark criteria and practical approval. Organizations increasingly pair scores with live measures such as A/B tests and user feedback.
             </p>
             <p>
-              Observation prevents stale assumptions. Planning keeps effort pointed at the goal. Action
-              creates evidence. Inspection closes the gap between intention and result. The cycle is simple;
-              following it consistently is the hard part.
+              The most direct measure is whether an organization actually accepts AI-generated work in its
+              real workflow. We refer to these approaches collectively as <strong>Proof-of-Workflow</strong>.
             </p>
+            <div className="choice-box">
+              <h3>People responsible for the work decide what counts</h3>
+              <p>The organization sees current rules and tradeoffs that cannot fit inside a simplified rubric.</p>
+            </div>
+            <div className="choice-box">
+              <h3>The test uses the real data and tools</h3>
+              <p>Performance is measured in the setting where value is actually created, not an arbitrary test setup.</p>
+            </div>
           </ScrollDiagram>
-          <TextSection labelText="§ 2.2 — Prefer reversible progress">
-            <p>
-              Large changes feel efficient because they compress many decisions into one. They also compress
-              many failure modes into one. Smaller moves preserve optionality: we can inspect, correct, or
-              back out before a weak assumption spreads through the whole system.
-            </p>
-            <blockquote>
-              The best next action is often not the boldest one. It is the one that teaches us the most while
-              putting the least at risk.
-            </blockquote>
-          </TextSection>
         </section>
 
         <section className="act-group" aria-labelledby="act-three">
-          <h2 className="act-heading" id="act-three">Memory without mythology</h2>
+          <h2 className="act-heading" id="act-three">How close the evaluator must be</h2>
           <ScrollDiagram
-            scene="memory"
-            labelText="§ 3.1 — Keep what changes the future"
-            caption="Memory is a filter, not a warehouse."
+            scene="proximity"
+            labelText="§ 3.1 — Outside, alongside, or inside"
+            caption="The evaluator moves closer as acceptance depends on more organizational context."
+            longCopy
           >
             <p>
-              More context is not the same as better memory. A transcript records everything: false starts,
-              temporary constraints, repeated explanations, and decisions that were later reversed. Carry it
-              all forward and the signal disappears inside its own history.
+              The right evaluator depends on how close it must be to the organization’s people, rules, and
+              private context to understand the approval decision reliably.
+            </p>
+            <h3 className="case-heading">Case 1 · Outside the organization</h3>
+            <p>
+              Some workflows record acceptance through a clear event an outside evaluator can interpret with
+              limited company context. Codex and Claude Code can observe whether a proposed code change was
+              reviewed and merged. The organization still decides; the evaluator sees the result.
             </p>
             <p>
-              Useful memory is selective. It keeps durable facts, unresolved decisions, user preferences, and
-              the reasons behind important choices. Everything else can remain in the record without steering
-              the next move.
+              Outside does not mean disconnected. The evaluator still needs access to the work and its final
+              outcome. It simply does not need to reconstruct every company-specific reason behind the decision.
+            </p>
+            <h3 className="case-heading">Case 2 · Alongside the organization</h3>
+            <p>
+              When the acceptance bar is company-specific but explainable, an outside evaluator can work in
+              close collaboration. Sierra can learn an airline’s fare rules, privacy requirements, and
+              definition of resolution while reusing a common evaluation process across customers.
+            </p>
+            <p>
+              The same pattern appears elsewhere: Ramp can observe whether an expense recommendation stands,
+              Harvey whether lawyers approve a draft, and Abridge whether clinicians sign a note.
+            </p>
+            <h3 className="case-heading">Case 3 · Inside the organization</h3>
+            <p>
+              Some acceptance decisions require so much internal context that an outside evaluator cannot
+              interpret them reliably. Zoox is a clear example: test results only become meaningful through
+              proprietary vehicle design, safety standards, and operating conditions. The final PoW evaluation
+              belongs inside Zoox.
+            </p>
+          </ScrollDiagram>
+
+          <ScrollDiagram
+            scene="coding"
+            labelText="§ 3.2 — The coding spectrum"
+            caption="Coding shows all three evaluator positions inside one domain."
+          >
+            <p>
+              Coding makes the proximity spectrum concrete. Codex can observe a merge from outside.
+              CodeRabbit works alongside teams by adapting to repository rules. Uber keeps its own review
+              system, <strong>uReview</strong>, inside because useful judgment depends on its codebase and
+              developer feedback.
+            </p>
+            <p>
+              PoW therefore does not need to come from a company whose main business is evaluation. The best
+              evaluator is often simply the one already close enough to the workflow to see whether people
+              actually approve the AI-generated outcome.
             </p>
           </ScrollDiagram>
         </section>
 
         <section className="act-group" aria-labelledby="act-four">
-          <h2 className="act-heading" id="act-four">Coordination at scale</h2>
+          <h2 className="act-heading" id="act-four">From AI use to AI value</h2>
           <ScrollDiagram
-            scene="parallel"
-            labelText="§ 4.1 — Parallel when independent"
-            caption="Independent work fans out; judgment comes back together."
+            scene="economics"
+            labelText="§ 4.1 — Cost and pricing follow accepted work"
+            caption="The economic unit shifts from AI activity to accepted workflows."
+            longCopy
           >
             <p>
-              Parallel work is valuable when the branches can genuinely proceed alone: one path gathers
-              evidence, another develops an approach, and a third tries to disprove it. Running dependent
-              steps at the same time only creates a race between incomplete assumptions.
+              Proof-of-Workflow reshapes AI economics in two linked stages. First it changes how we measure
+              cost. Once accepted work becomes that unit of measurement, it can become the basis for pricing.
+            </p>
+            <h3 className="case-heading">Cost shifts from activity to accepted work</h3>
+            <p>
+              Tokens tell us how much AI was used, not whether the work was good enough to use. Cheap inference
+              can become expensive after retries and expert corrections, while a more expensive model may lower
+              total cost if it clears the production bar in fewer attempts.
             </p>
             <p>
-              The branches must converge. Their purpose is not to produce more text but to create different
-              evidence for one decision. Good coordination knows when to fan out, what each branch owns, and
-              where synthesis must happen.
+              Satya Nadella has argued for optimizing the
+              <a href="https://www.itpro.com/technology/artificial-intelligence/we-are-now-seeing-mai-models-outperform-general-purpose-frontier-models-microsoft-ceo-satya-nadella-touts-in-house-models-to-cut-spiralling-ai-costs-and-reduce-growing-reliance-on-frontier-labs"> cost-to-outcome frontier</a>, while OpenAI CFO Sarah Friar frames the metric as
+              <a href="https://openai.com/index/a-scorecard-for-the-ai-age/"> cost per successful task</a>.
+              PoW defines success as acceptance in the real workflow: cost per accepted workflow.
+            </p>
+            <h3 className="case-heading">Pricing follows the same unit</h3>
+            <p>
+              Sierra already charges when its agents achieve business outcomes agreed with the customer. The
+              same commercial logic is appearing in
+              <a href="https://www.intercom.com/help/en/articles/8205718-fin-ai-agent-outcomes"> customer support</a>,
+              <a href="https://www.eudia.com/blog/the-roi-of-an-ai-native-law-firm"> legal services</a>,
+              <a href="https://swordhealth.com/value/fair-pricing"> healthcare</a>, and
+              <a href="https://www.riskified.com/chargeback-guarantee/"> finance</a>. Pricing moves away from AI
+              activity and toward work that meets the customer’s needs.
             </p>
           </ScrollDiagram>
-          <TextSection labelText="§ 4.2 — Synchronize on decisions">
-            <p>
-              Coordination becomes expensive when every participant shares every detail. A better boundary is
-              the decision: communicate the result, the evidence that supports it, and any uncertainty that
-              changes downstream work. Let the rest stay local.
-            </p>
-          </TextSection>
         </section>
 
         <section className="act-group" aria-labelledby="act-five">
-          <h2 className="act-heading" id="act-five">The operating principle</h2>
+          <h2 className="act-heading" id="act-five">What better evaluation could unlock</h2>
           <ScrollDiagram
-            scene="stability"
-            labelText="§ 5.1 — Calm systems correct themselves"
-            caption="Feedback turns repeated motion into convergence."
+            scene="future"
+            labelText="§ 5.1 — Judgment closes the improvement loop"
+            caption="Every acceptance decision gives the next system a better target."
+            longCopy
           >
             <p>
-              A reliable system is not one that never drifts. It is one that notices drift early and has a
-              practiced way back. The difference is visible over time: unchecked work oscillates around the
-              goal, while inspected work narrows its error with every pass.
+              Evaluating AI in real workflows is not a new idea;
+              <a href="https://agents.cs.princeton.edu/"> AI Agents That Matter</a> argued for it in 2024. What
+              changed is the timing. AI can now attempt serious professional workflows end to end, creating a
+              new bottleneck: deciding which outputs are reliable enough to use.
             </p>
             <p>
-              This is the quiet work behind dependable AI. Observe before assuming. Move in ways that can be
-              reversed. Keep only the memory that shapes the future. Parallelize independent thought, then
-              bring judgment back to one place. Reliability is not a personality trait. It is an architecture.
+              <a href="https://arxiv.org/abs/2607.01904">Production research</a> suggests that reliable judgment
+              is becoming scarce—an idea Alfred Lin has also
+              <a href="https://outlierspath.com/2026/03/23/ai-adoption-vs-ai-advantage/"> discussed</a>. That
+              scarcity makes evaluation, including PoW, increasingly valuable.
+            </p>
+            <p>
+              No single method or player can cover every acceptance decision. Data and evaluation companies are
+              entering too: Scale AI is turning expert approvals from real work into organization-specific
+              evaluations through <a href="https://scale.com/blog/dialect">Dialect</a>.
+            </p>
+            <p>
+              As enterprises make standards clearer, vendors can improve systems against human judgment and
+              organizations can hand more nuanced work to AI with greater confidence. Because those decisions
+              come from real work, the feedback loop can keep up with work that is varied and fast-changing.
+            </p>
+            <p>
+              As that loop spreads across industries, the gains can compound. Proof-of-Workflow can ground
+              recursive improvement in actual utility—turning more AI capability into more useful work.
             </p>
           </ScrollDiagram>
+          <p className="final-question">As AI takes on more of the world’s work, one question will matter most: <em>Did the work count?</em></p>
         </section>
 
         <footer className="post-footer">
-          <span>Field note 01</span>
-          <span>Built to be revised</span>
+          <span>Proof-of-Workflow</span>
+          <span>Acceptance is the measure</span>
         </footer>
       </article>
     </main>
