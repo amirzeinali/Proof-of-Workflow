@@ -989,14 +989,14 @@ function drawSmiley(
 }
 
 function drawCompounding(ctx: CanvasRenderingContext2D, p: number) {
-  const cycleValue = Math.min(3.999, p * 4);
+  const cycleValue = Math.min(2.999, p * 3);
   const cycle = Math.floor(cycleValue);
   const local = cycleValue - cycle;
   const growth = smootherEase((local - 0.72) / 0.24);
   const counts = (values: number[]) => values[cycle] + (values[cycle + 1] - values[cycle]) * growth;
-  const organizationCount = counts([2, 4, 7, 11, 16]);
-  const intelligenceCount = counts([1, 3, 5, 8, 13]);
-  const utilityCount = counts([1, 3, 6, 11, 18]);
+  const organizationCount = counts([3, 14, 38, 85]);
+  const intelligenceCount = counts([2, 11, 34, 75]);
+  const utilityCount = counts([2, 16, 46, 100]);
 
   const pathState = (start: number, end: number) => {
     const duration = end - start;
@@ -1043,79 +1043,63 @@ function drawCompounding(ctx: CanvasRenderingContext2D, p: number) {
   flowArrow(ctx, orgToUtility[0], orgToUtility[1], orgToUtility[2], orgToUtility[3], SUCCESS, intoUtility.opacity, intoUtility.progress, 2.4);
 
   const organizationColors = ["#9d5961", "#557b7d", "#917747", "#60718c", "#756681", "#66806f"];
-  const organizationPositions = [
-    [-34, -27], [-8, -34], [18, -29], [39, -18],
-    [-41, -4], [-14, -7], [13, -5], [40, 5],
-    [-36, 20], [-9, 18], [19, 22], [41, 29],
-    [-24, 42], [4, 42], [29, 47], [1, -51],
-  ];
-  organizationPositions.forEach(([offsetX, offsetY], index) => {
+  const cloudPoint = (index: number, total: number, radiusX: number, radiusY: number, phase: number) => {
+    const distance = Math.sqrt((index + 1) / total);
+    const angle = index * 2.399963 + phase;
+    return {
+      x: Math.cos(angle) * radiusX * distance,
+      y: Math.sin(angle) * radiusY * distance,
+    };
+  };
+  Array.from({ length: 85 }).forEach((_, index) => {
     const reveal = smootherEase(clamp(organizationCount - index));
+    const point = cloudPoint(index, 85, 68, 57, 0.35);
     drawCompanyTile(
       ctx,
-      120 + offsetX,
-      146 + offsetY,
+      120 + point.x,
+      146 + point.y,
       organizationColors[index % organizationColors.length],
-      reveal,
-      index < 2 ? 1.08 : 0.92 + reveal * 0.08,
+      reveal * (index < 14 ? 1 : 0.82),
+      index < 3 ? 1.02 : Math.max(0.42, 0.78 - index * 0.004),
     );
   });
 
   const brainColors = ["#557b7d", "#9a6b59", "#756681", "#66806f"];
-  const brainPositions = [
-    [0, 0], [-27, -10], [27, -9], [-13, 22], [17, 23],
-    [-46, 14], [46, 13], [-37, -33], [37, -31], [0, -40],
-    [-58, -14], [58, -12], [1, 47],
-  ];
-  brainPositions.forEach(([offsetX, offsetY], index) => {
+  Array.from({ length: 75 }).forEach((_, index) => {
     const reveal = smootherEase(clamp(intelligenceCount - index));
+    const point = cloudPoint(index, 75, 70, 55, 1.15);
     drawBrainIcon(
       ctx,
-      351 + offsetX,
-      301 + offsetY,
-      index === 0 ? 35 : 23,
+      351 + point.x,
+      301 + point.y,
+      index < 2 ? 31 : Math.max(9, 18 - index * 0.1),
       brainColors[index % brainColors.length],
-      reveal,
+      reveal * (index < 11 ? 1 : 0.78),
     );
   });
 
   const smileColors = ["#66806f", "#917747", "#557b7d", "#9d5961", "#756681"];
-  Array.from({ length: 18 }).forEach((_, index) => {
+  Array.from({ length: 100 }).forEach((_, index) => {
     const reveal = smootherEase(clamp(utilityCount - index));
-    const row = Math.floor(index / 5);
-    const column = index % 5;
+    const point = cloudPoint(index, 100, 70, 61, 2.1);
     drawSmiley(
       ctx,
-      370 + column * 19 + (row % 2) * 6,
-      96 + row * 22,
-      index === 0 ? 13 : 8.2,
+      409 + point.x,
+      137 + point.y,
+      index < 2 ? 12 : Math.max(4.2, 8 - index * 0.03),
       smileColors[index % smileColors.length],
-      reveal,
+      reveal * (index < 16 ? 1 : 0.76),
     );
   });
 
   const powActivity = Math.max(intoPow.opacity, intoIntelligence.opacity, backToOrganizations.opacity * 0.55);
-  for (let ring = 0; ring <= cycle; ring += 1) {
-    ctx.save();
-    ctx.globalAlpha = 0.14 + ring * 0.025;
-    ctx.strokeStyle = ACCENT;
-    ctx.lineWidth = 0.8;
-    ctx.beginPath();
-    ctx.arc(250, 199, 28 + ring * 4, 0, Math.PI * 2);
-    ctx.stroke();
-    ctx.restore();
-  }
   dot(ctx, 250, 199, 25 + powActivity * 2, "rgba(255,255,255,.82)", ACCENT);
   label(ctx, "PoW", 250, 194, { color: ACCENT, size: 13, weight: 700 });
   label(ctx, "acceptance", 250, 209, { color: TEXT, size: 7.4, weight: 500 });
-  label(ctx, `cycle ${cycle + 1}`, 250, 241, { color: MUTED, size: 8.4, italic: true });
 
   label(ctx, "Organizations", 120, 67, { color: TEXT, size: 11, weight: 600 });
-  label(ctx, `${Math.round(organizationCount)} participating`, 120, 219, { color: MUTED, size: 8.4 });
-  label(ctx, "Utility", 409, 67, { color: TEXT, size: 11, weight: 600 });
-  label(ctx, `${Math.round(utilityCount)} outcomes`, 409, 190, { color: MUTED, size: 8.4 });
+  label(ctx, "Utility", 409, 55, { color: TEXT, size: 11, weight: 600 });
   label(ctx, "Intelligence", 351, 369, { color: TEXT, size: 11, weight: 600 });
-  label(ctx, `${Math.round(intelligenceCount)} gains`, 351, 384, { color: MUTED, size: 8.4 });
 }
 
 const drawers: Record<SceneName, (ctx: CanvasRenderingContext2D, progress: number) => void> = {
@@ -1150,6 +1134,7 @@ function ScrollDiagram({
     if (!context) return;
     const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     let frame = 0;
+    let manualProgress = 0;
 
     const paint = () => {
       frame = 0;
@@ -1164,10 +1149,12 @@ function ScrollDiagram({
       context.lineJoin = "round";
       const rect = section.getBoundingClientRect();
       const mobile = window.innerWidth <= 900;
-      const travel = longCopy
-        ? Math.max(300, rect.height - 390)
-        : Math.max(300, rect.height - (window.innerHeight - 56));
-      const progress = reduced || mobile ? 0.999 : clamp((56 - rect.top) / travel, 0, 0.999);
+      const travel = Math.max(300, rect.height - 390);
+      const progress = reduced || mobile
+        ? 0.999
+        : longCopy
+          ? clamp((56 - rect.top) / travel, 0, 0.999)
+          : manualProgress;
       drawers[scene](context, progress);
     };
     const requestPaint = () => {
@@ -1180,10 +1167,27 @@ function ScrollDiagram({
       image.addEventListener("load", requestPaint);
       return () => image.removeEventListener("load", requestPaint);
     });
+    const onWheel = (event: WheelEvent) => {
+      if (reduced || longCopy || window.innerWidth <= 900 || event.deltaY === 0) return;
+      const rect = section.getBoundingClientRect();
+      const fullyVisible = rect.top >= 54 && rect.bottom <= window.innerHeight + 2;
+      if (!fullyVisible) return;
+      const complete = manualProgress >= 0.985;
+      const empty = manualProgress <= 0.015;
+      const movingForward = event.deltaY > 0 && !complete;
+      const movingBackward = event.deltaY < 0 && !empty;
+      if (!movingForward && !movingBackward) return;
+      event.preventDefault();
+      const budget = scene === "criteria" ? 900 : scene === "compounding" ? 760 : 620;
+      const nextProgress = clamp(manualProgress + event.deltaY / budget, 0, 0.999);
+      manualProgress = nextProgress >= 0.985 ? 0.999 : nextProgress <= 0.015 ? 0 : nextProgress;
+      requestPaint();
+    };
     const observer = new ResizeObserver(requestPaint);
     observer.observe(section);
     window.addEventListener("scroll", requestPaint, { passive: true });
     window.addEventListener("resize", requestPaint);
+    window.addEventListener("wheel", onWheel, { passive: false });
     paint();
     return () => {
       if (frame) window.cancelAnimationFrame(frame);
@@ -1191,6 +1195,7 @@ function ScrollDiagram({
       imageCleanups.forEach((cleanup) => cleanup());
       window.removeEventListener("scroll", requestPaint);
       window.removeEventListener("resize", requestPaint);
+      window.removeEventListener("wheel", onWheel);
     };
   }, [longCopy, scene]);
 
@@ -1484,7 +1489,7 @@ export default function Home() {
           <ScrollDiagram
             scene="compounding"
             labelText="A compounding feedback loop"
-            caption="Each PoW cycle builds more intelligence, brings more organizations into the loop, and increases utility."
+            caption="PoW compounds utility."
           >
             <p>
               No matter who runs PoW, its larger value is that it connects fast-growing AI capability to work
