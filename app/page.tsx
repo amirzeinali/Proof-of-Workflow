@@ -153,7 +153,7 @@ function statusEmoji(ctx: CanvasRenderingContext2D, x: number, y: number, ok: bo
   ctx.textAlign = "center";
   ctx.textBaseline = "middle";
   ctx.font = '18px "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji", sans-serif';
-  ctx.fillText(ok ? "✅" : "❌", x, y + 1);
+  ctx.fillText(ok ? "✅" : "❌", x, y);
   ctx.restore();
 }
 
@@ -203,12 +203,17 @@ function curvedArrow(
     const end = pointAt(amount);
     const previous = pointAt(Math.max(0, amount - 0.035));
     const angle = Math.atan2(end.y - previous.y, end.x - previous.x);
+    const arrowLength = 8;
+    const arrowWidth = 4;
+    const baseX = end.x - arrowLength * Math.cos(angle);
+    const baseY = end.y - arrowLength * Math.sin(angle);
     ctx.beginPath();
     ctx.moveTo(end.x, end.y);
-    ctx.lineTo(end.x - 7 * Math.cos(angle - 0.55), end.y - 7 * Math.sin(angle - 0.55));
-    ctx.moveTo(end.x, end.y);
-    ctx.lineTo(end.x - 7 * Math.cos(angle + 0.55), end.y - 7 * Math.sin(angle + 0.55));
-    ctx.stroke();
+    ctx.lineTo(baseX - arrowWidth * Math.sin(angle), baseY + arrowWidth * Math.cos(angle));
+    ctx.lineTo(baseX + arrowWidth * Math.sin(angle), baseY - arrowWidth * Math.cos(angle));
+    ctx.closePath();
+    ctx.fillStyle = color;
+    ctx.fill();
   }
   ctx.restore();
 }
@@ -243,32 +248,30 @@ function shadeOutdated(
 }
 
 function drawCriteria(ctx: CanvasRenderingContext2D, p: number) {
-  box(ctx, 14, 78, 176, 118, p < 0.12, 1, 8);
-  label(ctx, "Benchmark Task", 28, 95, { color: ACCENT, size: 10.5, weight: 600, align: "left" });
-  wrappedLabel(ctx, "A customer asks the agent to repeat a booking for two travelers, retrieve personal information from her profile, and pay with one stored travel credit.", 28, 115, 148, 11.2, {
+  box(ctx, 14, 112, 176, 98, p < 0.12, 1, 8);
+  label(ctx, "Benchmark Task", 102, 129, { color: ACCENT, size: 10.5, weight: 600 });
+  wrappedLabel(ctx, "A customer asks the agent to repeat a booking for two travelers, retrieve personal information from her profile, and pay with one stored travel credit.", 102, 150, 148, 10.8, {
     color: TEXT,
     size: 8.7,
-    align: "left",
   });
 
-  box(ctx, 14, 228, 176, 148, false, 1, 8);
-  label(ctx, "Expected Benchmark Rubric", 28, 245, { color: ACCENT, size: 9.7, weight: 600, align: "left" });
-  wrappedLabel(ctx, "Only acceptable option: the agent accesses the profile and completes both tickets using that credit. Stopping for identity verification or requesting another payment method is scored as a failure.", 28, 265, 148, 10.8, {
+  box(ctx, 14, 270, 176, 106, false, 1, 8);
+  label(ctx, "Expected Benchmark Rubric", 102, 287, { color: ACCENT, size: 9.7, weight: 600 });
+  wrappedLabel(ctx, "Only acceptable option: the agent accesses the profile and completes both tickets using that credit. Stopping for identity verification or requesting another payment method is scored as a failure.", 102, 306, 148, 10.2, {
     color: TEXT,
     size: 8.25,
-    align: "left",
   });
 
   const rows = [
-    { name: "Delta", reason: "Complete both tickets using the customer’s gift card", ok: true, y: 66, start: 0.1, portY: 104 },
-    { name: "American Airlines", reason: "Use the flight credit only for its named traveler, then request payment for the second ticket", ok: false, y: 149, start: 0.29, portY: 130 },
-    { name: "Ryanair · before", reason: "Verify the customer’s identity before allowing access to the reservation", ok: false, y: 232, start: 0.48, portY: 156 },
-    { name: "Ryanair · now", reason: "Access the reservation without separate verification and continue", ok: true, y: 327, start: 0.78, portY: 182 },
+    { name: "Delta", reason: "Complete both tickets using the customer’s gift card", ok: true, y: 58, start: 0.1, portY: 126, nameHeight: 30, reasonHeight: 40, reasonLines: 2 },
+    { name: "American Airlines", reason: "Use the flight credit only for its named traveler, then request payment for the second ticket", ok: false, y: 139, start: 0.29, portY: 149, nameHeight: 38, reasonHeight: 60, reasonLines: 4 },
+    { name: "Ryanair · before", reason: "Verify the customer’s identity before allowing access to the reservation", ok: false, y: 220, start: 0.48, portY: 172, nameHeight: 38, reasonHeight: 50, reasonLines: 3 },
+    { name: "Ryanair · now", reason: "Access the reservation without separate verification and continue", ok: true, y: 323, start: 0.78, portY: 195, nameHeight: 38, reasonHeight: 50, reasonLines: 3 },
   ];
 
-  label(ctx, "Live Setting", 273, 18, { color: TEXT, size: 9.2, weight: 600 });
-  wrappedLabel(ctx, "Passes the Rubric?", 342, 13, 70, 10, { color: TEXT, size: 8.5, weight: 600 });
-  wrappedLabel(ctx, "What should count as success?", 426, 13, 118, 10, { color: TEXT, size: 8.5, weight: 600 });
+  label(ctx, "Live Setting", 268, 17, { color: TEXT, size: 9.2, weight: 600 });
+  wrappedLabel(ctx, "Passes the Rubric?", 329, 12, 62, 10, { color: TEXT, size: 8.3, weight: 600 });
+  wrappedLabel(ctx, "What should count as success?", 421, 12, 132, 10, { color: TEXT, size: 8.5, weight: 600 });
 
   rows.forEach((row, index) => {
     const arrowReveal = smootherEase((p - row.start) / 0.12);
@@ -280,32 +283,31 @@ function drawCriteria(ctx: CanvasRenderingContext2D, p: number) {
     const outdated = index === 2 ? smootherEase((p - 0.67) / 0.12) : 0;
     const rowOpacity = reveal * (index === 2 ? 1 - outdated * 0.48 : 1);
 
-    curvedArrow(ctx, 190, row.portY, 222, y, arrowReveal, MUTED, Math.max(0.28, rowOpacity));
-    curvedArrow(ctx, 190, row.portY, 222, y, arrowReveal, ACCENT, active * 0.95);
+    curvedArrow(ctx, 190, row.portY, 226, y, arrowReveal, MUTED, Math.max(0.28, rowOpacity));
+    curvedArrow(ctx, 190, row.portY, 226, y, arrowReveal, ACCENT, active * 0.95);
 
-    box(ctx, 226, y - 17, 94, 34, false, rowOpacity, 7);
-    box(ctx, 226, y - 17, 94, 34, true, active * (1 - outdated), 7);
-    label(ctx, row.name, 273, y, {
+    box(ctx, 230, y - row.nameHeight / 2, 76, row.nameHeight, false, rowOpacity, 7);
+    box(ctx, 230, y - row.nameHeight / 2, 76, row.nameHeight, true, active * (1 - outdated), 7);
+    wrappedLabel(ctx, row.name, 268, y - (row.nameHeight > 30 ? 5 : 0), 64, 10, {
       color: TEXT,
-      size: row.name === "American Airlines" ? 8.5 : 9.8,
+      size: row.name === "American Airlines" ? 8.3 : 9.2,
       weight: 600,
       opacity: rowOpacity,
     });
 
-    box(ctx, 326, y - 17, 32, 34, false, rowOpacity, 7);
-    statusEmoji(ctx, 342, y, row.ok, rowOpacity);
+    box(ctx, 312, y - 15, 34, 30, false, rowOpacity, 7);
+    statusEmoji(ctx, 329, y, row.ok, rowOpacity);
 
-    box(ctx, 364, y - 34, 124, 68, false, rowOpacity, 7);
-    wrappedLabel(ctx, row.reason, 373, y - 22, 106, 10.4, {
+    box(ctx, 352, y - row.reasonHeight / 2, 138, row.reasonHeight, false, rowOpacity, 7);
+    wrappedLabel(ctx, row.reason, 421, y - ((row.reasonLines - 1) * 10.4) / 2, 120, 10.4, {
       color: TEXT,
-      size: 8.15,
-      align: "left",
+      size: 8.35,
       opacity: rowOpacity,
     });
 
     if (index === 2) {
-      shadeOutdated(ctx, 222, y - 37, 269, 74, outdated * reveal);
-      label(ctx, "Policy outdated", 273, y + 42, {
+      shadeOutdated(ctx, 226, y - 29, 267, 58, outdated * reveal);
+      label(ctx, "Policy outdated", 268, y + 35, {
         color: ACCENT,
         size: 9.2,
         weight: 600,
@@ -568,6 +570,15 @@ function ScrollDiagram({
   );
 }
 
+function TextSection({ labelText, children }: { labelText: string; children: ReactNode }) {
+  return (
+    <div className="scroll-section text-only">
+      <span className="section-label">{labelText}</span>
+      {children}
+    </div>
+  );
+}
+
 export default function Home() {
   return (
     <main className="wrapper">
@@ -618,7 +629,8 @@ export default function Home() {
               To see why this matters, let’s consider a
               <a href="https://github.com/sierra-research/tau2-bench/blob/main/data/tau2/domains/airline/tasks.json#L444-L543"> simple airline customer-support task</a> from the τ²-bench.
             </p>
-            <span className="section-label criteria-explanation-label">The benchmark’s rubric is not universal</span>
+          </ScrollDiagram>
+          <TextSection labelText="The benchmark’s rubric is not universal">
             <p>
               You can see in the diagram that a benchmark&apos;s rubric only shows what works for one airline for
               the airline it was designed around; it’s not a universal definition of success. The agent could
@@ -628,7 +640,7 @@ export default function Home() {
               another. Within each airline, the rules keep changing too, which means even an internal benchmark
               can become outdated, as the Ryanair example shows.<sup><a href="#note-3">3</a></sup>
             </p>
-          </ScrollDiagram>
+          </TextSection>
         </section>
 
         <section className="act-group" aria-labelledby="act-two">

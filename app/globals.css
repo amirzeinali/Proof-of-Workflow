@@ -153,10 +153,6 @@ h1 {
   min-height: 1700px;
 }
 
-.criteria-explanation-label {
-  margin-top: 1.5rem;
-}
-
 .section-viz {
   display: flex;
   max-height: calc(100vh - var(--sticky-top));
