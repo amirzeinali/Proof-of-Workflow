@@ -6,7 +6,8 @@ type SceneName =
   | "criteria"
   | "proximity"
   | "coding"
-  | "pie";
+  | "pie"
+  | "compounding";
 
 const INK = "#262624";
 const TEXT = "#2a2926";
@@ -373,6 +374,71 @@ function curvedArrow(
   ctx.restore();
 }
 
+type CanvasPoint = { x: number; y: number };
+
+function flowArrow(
+  ctx: CanvasRenderingContext2D,
+  start: CanvasPoint,
+  control1: CanvasPoint,
+  control2: CanvasPoint,
+  end: CanvasPoint,
+  color: string,
+  opacity = 1,
+  progress = 1,
+  width = 1.4,
+) {
+  const amount = smootherEase(progress);
+  if (amount <= 0 || opacity <= 0) return;
+  const pointAt = (t: number) => {
+    const inverse = 1 - t;
+    return {
+      x: inverse ** 3 * start.x + 3 * inverse ** 2 * t * control1.x + 3 * inverse * t ** 2 * control2.x + t ** 3 * end.x,
+      y: inverse ** 3 * start.y + 3 * inverse ** 2 * t * control1.y + 3 * inverse * t ** 2 * control2.y + t ** 3 * end.y,
+    };
+  };
+
+  ctx.save();
+  ctx.globalAlpha = opacity;
+  ctx.strokeStyle = color;
+  ctx.lineWidth = width;
+  ctx.beginPath();
+  ctx.moveTo(start.x, start.y);
+  const segments = 42;
+  for (let index = 1; index <= segments; index += 1) {
+    const point = pointAt(amount * (index / segments));
+    ctx.lineTo(point.x, point.y);
+  }
+  ctx.stroke();
+
+  if (amount > 0.93) {
+    const tip = pointAt(amount);
+    const previous = pointAt(Math.max(0, amount - 0.035));
+    const angle = Math.atan2(tip.y - previous.y, tip.x - previous.x);
+    const arrowLength = 8;
+    line(
+      ctx,
+      tip.x,
+      tip.y,
+      tip.x - arrowLength * Math.cos(angle - 0.55),
+      tip.y - arrowLength * Math.sin(angle - 0.55),
+      color,
+      width,
+      opacity,
+    );
+    line(
+      ctx,
+      tip.x,
+      tip.y,
+      tip.x - arrowLength * Math.cos(angle + 0.55),
+      tip.y - arrowLength * Math.sin(angle + 0.55),
+      color,
+      width,
+      opacity,
+    );
+  }
+  ctx.restore();
+}
+
 function shadeOutdated(
   ctx: CanvasRenderingContext2D,
   x: number,
@@ -651,16 +717,26 @@ function drawPieFrame(
 ) {
   const radius = size / 2;
   const innerRadius = radius * 0.84;
+  const scallops = 30;
+  const points = 240;
 
   ctx.save();
   ctx.shadowColor = "rgba(38,38,36,.1)";
   ctx.shadowBlur = Math.max(4, radius * 0.04);
   ctx.shadowOffsetY = Math.max(2, radius * 0.016);
-  ctx.fillStyle = "rgba(255,255,255,.54)";
-  ctx.strokeStyle = "rgba(140,138,128,.84)";
+  ctx.fillStyle = "rgba(187,145,96,.16)";
+  ctx.strokeStyle = "rgba(145,105,66,.62)";
   ctx.lineWidth = Math.max(1.2, radius * 0.01);
   ctx.beginPath();
-  ctx.arc(centerX, centerY, radius, 0, Math.PI * 2);
+  for (let index = 0; index <= points; index += 1) {
+    const angle = (Math.PI * 2 * index) / points - Math.PI / 2;
+    const flutedRadius = radius + Math.sin(angle * scallops) * radius * 0.018;
+    const x = centerX + Math.cos(angle) * flutedRadius;
+    const y = centerY + Math.sin(angle) * flutedRadius;
+    if (index === 0) ctx.moveTo(x, y);
+    else ctx.lineTo(x, y);
+  }
+  ctx.closePath();
   ctx.fill();
   ctx.shadowColor = "transparent";
   ctx.stroke();
@@ -673,7 +749,7 @@ function drawPieFrame(
   ctx.fill();
   ctx.stroke();
 
-  ctx.strokeStyle = "rgba(140,138,128,.5)";
+  ctx.strokeStyle = "rgba(145,105,66,.46)";
   ctx.lineWidth = Math.max(0.9, radius * 0.007);
   ctx.setLineDash([Math.max(1.5, radius * 0.012), Math.max(4, radius * 0.035)]);
   ctx.beginPath();
@@ -814,11 +890,240 @@ function drawPie(ctx: CanvasRenderingContext2D, p: number) {
   ctx.restore();
 }
 
+function drawCompanyTile(
+  ctx: CanvasRenderingContext2D,
+  x: number,
+  y: number,
+  color: string,
+  opacity: number,
+  scale = 1,
+) {
+  const width = 21 * scale;
+  const height = 14 * scale;
+  ctx.save();
+  ctx.globalAlpha = opacity;
+  ctx.fillStyle = "rgba(255,255,255,.76)";
+  ctx.strokeStyle = color;
+  ctx.lineWidth = 1.15;
+  ctx.beginPath();
+  ctx.roundRect(x - width / 2, y - height / 2, width, height, 2.5 * scale);
+  ctx.fill();
+  ctx.stroke();
+  ctx.fillStyle = color;
+  ctx.beginPath();
+  ctx.roundRect(x - width * 0.32, y - height * 0.18, width * 0.64, height * 0.12, 1);
+  ctx.fill();
+  ctx.restore();
+}
+
+function drawBrainIcon(
+  ctx: CanvasRenderingContext2D,
+  x: number,
+  y: number,
+  size: number,
+  color: string,
+  opacity: number,
+) {
+  ctx.save();
+  ctx.translate(x, y);
+  ctx.scale(size, size);
+  ctx.globalAlpha = opacity;
+  ctx.fillStyle = "rgba(255,255,255,.76)";
+  ctx.strokeStyle = color;
+  ctx.lineWidth = 0.075;
+  ctx.lineCap = "round";
+  ctx.lineJoin = "round";
+
+  ctx.beginPath();
+  ctx.moveTo(0, -0.42);
+  ctx.bezierCurveTo(-0.12, -0.56, -0.34, -0.53, -0.38, -0.34);
+  ctx.bezierCurveTo(-0.58, -0.32, -0.6, -0.08, -0.47, 0.04);
+  ctx.bezierCurveTo(-0.54, 0.24, -0.3, 0.45, -0.08, 0.35);
+  ctx.bezierCurveTo(0.06, 0.52, 0.31, 0.45, 0.34, 0.25);
+  ctx.bezierCurveTo(0.56, 0.19, 0.57, -0.09, 0.4, -0.2);
+  ctx.bezierCurveTo(0.47, -0.41, 0.2, -0.53, 0, -0.42);
+  ctx.closePath();
+  ctx.fill();
+  ctx.stroke();
+
+  ctx.beginPath();
+  ctx.moveTo(0, -0.38);
+  ctx.bezierCurveTo(-0.08, -0.23, 0.09, -0.12, 0, 0.03);
+  ctx.bezierCurveTo(-0.08, 0.17, 0.08, 0.25, 0.02, 0.38);
+  ctx.moveTo(-0.3, -0.25);
+  ctx.bezierCurveTo(-0.12, -0.3, -0.12, -0.12, -0.22, -0.03);
+  ctx.bezierCurveTo(-0.34, 0.07, -0.23, 0.2, -0.1, 0.18);
+  ctx.moveTo(0.18, -0.28);
+  ctx.bezierCurveTo(0.34, -0.23, 0.31, -0.05, 0.17, -0.02);
+  ctx.bezierCurveTo(0.05, 0.02, 0.13, 0.2, 0.28, 0.18);
+  ctx.stroke();
+  ctx.restore();
+}
+
+function drawSmiley(
+  ctx: CanvasRenderingContext2D,
+  x: number,
+  y: number,
+  radius: number,
+  color: string,
+  opacity: number,
+) {
+  ctx.save();
+  ctx.globalAlpha = opacity;
+  ctx.fillStyle = "rgba(255,255,255,.78)";
+  ctx.strokeStyle = color;
+  ctx.lineWidth = Math.max(1, radius * 0.12);
+  ctx.beginPath();
+  ctx.arc(x, y, radius, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.stroke();
+  ctx.fillStyle = color;
+  ctx.beginPath();
+  ctx.arc(x - radius * 0.34, y - radius * 0.18, radius * 0.09, 0, Math.PI * 2);
+  ctx.arc(x + radius * 0.34, y - radius * 0.18, radius * 0.09, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.beginPath();
+  ctx.arc(x, y + radius * 0.02, radius * 0.48, 0.2, Math.PI - 0.2);
+  ctx.stroke();
+  ctx.restore();
+}
+
+function drawCompounding(ctx: CanvasRenderingContext2D, p: number) {
+  const cycleValue = Math.min(3.999, p * 4);
+  const cycle = Math.floor(cycleValue);
+  const local = cycleValue - cycle;
+  const growth = smootherEase((local - 0.72) / 0.24);
+  const counts = (values: number[]) => values[cycle] + (values[cycle + 1] - values[cycle]) * growth;
+  const organizationCount = counts([2, 4, 7, 11, 16]);
+  const intelligenceCount = counts([1, 3, 5, 8, 13]);
+  const utilityCount = counts([1, 3, 6, 11, 18]);
+
+  const pathState = (start: number, end: number) => {
+    const duration = end - start;
+    const progress = smootherEase((local - start) / (duration * 0.76));
+    const fade = 1 - smootherEase((local - (end - duration * 0.2)) / (duration * 0.2));
+    return { progress, opacity: progress * fade };
+  };
+  const intoPow = pathState(0.03, 0.15);
+  const intoIntelligence = pathState(0.13, 0.29);
+  const backToOrganizations = pathState(0.31, 0.52);
+  const intoUtility = pathState(0.54, 0.74);
+
+  const orgToPow = [
+    { x: 168, y: 150 },
+    { x: 190, y: 150 },
+    { x: 208, y: 176 },
+    { x: 222, y: 190 },
+  ] as const;
+  const powToBrain = [
+    { x: 274, y: 211 },
+    { x: 291, y: 228 },
+    { x: 305, y: 262 },
+    { x: 324, y: 276 },
+  ] as const;
+  const brainToOrg = [
+    { x: 312, y: 329 },
+    { x: 245, y: 380 },
+    { x: 121, y: 335 },
+    { x: 96, y: 215 },
+  ] as const;
+  const orgToUtility = [
+    { x: 168, y: 125 },
+    { x: 225, y: 76 },
+    { x: 310, y: 70 },
+    { x: 359, y: 102 },
+  ] as const;
+
+  [orgToPow, powToBrain, brainToOrg, orgToUtility].forEach((path) =>
+    flowArrow(ctx, path[0], path[1], path[2], path[3], MUTED, 0.42, 1, 1.15),
+  );
+  flowArrow(ctx, orgToPow[0], orgToPow[1], orgToPow[2], orgToPow[3], ACCENT, intoPow.opacity, intoPow.progress, 2.4);
+  flowArrow(ctx, powToBrain[0], powToBrain[1], powToBrain[2], powToBrain[3], ACCENT, intoIntelligence.opacity, intoIntelligence.progress, 2.4);
+  flowArrow(ctx, brainToOrg[0], brainToOrg[1], brainToOrg[2], brainToOrg[3], ACCENT, backToOrganizations.opacity, backToOrganizations.progress, 2.4);
+  flowArrow(ctx, orgToUtility[0], orgToUtility[1], orgToUtility[2], orgToUtility[3], SUCCESS, intoUtility.opacity, intoUtility.progress, 2.4);
+
+  const organizationColors = ["#9d5961", "#557b7d", "#917747", "#60718c", "#756681", "#66806f"];
+  const organizationPositions = [
+    [-34, -27], [-8, -34], [18, -29], [39, -18],
+    [-41, -4], [-14, -7], [13, -5], [40, 5],
+    [-36, 20], [-9, 18], [19, 22], [41, 29],
+    [-24, 42], [4, 42], [29, 47], [1, -51],
+  ];
+  organizationPositions.forEach(([offsetX, offsetY], index) => {
+    const reveal = smootherEase(clamp(organizationCount - index));
+    drawCompanyTile(
+      ctx,
+      120 + offsetX,
+      146 + offsetY,
+      organizationColors[index % organizationColors.length],
+      reveal,
+      index < 2 ? 1.08 : 0.92 + reveal * 0.08,
+    );
+  });
+
+  const brainColors = ["#557b7d", "#9a6b59", "#756681", "#66806f"];
+  const brainPositions = [
+    [0, 0], [-27, -10], [27, -9], [-13, 22], [17, 23],
+    [-46, 14], [46, 13], [-37, -33], [37, -31], [0, -40],
+    [-58, -14], [58, -12], [1, 47],
+  ];
+  brainPositions.forEach(([offsetX, offsetY], index) => {
+    const reveal = smootherEase(clamp(intelligenceCount - index));
+    drawBrainIcon(
+      ctx,
+      351 + offsetX,
+      301 + offsetY,
+      index === 0 ? 35 : 23,
+      brainColors[index % brainColors.length],
+      reveal,
+    );
+  });
+
+  const smileColors = ["#66806f", "#917747", "#557b7d", "#9d5961", "#756681"];
+  Array.from({ length: 18 }).forEach((_, index) => {
+    const reveal = smootherEase(clamp(utilityCount - index));
+    const row = Math.floor(index / 5);
+    const column = index % 5;
+    drawSmiley(
+      ctx,
+      370 + column * 19 + (row % 2) * 6,
+      96 + row * 22,
+      index === 0 ? 13 : 8.2,
+      smileColors[index % smileColors.length],
+      reveal,
+    );
+  });
+
+  const powActivity = Math.max(intoPow.opacity, intoIntelligence.opacity, backToOrganizations.opacity * 0.55);
+  for (let ring = 0; ring <= cycle; ring += 1) {
+    ctx.save();
+    ctx.globalAlpha = 0.14 + ring * 0.025;
+    ctx.strokeStyle = ACCENT;
+    ctx.lineWidth = 0.8;
+    ctx.beginPath();
+    ctx.arc(250, 199, 28 + ring * 4, 0, Math.PI * 2);
+    ctx.stroke();
+    ctx.restore();
+  }
+  dot(ctx, 250, 199, 25 + powActivity * 2, "rgba(255,255,255,.82)", ACCENT);
+  label(ctx, "PoW", 250, 194, { color: ACCENT, size: 13, weight: 700 });
+  label(ctx, "acceptance", 250, 209, { color: TEXT, size: 7.4, weight: 500 });
+  label(ctx, `cycle ${cycle + 1}`, 250, 241, { color: MUTED, size: 8.4, italic: true });
+
+  label(ctx, "Organizations", 120, 67, { color: TEXT, size: 11, weight: 600 });
+  label(ctx, `${Math.round(organizationCount)} participating`, 120, 219, { color: MUTED, size: 8.4 });
+  label(ctx, "Utility", 409, 67, { color: TEXT, size: 11, weight: 600 });
+  label(ctx, `${Math.round(utilityCount)} outcomes`, 409, 190, { color: MUTED, size: 8.4 });
+  label(ctx, "Intelligence", 351, 369, { color: TEXT, size: 11, weight: 600 });
+  label(ctx, `${Math.round(intelligenceCount)} gains`, 351, 384, { color: MUTED, size: 8.4 });
+}
+
 const drawers: Record<SceneName, (ctx: CanvasRenderingContext2D, progress: number) => void> = {
   criteria: drawCriteria,
   proximity: drawProximity,
   coding: drawCoding,
   pie: drawPie,
+  compounding: drawCompounding,
 };
 
 function ScrollDiagram({
@@ -1176,7 +1481,11 @@ export default function Home() {
               work into organization-specific evaluations.<sup><a href="#note-2">2</a></sup>
             </p>
           </ScrollDiagram>
-          <ProseSection labelText="A compounding feedback loop">
+          <ScrollDiagram
+            scene="compounding"
+            labelText="A compounding feedback loop"
+            caption="Each PoW cycle builds more intelligence, brings more organizations into the loop, and increases utility."
+          >
             <p>
               No matter who runs PoW, its larger value is that it connects fast-growing AI capability to work
               people actually need. As enterprises make their standards clearer, vendors can test and improve
@@ -1188,7 +1497,7 @@ export default function Home() {
               self-improvement, making the shift deeply positive-sum and turning more AI capability into more
               utility for everyone.
             </p>
-          </ProseSection>
+          </ScrollDiagram>
           <p className="final-question">Finally, as AI takes on more of the world’s work, one question will matter most. <em>Did the work count?</em></p>
           <ol className="source-notes">
             <li id="note-1">Measuring Agents in Production: <a href="https://arxiv.org/abs/2512.04123">https://arxiv.org/abs/2512.04123</a></li>

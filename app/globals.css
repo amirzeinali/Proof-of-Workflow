@@ -177,6 +177,10 @@ h1 {
   min-height: calc(100dvh + 1100px);
 }
 
+.scene-compounding:not(.long-copy) {
+  min-height: calc(100dvh + 1200px);
+}
+
 .scene-criteria:not(.long-copy) .section-inner {
   min-height: 0;
 }
