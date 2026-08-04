@@ -153,6 +153,10 @@ h1 {
   min-height: 1700px;
 }
 
+.scene-coding .section-inner {
+  min-height: 1100px;
+}
+
 .section-viz {
   display: flex;
   max-height: calc(100vh - var(--sticky-top));
@@ -360,6 +364,10 @@ blockquote {
   }
 
   .scene-criteria .section-inner {
+    min-height: 0;
+  }
+
+  .scene-coding .section-inner {
     min-height: 0;
   }
 

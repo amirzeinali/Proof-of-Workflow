@@ -550,7 +550,6 @@ function drawProximity(ctx: CanvasRenderingContext2D, p: number) {
     "acceptance must be interpreted inside",
   ];
 
-  label(ctx, acceptanceCues[stage], 250, 35, { color: ACCENT, size: 11, weight: 500, italic: true });
   arrow(ctx, 448, 314, 52, 314, MUTED, 0.9);
   arrow(ctx, 52, 314, 448, 314, MUTED, 0.9);
   positions.forEach((x, index) => {
@@ -561,6 +560,12 @@ function drawProximity(ctx: CanvasRenderingContext2D, p: number) {
   drawOrganizationSymbol(ctx, stage);
   drawMagnifier(ctx, lensX, 177, 1);
   label(ctx, evaluators[stage], lensX, 101, { color: ACCENT, size: 11.5, weight: 600 });
+  wrappedLabel(ctx, acceptanceCues[stage], lensX, 253, 152, 12, {
+    color: ACCENT,
+    size: 10.5,
+    weight: 500,
+    italic: true,
+  });
   label(ctx, "Magnifier = evaluator", 250, 374, { color: MUTED, size: 9.5, italic: true });
 }
 
@@ -607,9 +612,9 @@ function drawCoding(ctx: CanvasRenderingContext2D, p: number) {
   dot(ctx, center.x, center.y, 4.5, ACCENT, ACCENT);
 
   const callouts = [
-    { name: "Codex", detail: "outside · merge is observable", y: 84, ringX: 267, ringY: 96 },
-    { name: "CodeRabbit", detail: "alongside · learns repository rules", y: 171, ringX: 267, ringY: 171 },
-    { name: "uReview", detail: "inside Uber", y: 258, ringX: 218, ringY: 223 },
+    { name: "Codex", detail: "outer ring · outside", y: 84, ringX: 267, ringY: 96 },
+    { name: "CodeRabbit", detail: "middle ring · alongside", y: 171, ringX: 267, ringY: 171 },
+    { name: "uReview", detail: "inner ring · inside Uber", y: 258, ringX: 218, ringY: 223 },
   ];
   callouts.forEach((item, index) => {
     const reveal = reveals[index];
@@ -631,11 +636,18 @@ function drawCoding(ctx: CanvasRenderingContext2D, p: number) {
     });
   });
 
-  wrappedLabel(ctx, "Uber’s own codebases + internal developer feedback", 250, 349, 300, 13, {
-    color: ACCENT,
-    size: 10.5,
-    weight: 600,
-    opacity: ease((p - 0.72) / 0.16),
+  const descriptions = [
+    "Codex observes whether the proposed change is merged.",
+    "CodeRabbit adapts to the repository’s rules.",
+    "uReview uses Uber’s own codebases + internal developer feedback.",
+  ];
+  descriptions.forEach((description, index) => {
+    wrappedLabel(ctx, description, 250, 348, 320, 13, {
+      color: index === 2 ? ACCENT : TEXT,
+      size: 10.2,
+      weight: index === 2 ? 600 : 500,
+      opacity: weights[index],
+    });
   });
 }
 
@@ -787,7 +799,7 @@ function ScrollDiagram({
 function TextSection({ labelText, children }: { labelText: string; children: ReactNode }) {
   return (
     <div className="scroll-section text-only">
-      <span className="section-label">{labelText}</span>
+      {labelText ? <span className="section-label">{labelText}</span> : null}
       {children}
     </div>
   );
@@ -961,7 +973,7 @@ export default function Home() {
           <ScrollDiagram
             scene="coding"
             labelText="Coding across the same spectrum"
-            caption="Coding offers a clear example of how the evaluator moves closer as more organizational context is needed."
+            caption="In coding, outside, alongside, and inside evaluation coexist on the same spectrum."
           >
             <p>
               More broadly, we can see all three levels within the same domain or even the same company. Coding
@@ -970,6 +982,8 @@ export default function Home() {
               adapting to their repository rules, and Uber keeps its own code review system, uReview,
               <em> inside</em> because useful judgment depends on its own codebase and developer feedback.<sup><a href="#note-8">8</a></sup>
             </p>
+          </ScrollDiagram>
+          <TextSection labelText="">
             <p>
               Together, we see across these examples is that PoW does not need to come from a company whose
               main business is evaluation. Often, the company in the best position is simply the one already
@@ -977,7 +991,7 @@ export default function Home() {
               When that judgment becomes measurable, it creates real economic value and starts to change both
               what AI costs and how providers charge for it
             </p>
-          </ScrollDiagram>
+          </TextSection>
         </section>
 
         <section className="act-group" aria-labelledby="act-four">
