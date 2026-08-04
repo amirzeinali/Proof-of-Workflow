@@ -577,12 +577,6 @@ function drawCoding(ctx: CanvasRenderingContext2D, p: number) {
   const weights = [1 - middleShift, middleShift * (1 - innerShift), innerShift];
   const reveals = [ease((p - 0.02) / 0.12), ease((p - 0.27) / 0.13), ease((p - 0.61) / 0.13)];
 
-  label(ctx, "evaluation moves inward as acceptance needs more context", 250, 26, {
-    color: ACCENT,
-    size: 10.5,
-    italic: true,
-  });
-
   const fillRing = (outerRadius: number, innerRadius: number, opacity: number) => {
     if (opacity <= 0) return;
     ctx.save();
@@ -641,13 +635,12 @@ function drawCoding(ctx: CanvasRenderingContext2D, p: number) {
     "CodeRabbit adapts to the repository’s rules.",
     "uReview uses Uber’s own codebases + internal developer feedback.",
   ];
-  descriptions.forEach((description, index) => {
-    wrappedLabel(ctx, description, 250, 348, 320, 13, {
-      color: index === 2 ? ACCENT : TEXT,
-      size: 10.2,
-      weight: index === 2 ? 600 : 500,
-      opacity: weights[index],
-    });
+  const descriptionIndex = weights.indexOf(Math.max(...weights));
+  wrappedLabel(ctx, descriptions[descriptionIndex], 250, 348, 320, 13, {
+    color: TEXT,
+    size: 10.2,
+    weight: 500,
+    opacity: 0.55 + weights[descriptionIndex] * 0.45,
   });
 }
 
