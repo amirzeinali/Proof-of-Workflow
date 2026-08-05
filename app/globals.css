@@ -705,6 +705,7 @@ blockquote {
   margin: 0.1rem auto 0 !important;
   padding: 0 0.7rem;
   font-size: 0.82rem;
+  opacity: var(--story-caption-opacity, 1);
   text-align: center;
 }
 

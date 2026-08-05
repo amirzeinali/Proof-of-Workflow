@@ -38,6 +38,11 @@ const smootherEase = (value: number) => {
   return t * t * t * (t * (t * 6 - 15) + 10);
 };
 
+const evaluatorStoryOpacities = (phase: number) => ({
+  proximity: 1 - smootherEase((phase - 2.35) / 0.35),
+  coding: smootherEase((phase - 3.65) / 0.35),
+});
+
 function line(
   ctx: CanvasRenderingContext2D,
   x1: number,
@@ -751,8 +756,7 @@ function drawCoding(ctx: CanvasRenderingContext2D, p: number) {
 }
 
 function drawEvaluatorStory(ctx: CanvasRenderingContext2D, phase: number) {
-  const proximityOpacity = 1 - smootherEase((phase - 3.25) / 0.45);
-  const ringsOpacity = smootherEase((phase - 3.25) / 0.45);
+  const { proximity: proximityOpacity, coding: ringsOpacity } = evaluatorStoryOpacities(phase);
   const caseProgress = clamp(phase, 0, 2);
   const caseWeights = [0, 1, 2].map((index) => {
     const distance = Math.abs(caseProgress - index);
@@ -1824,6 +1828,12 @@ function EvaluatorStory({ children }: { children: ReactNode }) {
           phase = currentPhase + (nextPhase - currentPhase) * transition;
         }
       }
+      const visualization = story.querySelector<HTMLElement>(".evaluator-story-viz");
+      const storyOpacities = evaluatorStoryOpacities(phase);
+      visualization?.style.setProperty(
+        "--story-caption-opacity",
+        String(Math.max(storyOpacities.proximity, storyOpacities.coding)),
+      );
       drawEvaluatorStory(context, phase);
     };
 
