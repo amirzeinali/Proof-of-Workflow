@@ -7,6 +7,8 @@
   --doc-accent-light: rgba(21, 88, 214, 0.14);
   --doc-bg: #ffffff;
   --doc-muted: #6f7f93;
+  --contents-top-air: 36px;
+  --contents-bottom-air: 46px;
   --sticky-top: 106px;
 }
 
@@ -145,7 +147,7 @@ h1 {
 .contents-table {
   position: sticky;
   z-index: 30;
-  top: 0;
+  top: var(--contents-top-air);
   display: grid;
   grid-template-columns: auto minmax(0, 1fr);
   align-items: center;
@@ -159,6 +161,27 @@ h1 {
   box-shadow: 0 4px 16px rgba(11, 31, 58, 0.05);
   backdrop-filter: blur(8px);
   font-family: "Avenir Next", "Helvetica Neue", Arial, sans-serif;
+}
+
+.contents-table::before,
+.contents-table::after {
+  position: absolute;
+  right: 0;
+  left: 0;
+  display: block;
+  background: var(--doc-bg);
+  content: "";
+  pointer-events: none;
+}
+
+.contents-table::before {
+  top: calc(var(--contents-top-air) * -1);
+  height: var(--contents-top-air);
+}
+
+.contents-table::after {
+  bottom: calc(var(--contents-bottom-air) * -1);
+  height: var(--contents-bottom-air);
 }
 
 .contents-title {
@@ -235,7 +258,7 @@ h1 {
 .act-heading {
   position: sticky;
   z-index: 10;
-  top: 54px;
+  top: calc(var(--contents-top-air) + 54px + var(--contents-bottom-air));
   margin: 0.85rem 0 0.55rem;
   padding: 0.42rem 0 0.58rem;
   border-bottom: 1px solid rgba(11, 31, 58, 0.18);
@@ -507,6 +530,8 @@ blockquote {
 
 @media (max-width: 900px) {
   :root {
+    --contents-top-air: 20px;
+    --contents-bottom-air: 28px;
     --sticky-top: 0px;
   }
 
