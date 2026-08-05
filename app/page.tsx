@@ -1998,6 +1998,25 @@ function SectionTable() {
   );
 }
 
+function ThesisFigure() {
+  return (
+    <figure className="thesis-figure" aria-labelledby="thesis-figure-caption">
+      <div className="thesis-figure-stage" aria-hidden="true">
+        <span className="thesis-figure-label thesis-figure-label-input">AI work</span>
+        <span className="thesis-figure-label thesis-figure-label-gate">Real workflow</span>
+        <span className="thesis-figure-label thesis-figure-label-output">Accepted value</span>
+        <span className="thesis-stream thesis-stream-blue" />
+        <span className="thesis-stream thesis-stream-orange" />
+        <span className="thesis-stream thesis-stream-red" />
+        <span className="thesis-output-band" />
+        <span className="thesis-threshold" />
+        <span className="thesis-end-mark" />
+      </div>
+      <figcaption id="thesis-figure-caption">AI work becomes valuable when a real workflow accepts it.</figcaption>
+    </figure>
+  );
+}
+
 export default function Home() {
   return (
     <main className="wrapper">
@@ -2014,6 +2033,8 @@ export default function Home() {
             <p className="post-reading-time">8 min read</p>
           </div>
         </header>
+
+        <ThesisFigure />
 
         <aside className="tldr" aria-labelledby="tldr-title">
           <span className="section-label" id="tldr-title">TL;DR</span>
