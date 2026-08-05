@@ -1718,10 +1718,13 @@ function ScrollDiagram({
       const bottomAir = Number.parseFloat(
         window.getComputedStyle(document.documentElement).getPropertyValue(bottomAirProperty),
       ) || 0;
+      const configuredPinTop = Number.parseFloat(
+        window.getComputedStyle(document.documentElement).getPropertyValue("--sticky-top"),
+      ) || 0;
       const sideContents = window.innerWidth > 900 && contentsBar?.classList.contains("contents-side");
       const pinTop = sideContents
         ? 18
-        : (contentsBar?.getBoundingClientRect().bottom ?? 90) + bottomAir + 14;
+        : Math.max(configuredPinTop, (contentsBar?.getBoundingClientRect().bottom ?? 90) + bottomAir + 14);
       const travel = Math.max(1, trackRect.height - visualizationHeight);
       const scrollProgress = clamp((pinTop - trackRect.top) / travel, 0, 0.999);
       const progress = reduced || mobile ? 0.999 : scrollProgress;
