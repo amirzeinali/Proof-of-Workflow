@@ -417,19 +417,25 @@ blockquote {
   text-align: center;
 }
 
+.scene-acceptance .viz-caption {
+  margin-bottom: -2.4rem !important;
+  transform: translateY(-2.4rem);
+}
+
 .mobile-notice {
   display: none;
 }
 
 .source-notes {
-  max-width: 850px;
-  margin: 1rem auto 0;
+  max-width: calc(50% - 20px);
+  margin: 1rem 0 0;
   padding-top: 0.6rem;
   padding-left: 1.8rem;
   border-top: 1px solid rgba(140, 138, 128, 0.34);
   color: var(--doc-muted);
   font-size: 0.82rem;
   list-style: decimal outside;
+  text-align: left;
 }
 
 .source-notes li {
@@ -594,6 +600,10 @@ blockquote {
   }
 
   .prose-only {
+    max-width: none;
+  }
+
+  .source-notes {
     max-width: none;
   }
 

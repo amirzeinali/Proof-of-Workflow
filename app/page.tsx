@@ -445,41 +445,6 @@ function flowArrow(
   ctx.restore();
 }
 
-function flowLine(
-  ctx: CanvasRenderingContext2D,
-  start: CanvasPoint,
-  control1: CanvasPoint,
-  control2: CanvasPoint,
-  end: CanvasPoint,
-  color: string,
-  opacity = 1,
-  progress = 1,
-  width = 1.4,
-) {
-  const amount = smootherEase(progress);
-  if (amount <= 0 || opacity <= 0) return;
-  const pointAt = (t: number) => {
-    const inverse = 1 - t;
-    return {
-      x: inverse ** 3 * start.x + 3 * inverse ** 2 * t * control1.x + 3 * inverse * t ** 2 * control2.x + t ** 3 * end.x,
-      y: inverse ** 3 * start.y + 3 * inverse ** 2 * t * control1.y + 3 * inverse * t ** 2 * control2.y + t ** 3 * end.y,
-    };
-  };
-  ctx.save();
-  ctx.globalAlpha = opacity;
-  ctx.strokeStyle = color;
-  ctx.lineWidth = width;
-  ctx.beginPath();
-  const origin = pointAt(0);
-  ctx.moveTo(origin.x, origin.y);
-  for (let index = 1; index <= 42; index += 1) {
-    const point = pointAt(amount * (index / 42));
-    ctx.lineTo(point.x, point.y);
-  }
-  ctx.stroke();
-  ctx.restore();
-}
-
 function shadeOutdated(
   ctx: CanvasRenderingContext2D,
   x: number,
@@ -533,8 +498,8 @@ function drawCriteria(ctx: CanvasRenderingContext2D, p: number) {
   const rows = [
     { name: "Delta", reason: "Complete both tickets using the customer’s gift card", ok: true, y: 58, start: 0.1, portY: 126, nameHeight: 30, reasonHeight: 40, reasonLines: 2 },
     { name: "American Airlines", reason: "Use the flight credit only for its named traveler, then request payment for the second ticket", ok: false, y: 139, start: 0.29, portY: 149, nameHeight: 38, reasonHeight: 48, reasonLines: 4 },
-    { name: "Ryanair · before", reason: "Verify the customer’s identity before allowing access to the reservation", ok: false, y: 220, start: 0.48, portY: 172, nameHeight: 38, reasonHeight: 50, reasonLines: 3 },
-    { name: "Ryanair · now", reason: "Access the reservation without separate verification and continue", ok: true, y: 323, start: 0.78, portY: 195, nameHeight: 38, reasonHeight: 50, reasonLines: 3 },
+    { name: "Ryanair before", reason: "Verify the customer’s identity before allowing access to the reservation", ok: false, y: 220, start: 0.48, portY: 172, nameHeight: 38, reasonHeight: 50, reasonLines: 3 },
+    { name: "Ryanair now", reason: "Access the reservation without separate verification and continue", ok: true, y: 323, start: 0.78, portY: 195, nameHeight: 38, reasonHeight: 50, reasonLines: 3 },
   ];
 
   label(ctx, "Live Setting", 268, 17, { color: TEXT, size: 9.2, weight: 600 });
@@ -556,12 +521,18 @@ function drawCriteria(ctx: CanvasRenderingContext2D, p: number) {
 
     box(ctx, 230, y - row.nameHeight / 2, 76, row.nameHeight, false, rowOpacity, 7);
     box(ctx, 230, y - row.nameHeight / 2, 76, row.nameHeight, true, active * (1 - outdated), 7);
-    wrappedLabel(ctx, row.name, 268, y - (row.nameHeight > 30 ? 5 : 0), 64, 10, {
-      color: TEXT,
-      size: row.name === "American Airlines" ? 8.3 : 9.2,
-      weight: 600,
-      opacity: rowOpacity,
-    });
+    if (row.name.startsWith("Ryanair ")) {
+      const qualifier = row.name.replace("Ryanair ", "");
+      label(ctx, "Ryanair", 268, y - 5, { color: TEXT, size: 9.2, weight: 600, opacity: rowOpacity });
+      label(ctx, qualifier, 268, y + 5, { color: TEXT, size: 8.4, weight: 600, opacity: rowOpacity });
+    } else {
+      wrappedLabel(ctx, row.name, 268, y - (row.nameHeight > 30 ? 5 : 0), 64, 10, {
+        color: TEXT,
+        size: row.name === "American Airlines" ? 8.3 : 9.2,
+        weight: 600,
+        opacity: rowOpacity,
+      });
+    }
 
     box(ctx, 312, y - 15, 34, 30, false, rowOpacity, 7);
     statusEmoji(ctx, 329, y, row.ok, rowOpacity);
@@ -936,11 +907,11 @@ function drawAcceptance(ctx: CanvasRenderingContext2D, p: number) {
   const compress = smootherEase((p - 0.5) / 0.27);
   const accept = smootherEase((p - 0.76) / 0.19);
   const core = { x: 108, y: 218 };
-  const aperture = { x: 400, y: 218 };
+  const aperture = { x: 400, y: 201 };
   const registerX = 282;
 
   label(ctx, "The Living Rubric", core.x, 78, { color: TEXT, size: 11, weight: 600 });
-  label(ctx, "Organization", aperture.x, 117, { color: TEXT, size: 11, weight: 600 });
+  label(ctx, "Organization", aperture.x, 88, { color: TEXT, size: 11, weight: 600 });
 
   const nodes = [
     { label: "Cost", angle: -Math.PI / 2, labelX: 108, labelY: 119, width: 58, color: "#557b7d", delay: 0 },
@@ -1006,7 +977,7 @@ function drawAcceptance(ctx: CanvasRenderingContext2D, p: number) {
   label(ctx, "In Context", core.x, core.y + 11, { color: MUTED, size: 7.8, italic: true });
 
   line(ctx, registerX, 78, registerX, 326, MUTED, 1.5, compress * 0.8);
-  flowLine(
+  flowArrow(
     ctx,
     { x: registerX, y: aperture.y },
     { x: registerX + 26, y: aperture.y },
@@ -1046,20 +1017,20 @@ function drawAcceptance(ctx: CanvasRenderingContext2D, p: number) {
     weight: 700,
   });
 
-  flowLine(
+  const outputX = 476;
+  const outputY = aperture.y;
+  flowArrow(
     ctx,
-    { x: aperture.x + 49, y: aperture.y },
-    { x: 453, y: aperture.y },
-    { x: 456, y: aperture.y },
-    { x: 458, y: aperture.y },
+    { x: aperture.x + 42, y: aperture.y },
+    { x: 447, y: aperture.y },
+    { x: 449, y: aperture.y },
+    { x: outputX - 24, y: aperture.y },
     SUCCESS,
     accept,
     accept,
     2,
   );
 
-  const outputX = 476;
-  const outputY = 201;
   dot(ctx, outputX, outputY, 21, "rgba(47,125,50,.08)", SUCCESS, accept);
   if (accept > 0.02) {
     ctx.save();
@@ -1320,21 +1291,16 @@ function drawCompounding(ctx: CanvasRenderingContext2D, p: number) {
   const cycleValue = Math.min(3.999, p * 4);
   const cycle = Math.floor(cycleValue);
   const local = cycleValue - cycle;
-  const growth = smootherEase((local - 0.72) / 0.24);
-  const counts = (initial: number, firstExpansion: number, finalExpansion: number) => {
-    if (cycle < 2) return initial;
-    if (cycle === 2) return initial + (firstExpansion - initial) * growth;
-    return firstExpansion + (finalExpansion - firstExpansion) * growth;
-  };
-  const organizationCount = cycle === 0
-    ? 3 + (11 - 3) * growth
-    : cycle === 1
-      ? 11
-      : cycle === 2
-        ? 11 + (30 - 11) * growth
-        : 30 + (85 - 30) * growth;
-  const intelligenceCount = counts(2, 26, 75);
-  const utilityCount = counts(2, 36, 100);
+  const arrival = (at: number) => smootherEase((local - at) / 0.1);
+  const organizationsBase = [3, 6, 12, 32];
+  const organizationsAdded = [3, 6, 20, 53];
+  const intelligenceBase = [2, 3, 7, 22];
+  const intelligenceAdded = [1, 4, 15, 53];
+  const utilityBase = [2, 4, 12, 37];
+  const utilityAdded = [2, 8, 25, 63];
+  const intelligenceCount = intelligenceBase[cycle] + intelligenceAdded[cycle] * arrival(0.27);
+  const organizationCount = organizationsBase[cycle] + organizationsAdded[cycle] * arrival(0.5);
+  const utilityCount = utilityBase[cycle] + utilityAdded[cycle] * arrival(0.72);
 
   const pathState = (start: number, end: number) => {
     const duration = end - start;
@@ -1672,7 +1638,7 @@ export default function Home() {
               Amir Zeinali<sup>1,2</sup>, Shayan Talaei<sup>2</sup>, Avanika Narayan<sup>1</sup>, and Jon Saad-Falcon<sup>1,2</sup>
             </p>
             <p className="post-affiliations"><sup>1</sup> Hazy Research&nbsp;&nbsp; <sup>2</sup> Scaling Intelligence Lab</p>
-            <p className="post-reading-time">8–9 min read</p>
+            <p className="post-reading-time">8 min read</p>
           </div>
         </header>
 
