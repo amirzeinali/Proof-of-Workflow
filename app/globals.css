@@ -1,12 +1,12 @@
 @import "tailwindcss";
 
 :root {
-  --doc-line: #262624;
-  --doc-text: #2a2926;
-  --doc-accent: #9b2d2d;
-  --doc-accent-light: rgba(155, 45, 45, 0.16);
-  --doc-bg: #f4f3ee;
-  --doc-muted: #8c8a80;
+  --doc-line: #0b1f3a;
+  --doc-text: #20344f;
+  --doc-accent: #1558d6;
+  --doc-accent-light: rgba(21, 88, 214, 0.14);
+  --doc-bg: #ffffff;
+  --doc-muted: #6f7f93;
   --sticky-top: 106px;
 }
 
@@ -23,11 +23,11 @@ body {
   margin: 0;
   color: var(--doc-text);
   background:
-    radial-gradient(circle at 50% -20%, rgba(255, 255, 255, 0.68), transparent 36rem),
+    radial-gradient(circle at 50% -18%, rgba(21, 88, 214, 0.075), transparent 38rem),
     var(--doc-bg);
   font-family: Palatino, "URW Palladio L", Georgia, serif;
   font-size: 18px;
-  line-height: 1.5;
+  line-height: 1.58;
   text-rendering: optimizeLegibility;
 }
 
@@ -59,7 +59,7 @@ a:focus-visible {
 }
 
 .scroll-header {
-  margin-bottom: 0.75rem;
+  margin-bottom: 1rem;
   padding-top: 20px;
   text-align: center;
 }
@@ -127,15 +127,15 @@ h1 {
 
 .tldr {
   max-width: 850px;
-  margin: 1.25rem auto 1.35rem;
-  padding: 0.8rem 1.1rem 0.85rem;
+  margin: 1.45rem auto 1.55rem;
+  padding: 0.9rem 1.15rem 0.95rem;
   border-left: 3px solid var(--doc-accent);
-  background: rgba(155, 45, 45, 0.045);
+  background: rgba(21, 88, 214, 0.055);
   border-radius: 4px;
 }
 
 .tldr p {
-  margin: 0.3rem 0;
+  margin: 0.4rem 0;
 }
 
 .contents-table {
@@ -147,12 +147,12 @@ h1 {
   align-items: center;
   gap: 14px;
   min-height: 54px;
-  margin: 0 0 0.45rem;
+  margin: 0 0 0.7rem;
   padding: 5px 10px;
-  border-top: 1px solid rgba(140, 138, 128, 0.3);
-  border-bottom: 1px solid rgba(140, 138, 128, 0.3);
-  background: rgba(244, 243, 238, 0.97);
-  box-shadow: 0 4px 14px rgba(42, 41, 38, 0.035);
+  border-top: 1px solid rgba(11, 31, 58, 0.18);
+  border-bottom: 1px solid rgba(11, 31, 58, 0.18);
+  background: rgba(255, 255, 255, 0.97);
+  box-shadow: 0 4px 16px rgba(11, 31, 58, 0.05);
   backdrop-filter: blur(8px);
   font-family: "Avenir Next", "Helvetica Neue", Arial, sans-serif;
 }
@@ -185,7 +185,7 @@ h1 {
   min-height: 40px;
   padding: 4px 6px;
   border-radius: 4px;
-  color: #6d6a63;
+  color: #53657c;
   font-size: 0.65rem;
   font-weight: 600;
   line-height: 1.15;
@@ -199,19 +199,19 @@ h1 {
   height: 18px;
   flex: 0 0 18px;
   place-items: center;
-  border: 1px solid rgba(140, 138, 128, 0.55);
+  border: 1px solid rgba(11, 31, 58, 0.36);
   border-radius: 50%;
   font-size: 0.64rem;
 }
 
 .contents-table a:hover {
   color: var(--doc-line);
-  background: rgba(140, 138, 128, 0.08);
+  background: rgba(21, 88, 214, 0.06);
 }
 
 .contents-table a.is-active {
   color: var(--doc-accent);
-  background: rgba(155, 45, 45, 0.075);
+  background: rgba(21, 88, 214, 0.085);
 }
 
 .contents-table a.is-active span {
@@ -228,10 +228,10 @@ h1 {
   position: sticky;
   z-index: 10;
   top: 54px;
-  margin: 0.25rem 0 0;
-  padding: 0.22rem 0 0.28rem;
-  border-bottom: 1px solid rgba(140, 138, 128, 0.25);
-  background: rgba(244, 243, 238, 0.96);
+  margin: 0.45rem 0 0.12rem;
+  padding: 0.32rem 0 0.42rem;
+  border-bottom: 1px solid rgba(11, 31, 58, 0.18);
+  background: rgba(255, 255, 255, 0.96);
   backdrop-filter: blur(4px);
   font-size: 28px;
   scroll-margin-top: 108px;
@@ -246,7 +246,7 @@ h1 {
   position: relative;
   display: grid;
   grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-  gap: 28px;
+  gap: 34px;
   min-height: 0;
 }
 
@@ -303,7 +303,7 @@ h1 {
   position: absolute !important;
   top: 2px;
   right: 0;
-  width: calc(50% - 14px);
+  width: calc(50% - 17px);
 }
 
 .scene-pie .section-inner {
@@ -314,7 +314,7 @@ h1 {
   position: absolute !important;
   top: -100px;
   right: 0;
-  width: calc(50% - 14px);
+  width: calc(50% - 17px);
 }
 
 .scene-pie .diagram-canvas {
@@ -347,11 +347,11 @@ h1 {
 }
 
 .scroll-section p {
-  margin: 0.24rem 0;
+  margin: 0.42rem 0;
 }
 
 .case-heading {
-  margin: 0.62rem 0 0.18rem;
+  margin: 0.85rem 0 0.28rem;
   color: var(--doc-line);
   font-size: 1.02rem;
   font-weight: 600;
@@ -359,10 +359,10 @@ h1 {
 }
 
 .choice-box {
-  margin: 0.7rem 0;
-  padding: 0.65rem 0.85rem;
+  margin: 0.85rem 0;
+  padding: 0.72rem 0.9rem;
   border-left: 3px solid var(--doc-accent);
-  background: rgba(155, 45, 45, 0.045);
+  background: rgba(21, 88, 214, 0.055);
   border-radius: 4px;
 }
 
@@ -381,13 +381,13 @@ h1 {
 }
 
 .pow-list {
-  margin: 0.42rem 0 0.52rem;
+  margin: 0.62rem 0 0.76rem;
   padding-left: 1.45rem;
   list-style: disc outside;
 }
 
 .pow-list li {
-  margin: 0.34rem 0;
+  margin: 0.48rem 0;
   padding-left: 0.22rem;
 }
 
@@ -402,20 +402,20 @@ sup a {
 
 .text-only {
   max-width: calc(50% - 20px);
-  padding: 0 0 0.35rem;
+  padding: 0 0 0.65rem;
 }
 
 .prose-only {
   max-width: calc(50% - 20px);
   margin: 0;
-  padding: 0 0 0.5rem;
+  padding: 0 0 0.78rem;
 }
 
 blockquote {
-  margin: 0.8rem 0;
+  margin: 1rem 0;
   padding: 0 0 0 1rem;
   border-left: 2px solid var(--doc-accent);
-  color: #55534e;
+  color: #4f6077;
   font-size: 1rem;
   font-style: italic;
 }
@@ -440,7 +440,7 @@ blockquote {
   max-width: 360px;
   min-height: 1em;
   margin-top: 0 !important;
-  color: #45433e;
+  color: #354a66;
   font-family: "Avenir Next", "Helvetica Neue", Arial, sans-serif;
   font-size: 0.82rem;
   font-weight: 500;
@@ -459,10 +459,10 @@ blockquote {
 
 .source-notes {
   max-width: calc(50% - 20px);
-  margin: 1rem 0 0;
+  margin: 1.3rem 0 0;
   padding-top: 0.6rem;
   padding-left: 1.8rem;
-  border-top: 1px solid rgba(140, 138, 128, 0.34);
+  border-top: 1px solid rgba(11, 31, 58, 0.22);
   color: var(--doc-muted);
   font-size: 0.82rem;
   list-style: decimal outside;
@@ -489,7 +489,7 @@ blockquote {
   justify-content: space-between;
   margin-top: 2rem;
   padding: 1rem 0 0;
-  border-top: 1px solid rgba(140, 138, 128, 0.34);
+  border-top: 1px solid rgba(11, 31, 58, 0.22);
   color: var(--doc-muted);
   font-family: "Avenir Next", "Helvetica Neue", Arial, sans-serif;
   font-size: 0.74rem;
@@ -547,7 +547,7 @@ blockquote {
     margin: 0 0 1rem;
     padding: 10px 14px;
     border-left: 3px solid var(--doc-muted);
-    color: #66645f;
+    color: #53657c;
     font-size: 0.82rem;
     font-style: italic;
   }
@@ -627,7 +627,7 @@ blockquote {
   .section-viz {
     margin: 6px 0 14px;
     padding: 0;
-    border: 1px solid rgba(140, 138, 128, 0.35);
+    border: 1px solid rgba(11, 31, 58, 0.22);
     border-radius: 8px;
   }
 

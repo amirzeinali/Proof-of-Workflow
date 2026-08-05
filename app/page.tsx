@@ -11,14 +11,14 @@ type SceneName =
   | "pie"
   | "compounding";
 
-const INK = "#262624";
-const TEXT = "#2a2926";
-const MUTED = "#8c8a80";
-const ACCENT = "#9b2d2d";
-const SUCCESS = "#2f7d32";
-const ACCENT_LIGHT = "rgba(155,45,45,.16)";
-const PAPER = "#f4f3ee";
-const WHITE = "rgba(255,255,255,.68)";
+const INK = "#0b1f3a";
+const TEXT = "#20344f";
+const MUTED = "#6f7f93";
+const ACCENT = "#1558d6";
+const SUCCESS = "#16843f";
+const ACCENT_LIGHT = "rgba(21,88,214,.14)";
+const PAPER = "#ffffff";
+const WHITE = "rgba(255,255,255,.88)";
 
 const clamp = (value: number, min = 0, max = 1) =>
   Math.max(min, Math.min(max, value));
@@ -456,7 +456,7 @@ function shadeOutdated(
   if (opacity <= 0) return;
   ctx.save();
   ctx.globalAlpha = opacity * 0.46;
-  ctx.fillStyle = "rgba(140,138,128,.14)";
+  ctx.fillStyle = "rgba(111,127,147,.14)";
   ctx.beginPath();
   ctx.roundRect(x, y, width, height, 7);
   ctx.fill();
@@ -559,7 +559,7 @@ function drawCriteria(ctx: CanvasRenderingContext2D, p: number) {
 function drawMagnifier(ctx: CanvasRenderingContext2D, x: number, y: number, opacity = 1) {
   ctx.save();
   ctx.globalAlpha = opacity;
-  ctx.shadowColor = "rgba(38,38,36,.16)";
+  ctx.shadowColor = "rgba(11,31,58,.16)";
   ctx.shadowBlur = 8;
   ctx.shadowOffsetY = 3;
   ctx.fillStyle = "rgba(255,255,255,.42)";
@@ -738,7 +738,7 @@ function drawPieFrame(
   const points = 240;
 
   ctx.save();
-  ctx.shadowColor = "rgba(38,38,36,.1)";
+  ctx.shadowColor = "rgba(11,31,58,.1)";
   ctx.shadowBlur = Math.max(4, radius * 0.04);
   ctx.shadowOffsetY = Math.max(2, radius * 0.016);
   ctx.fillStyle = "rgba(187,145,96,.16)";
@@ -758,8 +758,8 @@ function drawPieFrame(
   ctx.shadowColor = "transparent";
   ctx.stroke();
 
-  ctx.fillStyle = "rgba(244,243,238,.76)";
-  ctx.strokeStyle = "rgba(155,45,45,.34)";
+  ctx.fillStyle = "rgba(255,255,255,.9)";
+  ctx.strokeStyle = "rgba(21,88,214,.34)";
   ctx.lineWidth = Math.max(1, radius * 0.012);
   ctx.beginPath();
   ctx.arc(centerX, centerY, innerRadius, 0, Math.PI * 2);
@@ -899,7 +899,7 @@ function drawPie(ctx: CanvasRenderingContext2D, p: number) {
   );
 
   ctx.save();
-  ctx.strokeStyle = "rgba(140,138,128,.7)";
+  ctx.strokeStyle = "rgba(111,127,147,.7)";
   ctx.lineWidth = 1.1;
   ctx.beginPath();
   ctx.arc(center.x, center.y, innerRadius, 0, Math.PI * 2);
@@ -1110,8 +1110,8 @@ function drawMeter(ctx: CanvasRenderingContext2D, p: number) {
   ].forEach(([x, y]) => dot(ctx, x, y, 2.5, PAPER, MUTED, 0.65));
 
   ctx.save();
-  ctx.fillStyle = "rgba(244,243,238,.84)";
-  ctx.strokeStyle = "rgba(140,138,128,.72)";
+  ctx.fillStyle = "rgba(255,255,255,.94)";
+  ctx.strokeStyle = "rgba(111,127,147,.72)";
   ctx.lineWidth = 1.1;
   ctx.beginPath();
   ctx.roundRect(119, 50, 262, 91, 9);
@@ -1172,7 +1172,7 @@ function drawMeter(ctx: CanvasRenderingContext2D, p: number) {
   dot(ctx, retryX, 197, 3.5, PAPER, ACCENT, retryReached);
   dot(ctx, correctionX, 197, 3.5, PAPER, ACCENT, correctionReached);
 
-  line(ctx, barStart, 197, barEnd, 197, "rgba(140,138,128,.58)", 3, usageOpacity);
+  line(ctx, barStart, 197, barEnd, 197, "rgba(111,127,147,.58)", 3, usageOpacity);
   line(ctx, barStart, 197, barStart + (barEnd - barStart) * activityFill, 197, ACCENT, 3.4, usageOpacity);
   for (let index = 0; index <= 8; index += 1) {
     const x = barStart + ((barEnd - barStart) * index) / 8;
@@ -1181,7 +1181,7 @@ function drawMeter(ctx: CanvasRenderingContext2D, p: number) {
   dot(ctx, barStart + (barEnd - barStart) * activityFill, 197, 5.5, PAPER, ACCENT, usageOpacity);
 
   const acceptedUnit = smootherEase((flip - 0.5) / 0.42);
-  line(ctx, 129, 154, 371, 154, "rgba(140,138,128,.34)", 1, acceptedUnit);
+  line(ctx, 129, 154, 371, 154, "rgba(111,127,147,.34)", 1, acceptedUnit);
   label(ctx, "COST UNIT", 144, 171, {
     color: MUTED,
     size: 8.3,
@@ -1432,10 +1432,10 @@ function drawCompounding(ctx: CanvasRenderingContext2D, p: number) {
   const innerRadius = 27 + powActivity;
   ctx.save();
   ctx.globalAlpha = 0.96;
-  ctx.fillStyle = "rgba(166,52,48,.13)";
+  ctx.fillStyle = "rgba(21,88,214,.13)";
   ctx.strokeStyle = ACCENT;
   ctx.lineWidth = 2.7 + powActivity * 0.8;
-  ctx.shadowColor = "rgba(155,45,45,.48)";
+  ctx.shadowColor = "rgba(21,88,214,.48)";
   ctx.shadowBlur = 9 + powActivity * 9;
   ctx.beginPath();
   for (let index = 0; index < 32; index += 1) {
@@ -1454,7 +1454,7 @@ function drawCompounding(ctx: CanvasRenderingContext2D, p: number) {
   ctx.fillStyle = "rgba(255,255,255,.92)";
   ctx.strokeStyle = ACCENT;
   ctx.lineWidth = 2.5;
-  ctx.shadowColor = "rgba(155,45,45,.42)";
+  ctx.shadowColor = "rgba(21,88,214,.42)";
   ctx.shadowBlur = 8 + powActivity * 7;
   ctx.beginPath();
   ctx.arc(powCenter.x, powCenter.y, 24 + powActivity * 1.5, 0, Math.PI * 2);
