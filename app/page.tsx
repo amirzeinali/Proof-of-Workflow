@@ -1505,7 +1505,8 @@ function ScrollDiagram({
 
     const paint = () => {
       frame = 0;
-      const ratio = Math.min(window.devicePixelRatio || 1, 2);
+      const displayScale = Math.max(1, canvas.getBoundingClientRect().width / 500);
+      const ratio = Math.min((window.devicePixelRatio || 1) * displayScale, 3);
       const logicalHeight = scene === "meter" ? 250 : 400;
       if (canvas.width !== Math.round(500 * ratio) || canvas.height !== Math.round(logicalHeight * ratio)) {
         canvas.width = Math.round(500 * ratio);
