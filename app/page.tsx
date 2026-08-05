@@ -600,6 +600,12 @@ function drawMagnifier(ctx: CanvasRenderingContext2D, x: number, y: number, opac
 
 function drawOrganizationSymbol(ctx: CanvasRenderingContext2D, stage: number) {
   const names = ["Repositories", "Airlines", "Zoox"];
+  if (stage === 2) {
+    box(ctx, 326, 118, 162, 110, true, 1, 10);
+    label(ctx, names[stage], 445, 139, { color: ACCENT, size: 11.5, weight: 600 });
+    containedImage(ctx, logoPaths[4], 414, 157, 62, 42);
+    return;
+  }
   box(ctx, 340, 118, 134, 110, stage === 2, 1, 10);
   label(ctx, names[stage], 407, 139, { color: stage === 2 ? ACCENT : TEXT, size: 11.5, weight: 600 });
   if (stage === 0) {
@@ -608,17 +614,16 @@ function drawOrganizationSymbol(ctx: CanvasRenderingContext2D, stage: number) {
     containedImage(ctx, logoPaths[1], 350, 161, 32, 40);
     containedImage(ctx, logoPaths[2], 391, 161, 32, 40);
     containedImage(ctx, logoPaths[3], 432, 161, 32, 40);
-  } else {
-    containedImage(ctx, logoPaths[4], 356, 165, 102, 34);
   }
 }
 
 function drawProximity(ctx: CanvasRenderingContext2D, p: number) {
   const stage = Math.min(2, Math.floor(p * 3));
   const local = ease((p * 3) % 1);
-  const positions = [88, 246, 394];
-  const from = positions[Math.max(0, stage - 1)];
-  const lensX = stage === 0 ? positions[0] : from + (positions[stage] - from) * local;
+  const spectrumPositions = [88, 246, 394];
+  const lensPositions = [88, 246, 370];
+  const from = lensPositions[Math.max(0, stage - 1)];
+  const lensX = stage === 0 ? lensPositions[0] : from + (lensPositions[stage] - from) * local;
   const evaluators = ["Codex / Claude Code", "Sierra", "Zoox Evaluator"];
   const modes = ["Outside", "Alongside", "Inside"];
   const acceptanceCues = [
@@ -629,7 +634,7 @@ function drawProximity(ctx: CanvasRenderingContext2D, p: number) {
 
   arrow(ctx, 448, 314, 52, 314, MUTED, 0.9);
   arrow(ctx, 52, 314, 448, 314, MUTED, 0.9);
-  positions.forEach((x, index) => {
+  spectrumPositions.forEach((x, index) => {
     dot(ctx, x, 314, index === stage ? 5 : 3.5, index === stage ? ACCENT : PAPER, index === stage ? ACCENT : MUTED);
     label(ctx, modes[index], x, 339, { color: index === stage ? ACCENT : MUTED, size: 11, weight: index === stage ? 600 : 400 });
   });
@@ -963,6 +968,22 @@ function drawAcceptance(ctx: CanvasRenderingContext2D, p: number) {
     });
   });
 
+  const finalSnapshot = smootherEase((compress - 0.58) / 0.34);
+  nodes.forEach((node, index) => {
+    const targetY = 88 + index * 32.5;
+    const angle = Math.atan2(targetY - core.y, registerX - core.x);
+    line(
+      ctx,
+      core.x + Math.cos(angle) * 31,
+      core.y + Math.sin(angle) * 31,
+      registerX - 7,
+      targetY,
+      node.color,
+      1.05,
+      finalSnapshot * 0.5,
+    );
+  });
+
   ctx.save();
   ctx.globalAlpha = 0.95;
   ctx.fillStyle = "rgba(255,255,255,.82)";
@@ -977,6 +998,15 @@ function drawAcceptance(ctx: CanvasRenderingContext2D, p: number) {
   label(ctx, "In Context", core.x, core.y + 11, { color: MUTED, size: 7.8, italic: true });
 
   line(ctx, registerX, 78, registerX, 326, MUTED, 1.5, compress * 0.8);
+  nodes.forEach((node, index) => {
+    label(ctx, node.label, registerX + 11, 88 + index * 32.5, {
+      align: "left",
+      color: node.color,
+      size: 7.2,
+      weight: 600,
+      opacity: finalSnapshot,
+    });
+  });
   flowArrow(
     ctx,
     { x: registerX, y: aperture.y },
