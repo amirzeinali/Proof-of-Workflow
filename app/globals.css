@@ -224,12 +224,16 @@ h1 {
 }
 
 .contents-subsections {
-  display: flex;
+  display: none;
   gap: 1px;
   margin: 1px 0 4px 33px;
   padding: 0;
   flex-direction: column;
   list-style: none;
+}
+
+.contents-subsections.is-visible {
+  display: flex;
 }
 
 .contents-subsections a {
@@ -696,9 +700,9 @@ blockquote {
 }
 
 .evaluator-story-list .evaluator-story-step-compact {
-  min-height: clamp(118px, 17vh, 158px);
-  margin: 0;
-  padding-top: 0.72rem;
+  min-height: 0;
+  margin: 0 0 0.55rem;
+  padding-top: 0.2rem;
 }
 
 @media (min-width: 901px) and (max-width: 1400px) {
@@ -710,7 +714,8 @@ blockquote {
 
   .contents-title,
   .contents-label,
-  .contents-subsections {
+  .contents-subsections,
+  .contents-subsections.is-visible {
     display: none;
   }
 
@@ -772,7 +777,8 @@ blockquote {
     flex-direction: initial;
   }
 
-  .contents-subsections {
+  .contents-subsections,
+  .contents-subsections.is-visible {
     display: none;
   }
 

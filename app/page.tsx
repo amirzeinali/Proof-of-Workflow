@@ -1,6 +1,6 @@
 "use client";
 
-import { ReactNode, useEffect, useRef, useState } from "react";
+import { Children, ReactNode, useEffect, useRef, useState } from "react";
 
 type SceneName =
   | "criteria"
@@ -748,10 +748,10 @@ function drawEvaluatorStory(ctx: CanvasRenderingContext2D, phase: number) {
   });
   const weightTotal = caseWeights.reduce((sum, weight) => sum + weight, 0) || 1;
   const weights = caseWeights.map((weight) => weight / weightTotal);
-  const lensStops = [154, 482, 642];
+  const lensStops = [154, 382, 550];
   const lensX = lensStops.reduce((sum, stop, index) => sum + stop * weights[index], 0);
-  const lensY = 99;
-  const modeStops = [154, 382, 610];
+  const lensY = 78;
+  const modeStops = lensStops;
   const evaluators = ["Codex / Claude Code", "Sierra", "Zoox Evaluator"];
   const caseColors = [POLICY_BLUE, POLICY_ORANGE, POLICY_RED];
   const cues = [
@@ -770,12 +770,12 @@ function drawEvaluatorStory(ctx: CanvasRenderingContext2D, phase: number) {
   ctx.fill();
   ctx.stroke();
   ctx.restore();
-  label(ctx, "Organization", 589, 60, { color: POLICY_NAVY, size: 12.5, weight: 700, opacity: proximityOpacity });
+  label(ctx, "Organization", 608, 60, { color: POLICY_NAVY, size: 12.5, weight: 700, opacity: proximityOpacity });
   containedImage(ctx, logoPaths[0], 550, 76, 76, 54, weights[0] * proximityOpacity);
   containedImage(ctx, logoPaths[1], 506, 83, 42, 34, weights[1] * proximityOpacity);
   containedImage(ctx, logoPaths[2], 568, 83, 42, 34, weights[1] * proximityOpacity);
   containedImage(ctx, logoPaths[3], 630, 83, 42, 34, weights[1] * proximityOpacity);
-  containedImage(ctx, logoPaths[4], 515, 80, 70, 39, weights[2] * proximityOpacity);
+  containedImage(ctx, logoPaths[4], 625, 82, 60, 30, weights[2] * proximityOpacity);
 
   arrow(ctx, 690, 193, 70, 193, POLICY_NAVY, 0.5 * proximityOpacity);
   arrow(ctx, 70, 193, 690, 193, POLICY_SKY, 0.58 * proximityOpacity);
@@ -807,7 +807,7 @@ function drawEvaluatorStory(ctx: CanvasRenderingContext2D, phase: number) {
       weight: 650,
       opacity: weights[index] * proximityOpacity,
     });
-    wrappedLabel(ctx, cues[index], lensX, 161, 220, 12, {
+    wrappedLabel(ctx, cues[index], lensX, 149, 220, 12, {
       color: caseColors[index],
       size: 10.5,
       weight: 550,
@@ -1226,35 +1226,68 @@ function drawAcceptance(ctx: CanvasRenderingContext2D, p: number) {
   });
 
   const outputX = 476;
-  const outputY = aperture.y;
+  const acceptedY = 169;
+  const rejectedY = 237;
   flowArrow(
     ctx,
-    { x: aperture.x + 42, y: aperture.y },
-    { x: 447, y: aperture.y },
-    { x: 449, y: aperture.y },
-    { x: outputX - 24, y: aperture.y },
+    { x: aperture.x + 40, y: aperture.y - 14 },
+    { x: 450, y: aperture.y - 18 },
+    { x: 451, y: acceptedY },
+    { x: outputX - 20, y: acceptedY },
     SUCCESS,
     accept,
     accept,
-    2,
+    1.8,
+  );
+  flowArrow(
+    ctx,
+    { x: aperture.x + 40, y: aperture.y + 14 },
+    { x: 450, y: aperture.y + 18 },
+    { x: 451, y: rejectedY },
+    { x: outputX - 20, y: rejectedY },
+    POLICY_RED,
+    accept,
+    accept,
+    1.8,
   );
 
-  dot(ctx, outputX, outputY, 21, "rgba(47,125,50,.08)", SUCCESS, accept);
+  dot(ctx, outputX, acceptedY, 17, "rgba(47,125,50,.08)", SUCCESS, accept);
   if (accept > 0.02) {
     ctx.save();
     ctx.globalAlpha = accept;
     ctx.strokeStyle = SUCCESS;
-    ctx.lineWidth = 3;
+    ctx.lineWidth = 2.6;
     ctx.beginPath();
-    ctx.moveTo(outputX - 11, outputY);
-    ctx.lineTo(outputX - 2, outputY + 9);
-    ctx.lineTo(outputX + 14, outputY - 9);
+    ctx.moveTo(outputX - 9, acceptedY);
+    ctx.lineTo(outputX - 2, acceptedY + 7);
+    ctx.lineTo(outputX + 11, acceptedY - 7);
     ctx.stroke();
     ctx.restore();
   }
-  label(ctx, "Accepted", outputX, outputY + 39, {
+  label(ctx, "Accepted", outputX, acceptedY + 29, {
     color: SUCCESS,
-    size: 9.5,
+    size: 8.5,
+    weight: 650,
+    opacity: accept,
+  });
+
+  dot(ctx, outputX, rejectedY, 17, "rgba(233,65,27,.07)", POLICY_RED, accept);
+  if (accept > 0.02) {
+    ctx.save();
+    ctx.globalAlpha = accept;
+    ctx.strokeStyle = POLICY_RED;
+    ctx.lineWidth = 2.4;
+    ctx.beginPath();
+    ctx.moveTo(outputX - 7, rejectedY - 7);
+    ctx.lineTo(outputX + 7, rejectedY + 7);
+    ctx.moveTo(outputX + 7, rejectedY - 7);
+    ctx.lineTo(outputX - 7, rejectedY + 7);
+    ctx.stroke();
+    ctx.restore();
+  }
+  label(ctx, "Rejected", outputX, rejectedY + 29, {
+    color: POLICY_RED,
+    size: 8.5,
     weight: 650,
     opacity: accept,
   });
@@ -1572,7 +1605,7 @@ function drawCompounding(ctx: CanvasRenderingContext2D, p: number) {
       85 + point.y,
       organizationColors[index % organizationColors.length],
       reveal * (index < 14 ? 1 : 0.82),
-      index < 3 ? 1.02 : Math.max(0.42, 0.78 - index * 0.004),
+      0.7,
     );
   });
 
@@ -1584,7 +1617,7 @@ function drawCompounding(ctx: CanvasRenderingContext2D, p: number) {
       ctx,
       260 + point.x,
       310 + point.y,
-      index < 2 ? 31 : Math.max(9, 18 - index * 0.1),
+      14,
       brainColors[index % brainColors.length],
       reveal * (index < 11 ? 1 : 0.78),
     );
@@ -1598,7 +1631,7 @@ function drawCompounding(ctx: CanvasRenderingContext2D, p: number) {
       ctx,
       421 + point.x,
       207 + point.y,
-      index < 2 ? 12 : Math.max(4.2, 8 - index * 0.03),
+      7,
       smileColors[index % smileColors.length],
       reveal * (index < 16 ? 1 : 0.76),
     );
@@ -1761,6 +1794,7 @@ function ScrollDiagram({
 function EvaluatorStory({ children }: { children: ReactNode }) {
   const storyRef = useRef<HTMLDivElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const [intro, ...storySteps] = Children.toArray(children);
 
   useEffect(() => {
     const story = storyRef.current;
@@ -1837,6 +1871,7 @@ function EvaluatorStory({ children }: { children: ReactNode }) {
 
   return (
     <div className="evaluator-story" ref={storyRef}>
+      <div className="evaluator-story-copy evaluator-story-intro">{intro}</div>
       <div className="evaluator-story-viz">
         <canvas
           className="evaluator-story-canvas"
@@ -1846,7 +1881,7 @@ function EvaluatorStory({ children }: { children: ReactNode }) {
         />
         <p className="viz-caption">Evaluator distance and coding systems share one acceptance spectrum.</p>
       </div>
-      <div className="evaluator-story-copy">{children}</div>
+      <div className="evaluator-story-copy">{storySteps}</div>
     </div>
   );
 }
@@ -1954,7 +1989,7 @@ function SectionTable() {
                 <span className="contents-label">{item.label}</span>
               </a>
               {item.children ? (
-                <ol className="contents-subsections">
+                <ol className={`contents-subsections${sectionActive ? " is-visible" : ""}`}>
                   {item.children.map((child) => (
                     <li key={child.id}>
                       <a href={`#${child.id}`} className={activeId === child.id ? "is-active" : undefined} title={child.label}>
