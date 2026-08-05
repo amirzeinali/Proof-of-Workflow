@@ -641,11 +641,12 @@ blockquote {
 .evaluator-story {
   position: relative;
   display: grid;
-  width: min(100%, 1180px);
-  margin: 0 auto;
-  grid-template-columns: minmax(0, 1fr) minmax(350px, 0.6fr);
+  width: min(calc(100vw - 48px), 1800px);
+  margin: 0 0 0 50%;
+  transform: translateX(-50%);
+  grid-template-columns: minmax(0, 1fr) minmax(0, 740px) minmax(0, 1fr);
   grid-template-rows: auto 1fr;
-  column-gap: 38px;
+  column-gap: 32px;
   align-items: start;
 }
 
@@ -661,7 +662,7 @@ blockquote {
   border-radius: 10px;
   background: rgba(255, 255, 255, 0.96);
   box-shadow: 0 8px 22px rgba(0, 68, 127, 0.055);
-  grid-column: 2;
+  grid-column: 3;
   grid-row: 2;
   flex-direction: column;
   align-items: center;
@@ -684,14 +685,14 @@ blockquote {
 .evaluator-story-copy {
   width: 100%;
   margin: 0;
-  grid-column: 1;
+  grid-column: 2;
   grid-row: 2;
 }
 
 .evaluator-story-intro {
   width: min(100%, 740px);
   margin: 0 auto 0.55rem;
-  grid-column: 1 / -1;
+  grid-column: 2;
   grid-row: 1;
 }
 
@@ -724,10 +725,12 @@ blockquote {
   padding-top: 0.2rem;
 }
 
-@media (max-width: 1180px) {
+@media (max-width: 1499px) {
   .evaluator-story {
     display: block;
     width: 100%;
+    margin: 0;
+    transform: none;
   }
 
   .evaluator-story-intro,
@@ -744,7 +747,7 @@ blockquote {
   }
 }
 
-@media (min-width: 901px) and (max-width: 1400px) {
+@media (min-width: 901px) and (max-width: 1599px) {
   .contents-table {
     left: 12px;
     width: 50px;

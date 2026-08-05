@@ -611,20 +611,16 @@ function drawMagnifier(
 }
 
 function drawOrganizationSymbol(ctx: CanvasRenderingContext2D, stage: number) {
-  if (stage === 2) {
-    box(ctx, 326, 118, 162, 110, true, 1, 10);
-    label(ctx, "Organization", 407, 139, { color: POLICY_NAVY, size: 11.5, weight: 650 });
-    containedImage(ctx, logoPaths[4], 425, 158, 50, 34);
-    return;
-  }
-  box(ctx, 340, 118, 134, 110, stage === 2, 1, 10);
-  label(ctx, "Organization", 407, 139, { color: POLICY_NAVY, size: 11.5, weight: 650 });
+  box(ctx, 115, 247, 370, 116, stage === 2, 1, 10);
+  label(ctx, "Organization", 362, 268, { color: POLICY_NAVY, size: 11.5, weight: 650 });
   if (stage === 0) {
-    containedImage(ctx, logoPaths[0], 378, 151, 58, 58);
+    containedImage(ctx, logoPaths[0], 332, 284, 62, 58);
   } else if (stage === 1) {
-    containedImage(ctx, logoPaths[1], 350, 161, 32, 40);
-    containedImage(ctx, logoPaths[2], 391, 161, 32, 40);
-    containedImage(ctx, logoPaths[3], 432, 161, 32, 40);
+    containedImage(ctx, logoPaths[1], 285, 293, 42, 35);
+    containedImage(ctx, logoPaths[2], 346, 293, 42, 35);
+    containedImage(ctx, logoPaths[3], 407, 293, 42, 35);
+  } else {
+    containedImage(ctx, logoPaths[4], 345, 291, 92, 40);
   }
 }
 
@@ -634,8 +630,8 @@ function drawProximity(ctx: CanvasRenderingContext2D, p: number) {
   const weightTotal = weights.reduce((sum, weight) => sum + weight, 0) || 1;
   const normalizedWeights = weights.map((weight) => weight / weightTotal);
   const stage = Math.round(caseProgress);
-  const spectrumPositions = [88, 246, 370];
-  const lensX = spectrumPositions.reduce((sum, position, index) => sum + position * normalizedWeights[index], 0);
+  const spectrumPositions = [94, 180, 302];
+  const lensY = spectrumPositions.reduce((sum, position, index) => sum + position * normalizedWeights[index], 0);
   const evaluators = ["Codex / Claude Code", "Sierra", "Zoox Evaluator"];
   const modes = ["Outside", "Alongside", "Inside"];
   const caseColors = [POLICY_BLUE, POLICY_ORANGE, POLICY_RED];
@@ -645,28 +641,28 @@ function drawProximity(ctx: CanvasRenderingContext2D, p: number) {
     "Acceptance must be interpreted inside",
   ];
 
-  arrow(ctx, 448, 314, 52, 314, MUTED, 0.9);
-  arrow(ctx, 52, 314, 448, 314, MUTED, 0.9);
-  spectrumPositions.forEach((x, index) => {
+  drawOrganizationSymbol(ctx, stage);
+  arrow(ctx, 165, 332, 165, 68, MUTED, 0.9);
+  arrow(ctx, 165, 68, 165, 332, MUTED, 0.9);
+  spectrumPositions.forEach((y, index) => {
     const active = normalizedWeights[index];
-    dot(ctx, x, 314, 3.5 + active * 1.5, active > 0.04 ? caseColors[index] : PAPER, active > 0.04 ? caseColors[index] : MUTED);
-    label(ctx, modes[index], x, 339, {
+    dot(ctx, 165, y, 3.5 + active * 1.5, active > 0.04 ? caseColors[index] : PAPER, active > 0.04 ? caseColors[index] : MUTED);
+    label(ctx, modes[index], 88, y, {
       color: active > 0.04 ? caseColors[index] : MUTED,
       size: 11,
       weight: active > 0.04 ? 650 : 400,
     });
   });
 
-  drawOrganizationSymbol(ctx, stage);
-  drawMagnifier(ctx, lensX, 165, 1, POLICY_BLUE, POLICY_NAVY);
+  drawMagnifier(ctx, 165, lensY, 1, POLICY_BLUE, POLICY_NAVY);
   evaluators.forEach((evaluator, index) => {
-    label(ctx, evaluator, lensX, 95, {
+    label(ctx, evaluator, 324, 24, {
       color: caseColors[index],
       size: 11.5,
       weight: 650,
       opacity: normalizedWeights[index],
     });
-    wrappedLabel(ctx, acceptanceCues[index], lensX, 258, 170, 12, {
+    wrappedLabel(ctx, acceptanceCues[index], 324, 49, 300, 12, {
       color: caseColors[index],
       size: 10.5,
       weight: 550,
@@ -674,7 +670,7 @@ function drawProximity(ctx: CanvasRenderingContext2D, p: number) {
       opacity: normalizedWeights[index],
     });
   });
-  label(ctx, "Magnifier = Evaluator", 250, 374, { color: MUTED, size: 9.5, italic: true });
+  label(ctx, "Magnifier = Evaluator", 360, 385, { color: MUTED, size: 9.5, italic: true });
 }
 
 function drawCoding(ctx: CanvasRenderingContext2D, p: number) {
