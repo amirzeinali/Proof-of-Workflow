@@ -307,12 +307,12 @@ h1 {
 }
 
 .scene-pie .section-inner {
-  min-height: 285px;
+  min-height: 240px;
 }
 
 .scene-pie .section-viz {
   position: absolute !important;
-  top: -35px;
+  top: -100px;
   right: 0;
   width: calc(50% - 14px);
 }
