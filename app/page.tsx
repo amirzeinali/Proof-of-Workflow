@@ -203,12 +203,16 @@ type EmojiSprite = {
 };
 
 const emojiSprites = new Map<string, EmojiSprite>();
+const assetPath = (path: string) => {
+  if (typeof document === "undefined") return path;
+  return new URL(path.replace(/^\//, ""), document.baseURI).pathname;
+};
 const logoPaths = [
-  "/logos/github.svg",
-  "/logos/delta.svg",
-  "/logos/american-airlines.svg",
-  "/logos/ryanair.svg",
-  "/logos/zoox.svg",
+  assetPath("/logos/github.svg"),
+  assetPath("/logos/delta.svg"),
+  assetPath("/logos/american-airlines.svg"),
+  assetPath("/logos/ryanair.svg"),
+  assetPath("/logos/zoox.svg"),
 ];
 const canvasImages = new Map<string, HTMLImageElement>();
 
@@ -628,13 +632,13 @@ function drawOrganizationSymbol(ctx: CanvasRenderingContext2D, stage: number) {
   box(ctx, 340, 118, 134, 110, stage === 2, 1, 10);
   label(ctx, names[stage], 407, 139, { color: stage === 2 ? ACCENT : TEXT, size: 11.5, weight: 600 });
   if (stage === 0) {
-    containedImage(ctx, "/logos/github.svg", 378, 151, 58, 58);
+    containedImage(ctx, logoPaths[0], 378, 151, 58, 58);
   } else if (stage === 1) {
-    containedImage(ctx, "/logos/delta.svg", 350, 161, 32, 40);
-    containedImage(ctx, "/logos/american-airlines.svg", 391, 161, 32, 40);
-    containedImage(ctx, "/logos/ryanair.svg", 432, 161, 32, 40);
+    containedImage(ctx, logoPaths[1], 350, 161, 32, 40);
+    containedImage(ctx, logoPaths[2], 391, 161, 32, 40);
+    containedImage(ctx, logoPaths[3], 432, 161, 32, 40);
   } else {
-    containedImage(ctx, "/logos/zoox.svg", 356, 165, 102, 34);
+    containedImage(ctx, logoPaths[4], 356, 165, 102, 34);
   }
 }
 
