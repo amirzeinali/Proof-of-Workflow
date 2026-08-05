@@ -1,6 +1,6 @@
 "use client";
 
-import { ReactNode, useEffect, useRef } from "react";
+import { ReactNode, useEffect, useRef, useState } from "react";
 
 type SceneName =
   | "criteria"
@@ -1311,14 +1311,18 @@ function drawSmiley(
 }
 
 function drawCompounding(ctx: CanvasRenderingContext2D, p: number) {
-  const cycleValue = Math.min(2.999, p * 3);
+  const cycleValue = Math.min(3.999, p * 4);
   const cycle = Math.floor(cycleValue);
   const local = cycleValue - cycle;
   const growth = smootherEase((local - 0.72) / 0.24);
-  const counts = (values: number[]) => values[cycle] + (values[cycle + 1] - values[cycle]) * growth;
-  const organizationCount = counts([3, 14, 38, 85]);
-  const intelligenceCount = counts([2, 11, 34, 75]);
-  const utilityCount = counts([2, 16, 46, 100]);
+  const counts = (initial: number, firstExpansion: number, finalExpansion: number) => {
+    if (cycle < 2) return initial;
+    if (cycle === 2) return initial + (firstExpansion - initial) * growth;
+    return firstExpansion + (finalExpansion - firstExpansion) * growth;
+  };
+  const organizationCount = counts(3, 30, 85);
+  const intelligenceCount = counts(2, 26, 75);
+  const utilityCount = counts(2, 36, 100);
 
   const pathState = (start: number, end: number) => {
     const duration = end - start;
@@ -1468,7 +1472,6 @@ const drawers: Record<SceneName, (ctx: CanvasRenderingContext2D, progress: numbe
 
 function ScrollDiagram({
   scene,
-  labelText,
   caption,
   children,
   longCopy = false,
@@ -1565,7 +1568,6 @@ function ScrollDiagram({
     <div className={`scroll-section has-scene scene-${scene}${longCopy ? " long-copy" : ""}`} ref={sectionRef}>
       <div className="section-inner">
         <div className="section-copy">
-          {labelText ? <span className="section-label">{labelText}</span> : null}
           {children}
         </div>
         <div className="section-viz">
@@ -1577,21 +1579,72 @@ function ScrollDiagram({
   );
 }
 
-function TextSection({ labelText, children }: { labelText: string; children: ReactNode }) {
+function TextSection({ children }: { labelText: string; children: ReactNode }) {
   return (
     <div className="scroll-section text-only">
-      {labelText ? <span className="section-label">{labelText}</span> : null}
       {children}
     </div>
   );
 }
 
-function ProseSection({ labelText, children }: { labelText: string; children: ReactNode }) {
+function ProseSection({ children }: { labelText: string; children: ReactNode }) {
   return (
     <div className="scroll-section prose-only">
-      <span className="section-label">{labelText}</span>
       {children}
     </div>
+  );
+}
+
+const contents = [
+  { id: "act-one", number: "1", label: "Work Changes" },
+  { id: "act-two", number: "2", label: "Judging AI Work" },
+  { id: "act-three", number: "3", label: "Evaluator Distance" },
+  { id: "act-four", number: "4", label: "AI Value" },
+  { id: "act-five", number: "5", label: "What It Unlocks" },
+];
+
+function SectionTable() {
+  const [activeId, setActiveId] = useState(contents[0].id);
+
+  useEffect(() => {
+    let frame = 0;
+    const update = () => {
+      frame = 0;
+      const marker = Math.min(180, window.innerHeight * 0.28);
+      let current = contents[0].id;
+      contents.forEach(({ id }) => {
+        const heading = document.getElementById(id);
+        if (heading && heading.getBoundingClientRect().top <= marker) current = id;
+      });
+      setActiveId(current);
+    };
+    const requestUpdate = () => {
+      if (!frame) frame = window.requestAnimationFrame(update);
+    };
+    update();
+    window.addEventListener("scroll", requestUpdate, { passive: true });
+    window.addEventListener("resize", requestUpdate);
+    return () => {
+      if (frame) window.cancelAnimationFrame(frame);
+      window.removeEventListener("scroll", requestUpdate);
+      window.removeEventListener("resize", requestUpdate);
+    };
+  }, []);
+
+  return (
+    <nav className="contents-table" aria-label="Table of contents">
+      <span className="contents-title">Contents</span>
+      <ol>
+        {contents.map((item) => (
+          <li key={item.id}>
+            <a href={`#${item.id}`} className={activeId === item.id ? "is-active" : undefined}>
+              <span>{item.number}</span>
+              {item.label}
+            </a>
+          </li>
+        ))}
+      </ol>
+    </nav>
   );
 }
 
@@ -1621,6 +1674,8 @@ export default function Home() {
             finally 5) what the future could look like with PoW.
           </p>
         </aside>
+
+        <SectionTable />
 
         <p className="mobile-notice">The diagrams are scroll-driven on larger screens and shown complete here.</p>
 
