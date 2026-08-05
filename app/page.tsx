@@ -1010,28 +1010,28 @@ function drawCompounding(ctx: CanvasRenderingContext2D, p: number) {
   const intoUtility = pathState(0.54, 0.74);
 
   const orgToPow = [
-    { x: 168, y: 150 },
-    { x: 190, y: 150 },
-    { x: 208, y: 176 },
-    { x: 222, y: 190 },
+    { x: 198, y: 112 },
+    { x: 162, y: 124 },
+    { x: 136, y: 148 },
+    { x: 119, y: 177 },
   ] as const;
   const powToBrain = [
-    { x: 274, y: 211 },
-    { x: 291, y: 228 },
-    { x: 305, y: 262 },
-    { x: 324, y: 276 },
+    { x: 116, y: 230 },
+    { x: 139, y: 269 },
+    { x: 173, y: 292 },
+    { x: 205, y: 303 },
   ] as const;
   const brainToOrg = [
-    { x: 312, y: 329 },
-    { x: 245, y: 380 },
-    { x: 121, y: 335 },
-    { x: 96, y: 215 },
+    { x: 278, y: 258 },
+    { x: 326, y: 224 },
+    { x: 326, y: 157 },
+    { x: 282, y: 124 },
   ] as const;
   const orgToUtility = [
-    { x: 168, y: 125 },
-    { x: 225, y: 76 },
-    { x: 310, y: 70 },
-    { x: 359, y: 102 },
+    { x: 309, y: 91 },
+    { x: 365, y: 75 },
+    { x: 426, y: 111 },
+    { x: 425, y: 156 },
   ] as const;
 
   [orgToPow, powToBrain, brainToOrg, orgToUtility].forEach((path) =>
@@ -1056,8 +1056,8 @@ function drawCompounding(ctx: CanvasRenderingContext2D, p: number) {
     const point = cloudPoint(index, 85, 68, 57, 0.35);
     drawCompanyTile(
       ctx,
-      120 + point.x,
-      146 + point.y,
+      250 + point.x,
+      85 + point.y,
       organizationColors[index % organizationColors.length],
       reveal * (index < 14 ? 1 : 0.82),
       index < 3 ? 1.02 : Math.max(0.42, 0.78 - index * 0.004),
@@ -1070,8 +1070,8 @@ function drawCompounding(ctx: CanvasRenderingContext2D, p: number) {
     const point = cloudPoint(index, 75, 70, 55, 1.15);
     drawBrainIcon(
       ctx,
-      351 + point.x,
-      301 + point.y,
+      260 + point.x,
+      310 + point.y,
       index < 2 ? 31 : Math.max(9, 18 - index * 0.1),
       brainColors[index % brainColors.length],
       reveal * (index < 11 ? 1 : 0.78),
@@ -1084,8 +1084,8 @@ function drawCompounding(ctx: CanvasRenderingContext2D, p: number) {
     const point = cloudPoint(index, 100, 70, 61, 2.1);
     drawSmiley(
       ctx,
-      409 + point.x,
-      137 + point.y,
+      421 + point.x,
+      207 + point.y,
       index < 2 ? 12 : Math.max(4.2, 8 - index * 0.03),
       smileColors[index % smileColors.length],
       reveal * (index < 16 ? 1 : 0.76),
@@ -1093,13 +1093,34 @@ function drawCompounding(ctx: CanvasRenderingContext2D, p: number) {
   });
 
   const powActivity = Math.max(intoPow.opacity, intoIntelligence.opacity, backToOrganizations.opacity * 0.55);
-  dot(ctx, 250, 199, 25 + powActivity * 2, "rgba(255,255,255,.82)", ACCENT);
-  label(ctx, "PoW", 250, 194, { color: ACCENT, size: 13, weight: 700 });
-  label(ctx, "acceptance", 250, 209, { color: TEXT, size: 7.4, weight: 500 });
+  const powCenter = { x: 92, y: 204 };
+  const outerRadius = 35 + powActivity * 2;
+  const innerRadius = 27 + powActivity;
+  ctx.save();
+  ctx.globalAlpha = 0.82;
+  ctx.fillStyle = "rgba(166,52,48,.08)";
+  ctx.strokeStyle = ACCENT;
+  ctx.lineWidth = 1.4;
+  ctx.beginPath();
+  for (let index = 0; index < 32; index += 1) {
+    const angle = -Math.PI / 2 + (index / 32) * Math.PI * 2;
+    const radius = index % 2 === 0 ? outerRadius : innerRadius;
+    const x = powCenter.x + Math.cos(angle) * radius;
+    const y = powCenter.y + Math.sin(angle) * radius;
+    if (index === 0) ctx.moveTo(x, y);
+    else ctx.lineTo(x, y);
+  }
+  ctx.closePath();
+  ctx.fill();
+  ctx.stroke();
+  ctx.restore();
+  dot(ctx, powCenter.x, powCenter.y, 24 + powActivity * 1.5, "rgba(255,255,255,.9)", ACCENT);
+  label(ctx, "PoW", powCenter.x, powCenter.y - 5, { color: ACCENT, size: 13, weight: 700 });
+  label(ctx, "acceptance", powCenter.x, powCenter.y + 10, { color: TEXT, size: 7.4, weight: 500 });
 
-  label(ctx, "Organizations", 120, 67, { color: TEXT, size: 11, weight: 600 });
-  label(ctx, "Utility", 409, 55, { color: TEXT, size: 11, weight: 600 });
-  label(ctx, "Intelligence", 351, 369, { color: TEXT, size: 11, weight: 600 });
+  label(ctx, "Organizations", 250, 20, { color: TEXT, size: 11, weight: 600 });
+  label(ctx, "Utility", 421, 286, { color: TEXT, size: 11, weight: 600 });
+  label(ctx, "Intelligence", 260, 385, { color: TEXT, size: 11, weight: 600 });
 }
 
 const drawers: Record<SceneName, (ctx: CanvasRenderingContext2D, progress: number) => void> = {
@@ -1503,7 +1524,9 @@ export default function Home() {
               utility for everyone.
             </p>
           </ScrollDiagram>
-          <p className="final-question">Finally, as AI takes on more of the world’s work, one question will matter most. <em>Did the work count?</em></p>
+          <TextSection labelText="">
+            <p>Finally, as AI takes on more of the world’s work, one question will matter most. Did the work count?</p>
+          </TextSection>
           <ol className="source-notes">
             <li id="note-1">Measuring Agents in Production: <a href="https://arxiv.org/abs/2512.04123">https://arxiv.org/abs/2512.04123</a></li>
             <li id="note-2"><a href="https://scale.com/blog/dialect">https://scale.com/blog/dialect</a></li>

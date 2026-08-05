@@ -278,19 +278,6 @@ blockquote {
   display: none;
 }
 
-.final-question {
-  max-width: 840px;
-  margin: 4.5rem auto 1rem;
-  color: var(--doc-line);
-  font-size: clamp(1.45rem, 3vw, 2.1rem);
-  line-height: 1.35;
-  text-align: center;
-}
-
-.final-question em {
-  color: var(--doc-accent);
-}
-
 .source-notes {
   max-width: 850px;
   margin: 3rem auto 0;
@@ -417,9 +404,6 @@ blockquote {
     margin-bottom: 1.4rem;
   }
 
-  .final-question {
-    margin-top: 3rem;
-  }
 }
 
 @media (max-width: 520px) {
