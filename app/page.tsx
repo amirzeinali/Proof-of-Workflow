@@ -4,8 +4,10 @@ import { ReactNode, useEffect, useRef } from "react";
 
 type SceneName =
   | "criteria"
+  | "acceptance"
   | "proximity"
   | "coding"
+  | "meter"
   | "pie"
   | "compounding";
 
@@ -436,6 +438,41 @@ function flowArrow(
       opacity,
     );
   }
+  ctx.restore();
+}
+
+function flowLine(
+  ctx: CanvasRenderingContext2D,
+  start: CanvasPoint,
+  control1: CanvasPoint,
+  control2: CanvasPoint,
+  end: CanvasPoint,
+  color: string,
+  opacity = 1,
+  progress = 1,
+  width = 1.4,
+) {
+  const amount = smootherEase(progress);
+  if (amount <= 0 || opacity <= 0) return;
+  const pointAt = (t: number) => {
+    const inverse = 1 - t;
+    return {
+      x: inverse ** 3 * start.x + 3 * inverse ** 2 * t * control1.x + 3 * inverse * t ** 2 * control2.x + t ** 3 * end.x,
+      y: inverse ** 3 * start.y + 3 * inverse ** 2 * t * control1.y + 3 * inverse * t ** 2 * control2.y + t ** 3 * end.y,
+    };
+  };
+  ctx.save();
+  ctx.globalAlpha = opacity;
+  ctx.strokeStyle = color;
+  ctx.lineWidth = width;
+  ctx.beginPath();
+  const origin = pointAt(0);
+  ctx.moveTo(origin.x, origin.y);
+  for (let index = 1; index <= 42; index += 1) {
+    const point = pointAt(amount * (index / 42));
+    ctx.lineTo(point.x, point.y);
+  }
+  ctx.stroke();
   ctx.restore();
 }
 
@@ -890,6 +927,309 @@ function drawPie(ctx: CanvasRenderingContext2D, p: number) {
   ctx.restore();
 }
 
+function drawAcceptance(ctx: CanvasRenderingContext2D, p: number) {
+  const grow = smootherEase((p - 0.03) / 0.42);
+  const refresh = smootherEase((p - 0.27) / 0.24);
+  const compress = smootherEase((p - 0.5) / 0.27);
+  const accept = smootherEase((p - 0.76) / 0.19);
+  const core = { x: 142, y: 201 };
+  const aperture = { x: 326, y: 201 };
+
+  label(ctx, "the living rubric", core.x, 36, { color: TEXT, size: 11, weight: 600 });
+  label(ctx, "organization", aperture.x, 101, { color: TEXT, size: 11, weight: 600 });
+
+  const nodes = [
+    { label: "current rules", x: 78, y: 92, color: "#9d5961", delay: 0 },
+    { label: "real data", x: 156, y: 74, color: "#557b7d", delay: 0.04 },
+    { label: "live tools", x: 225, y: 118, color: "#60718c", delay: 0.08 },
+    { label: "tradeoffs", x: 69, y: 237, color: "#917747", delay: 0.12 },
+    { label: "user needs", x: 173, y: 291, color: "#66806f", delay: 0.16 },
+    { label: "new constraint", x: 107, y: 333, color: ACCENT, delay: 0.23, isNew: true },
+    { label: "outdated rule", x: 226, y: 319, color: MUTED, delay: 0.1, outdated: true },
+  ];
+
+  nodes.forEach((node, index) => {
+    const reveal = smootherEase((grow - node.delay) / 0.52);
+    const arrival = node.isNew ? refresh : 1;
+    const expiry = node.outdated ? 1 - refresh : 1;
+    const opacity = reveal * arrival * expiry;
+    const targetY = 150 + (index % 5) * 25;
+    const nodeX = node.x + (286 - node.x) * compress * 0.7;
+    const nodeY = node.y + (targetY - node.y) * compress * 0.7;
+    const bend = index % 2 === 0 ? -18 : 18;
+    flowLine(
+      ctx,
+      core,
+      { x: core.x + (nodeX - core.x) * 0.34, y: core.y + bend },
+      { x: nodeX - (nodeX - core.x) * 0.22, y: nodeY - bend * 0.5 },
+      { x: nodeX, y: nodeY },
+      node.color,
+      opacity * (1 - compress * 0.45),
+      reveal,
+      node.isNew ? 1.8 : 1.25,
+    );
+    dot(
+      ctx,
+      nodeX,
+      nodeY,
+      node.isNew ? 7 : 6,
+      "rgba(255,255,255,.84)",
+      node.color,
+      opacity * (1 - compress * 0.35),
+    );
+    label(ctx, node.label, nodeX, nodeY + 16, {
+      color: node.color,
+      size: 8.2,
+      weight: node.isNew ? 650 : 500,
+      opacity: opacity * (1 - compress),
+    });
+  });
+
+  ctx.save();
+  ctx.globalAlpha = 0.95;
+  ctx.fillStyle = "rgba(255,255,255,.82)";
+  ctx.strokeStyle = ACCENT;
+  ctx.lineWidth = 1.5;
+  ctx.beginPath();
+  ctx.arc(core.x, core.y, 31, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.stroke();
+  ctx.restore();
+  label(ctx, "AI work", core.x, core.y - 4, { color: ACCENT, size: 11.5, weight: 700 });
+  label(ctx, "in context", core.x, core.y + 11, { color: MUTED, size: 7.8, italic: true });
+
+  nodes.slice(0, 6).forEach((node, index) => {
+    const signalProgress = smootherEase((compress - index * 0.055) / 0.68);
+    const start = {
+      x: node.x + (286 - node.x) * compress * 0.7,
+      y: node.y + (150 + (index % 5) * 25 - node.y) * compress * 0.7,
+    };
+    const control1 = { x: start.x + 42, y: start.y };
+    const control2 = { x: aperture.x - 49, y: aperture.y + (index - 2.5) * 4 };
+    const end = { x: aperture.x - 17, y: aperture.y + (index - 2.5) * 3 };
+    flowLine(ctx, start, control1, control2, end, node.color, compress * 0.75, signalProgress, 1.15);
+    if (signalProgress > 0.04) {
+      const t = signalProgress;
+      const inverse = 1 - t;
+      const signalX = inverse ** 3 * start.x + 3 * inverse ** 2 * t * control1.x + 3 * inverse * t ** 2 * control2.x + t ** 3 * end.x;
+      const signalY = inverse ** 3 * start.y + 3 * inverse ** 2 * t * control1.y + 3 * inverse * t ** 2 * control2.y + t ** 3 * end.y;
+      dot(ctx, signalX, signalY, 2.2, node.color, node.color, compress * 0.82);
+    }
+  });
+
+  const gateColor = accept > 0.5 ? SUCCESS : ACCENT;
+  const gateGap = 25 - compress * 13;
+  ctx.save();
+  ctx.globalAlpha = 0.84;
+  ctx.strokeStyle = gateColor;
+  ctx.lineWidth = 2;
+  ctx.beginPath();
+  ctx.moveTo(aperture.x - gateGap, 151);
+  ctx.bezierCurveTo(aperture.x - 48, 169, aperture.x - 48, 233, aperture.x - gateGap, 251);
+  ctx.moveTo(aperture.x + gateGap, 151);
+  ctx.bezierCurveTo(aperture.x + 48, 169, aperture.x + 48, 233, aperture.x + gateGap, 251);
+  ctx.stroke();
+  ctx.restore();
+
+  dot(ctx, aperture.x, 124, 6, PAPER, TEXT, 0.9);
+  ctx.save();
+  ctx.globalAlpha = 0.9;
+  ctx.strokeStyle = TEXT;
+  ctx.lineWidth = 1.3;
+  ctx.beginPath();
+  ctx.arc(aperture.x, 141, 13, Math.PI * 1.12, Math.PI * 1.88);
+  ctx.stroke();
+  ctx.restore();
+  label(ctx, accept > 0.48 ? "accepted" : "judgment", aperture.x, aperture.y, {
+    color: gateColor,
+    size: 10,
+    weight: 700,
+  });
+
+  flowLine(
+    ctx,
+    { x: aperture.x + 18, y: aperture.y },
+    { x: 363, y: aperture.y },
+    { x: 386, y: aperture.y },
+    { x: 406, y: aperture.y },
+    SUCCESS,
+    accept,
+    accept,
+    2,
+  );
+
+  const outputX = 441;
+  const outputY = 201;
+  ctx.save();
+  ctx.globalAlpha = accept;
+  ctx.fillStyle = "rgba(255,255,255,.86)";
+  ctx.strokeStyle = SUCCESS;
+  ctx.lineWidth = 1.5;
+  ctx.beginPath();
+  ctx.roundRect(outputX - 30, outputY - 36, 60, 72, 7);
+  ctx.fill();
+  ctx.stroke();
+  line(ctx, outputX - 17, outputY - 19, outputX + 17, outputY - 19, MUTED, 1, accept * 0.65);
+  line(ctx, outputX - 17, outputY - 9, outputX + 10, outputY - 9, MUTED, 1, accept * 0.65);
+  ctx.restore();
+  if (accept > 0.02) {
+    ctx.save();
+    ctx.globalAlpha = accept;
+    ctx.strokeStyle = SUCCESS;
+    ctx.lineWidth = 3;
+    ctx.beginPath();
+    ctx.moveTo(outputX - 11, outputY + 10);
+    ctx.lineTo(outputX - 2, outputY + 19);
+    ctx.lineTo(outputX + 15, outputY + 1);
+    ctx.stroke();
+    ctx.restore();
+  }
+  label(ctx, "accepted work", outputX, outputY + 54, {
+    color: SUCCESS,
+    size: 9.5,
+    weight: 650,
+    opacity: accept,
+  });
+}
+
+function drawMeter(ctx: CanvasRenderingContext2D, p: number) {
+  const activity = smootherEase(p / 0.31);
+  const burdens = smootherEase((p - 0.16) / 0.27);
+  const flip = smootherEase((p - 0.43) / 0.24);
+  const pricing = smootherEase((p - 0.7) / 0.21);
+  const meterX = 86;
+  const meterY = 54;
+  const meterWidth = 328;
+  const meterHeight = 204;
+
+  label(ctx, "MEASURE COST", 250, 31, { color: TEXT, size: 10.5, weight: 700 });
+  ctx.save();
+  ctx.fillStyle = "rgba(255,255,255,.74)";
+  ctx.strokeStyle = MUTED;
+  ctx.lineWidth = 1.35;
+  ctx.beginPath();
+  ctx.roundRect(meterX, meterY, meterWidth, meterHeight, 15);
+  ctx.fill();
+  ctx.stroke();
+  ctx.restore();
+
+  [
+    [meterX + 14, meterY + 14],
+    [meterX + meterWidth - 14, meterY + 14],
+    [meterX + 14, meterY + meterHeight - 14],
+    [meterX + meterWidth - 14, meterY + meterHeight - 14],
+  ].forEach(([x, y]) => dot(ctx, x, y, 2.5, PAPER, MUTED, 0.65));
+
+  ctx.save();
+  ctx.fillStyle = "rgba(244,243,238,.84)";
+  ctx.strokeStyle = "rgba(140,138,128,.72)";
+  ctx.lineWidth = 1.1;
+  ctx.beginPath();
+  ctx.roundRect(119, 82, 262, 91, 9);
+  ctx.fill();
+  ctx.stroke();
+  ctx.restore();
+
+  const faceScale = Math.max(0.035, Math.abs(Math.cos(Math.PI * flip)));
+  const showAccepted = flip >= 0.5;
+  ctx.save();
+  ctx.translate(250, 127);
+  ctx.scale(1, faceScale);
+  if (showAccepted) {
+    label(ctx, "ACCEPTED WORK", 0, -27, { color: SUCCESS, size: 9.5, weight: 700 });
+    ctx.fillStyle = SUCCESS;
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+    ctx.font = '700 34px "SFMono-Regular", Consolas, monospace';
+    ctx.fillText("01", 0, 7);
+    label(ctx, "workflow", 0, 31, { color: TEXT, size: 9.5, weight: 600 });
+  } else {
+    const total = Math.round(740 + activity * 5860 + burdens * 2240);
+    label(ctx, "AI ACTIVITY", 0, -27, { color: ACCENT, size: 9.5, weight: 700 });
+    ctx.fillStyle = TEXT;
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+    ctx.font = '700 29px "SFMono-Regular", Consolas, monospace';
+    ctx.fillText(String(total).padStart(6, "0"), 0, 7);
+    label(ctx, "tokens used", 0, 31, { color: MUTED, size: 9.5, weight: 600 });
+  }
+  ctx.restore();
+
+  const usageOpacity = 1 - smootherEase((flip - 0.02) / 0.58);
+  label(ctx, "retries", 164, 190, {
+    color: ACCENT,
+    size: 9,
+    weight: 600,
+    opacity: burdens * usageOpacity,
+  });
+  label(ctx, "expert corrections", 324, 190, {
+    color: ACCENT,
+    size: 9,
+    weight: 600,
+    opacity: burdens * usageOpacity,
+  });
+  ctx.save();
+  ctx.globalAlpha = burdens * usageOpacity;
+  ctx.strokeStyle = ACCENT;
+  ctx.lineWidth = 1.25;
+  ctx.beginPath();
+  ctx.arc(164, 211, 10, Math.PI * 0.1, Math.PI * 1.85);
+  ctx.stroke();
+  line(ctx, 156, 205, 153, 214, ACCENT, 1.25, burdens * usageOpacity);
+  line(ctx, 156, 205, 166, 204, ACCENT, 1.25, burdens * usageOpacity);
+  ctx.beginPath();
+  ctx.moveTo(316, 205);
+  ctx.lineTo(324, 217);
+  ctx.lineTo(332, 205);
+  ctx.stroke();
+  ctx.restore();
+
+  const barStart = 126;
+  const barEnd = 374;
+  const fill = clamp(0.2 + activity * 0.38 + burdens * 0.34 - flip * 0.3);
+  line(ctx, barStart, 238, barEnd, 238, "rgba(140,138,128,.58)", 3, 1);
+  line(ctx, barStart, 238, barStart + (barEnd - barStart) * fill, 238, flip > 0.55 ? SUCCESS : ACCENT, 3.4, 1);
+  for (let index = 0; index <= 8; index += 1) {
+    const x = barStart + ((barEnd - barStart) * index) / 8;
+    line(ctx, x, 232, x, 244, MUTED, 0.8, 0.7);
+  }
+  dot(ctx, barStart + (barEnd - barStart) * fill, 238, 5.5, PAPER, flip > 0.55 ? SUCCESS : ACCENT, 1);
+
+  const receiptTop = 278 + (1 - pricing) * 72;
+  ctx.save();
+  ctx.globalAlpha = pricing;
+  ctx.fillStyle = "rgba(255,255,255,.86)";
+  ctx.strokeStyle = SUCCESS;
+  ctx.lineWidth = 1.35;
+  ctx.beginPath();
+  ctx.roundRect(159, receiptTop, 182, 85, 8);
+  ctx.fill();
+  ctx.stroke();
+  ctx.setLineDash([3, 4]);
+  line(ctx, 176, receiptTop + 25, 324, receiptTop + 25, MUTED, 1, pricing * 0.65);
+  ctx.restore();
+  label(ctx, "PRICING UNIT", 250, receiptTop + 14, {
+    color: TEXT,
+    size: 8.8,
+    weight: 700,
+    opacity: pricing,
+  });
+  label(ctx, "accepted workflow", 238, receiptTop + 50, {
+    color: SUCCESS,
+    size: 11,
+    weight: 700,
+    opacity: pricing,
+  });
+  dot(ctx, 315, receiptTop + 52, 12, "rgba(47,125,50,.08)", SUCCESS, pricing);
+  label(ctx, "$", 315, receiptTop + 52, { color: SUCCESS, size: 12, weight: 700, opacity: pricing });
+  label(ctx, "the same unit sets price", 250, 381, {
+    color: TEXT,
+    size: 9.5,
+    weight: 600,
+    opacity: pricing,
+  });
+}
+
 function drawCompanyTile(
   ctx: CanvasRenderingContext2D,
   x: number,
@@ -1125,8 +1465,10 @@ function drawCompounding(ctx: CanvasRenderingContext2D, p: number) {
 
 const drawers: Record<SceneName, (ctx: CanvasRenderingContext2D, progress: number) => void> = {
   criteria: drawCriteria,
+  acceptance: drawAcceptance,
   proximity: drawProximity,
   coding: drawCoding,
+  meter: drawMeter,
   pie: drawPie,
   compounding: drawCompounding,
 };
@@ -1190,7 +1532,8 @@ function ScrollDiagram({
     });
     const onWheel = (event: WheelEvent) => {
       if (reduced || longCopy || window.innerWidth <= 900 || event.deltaY === 0) return;
-      const rect = section.getBoundingClientRect();
+      const visualization = section.querySelector<HTMLElement>(".section-viz");
+      const rect = visualization?.getBoundingClientRect() ?? section.getBoundingClientRect();
       const fullyVisible = rect.top >= 54 && rect.bottom <= window.innerHeight + 2;
       if (!fullyVisible) return;
       const complete = manualProgress >= 0.985;
@@ -1199,7 +1542,11 @@ function ScrollDiagram({
       const movingBackward = event.deltaY < 0 && !empty;
       if (!movingForward && !movingBackward) return;
       event.preventDefault();
-      const budget = scene === "criteria" ? 900 : scene === "compounding" ? 760 : 620;
+      const budget = scene === "criteria"
+        ? 900
+        : scene === "acceptance" || scene === "meter" || scene === "compounding"
+          ? 760
+          : 620;
       const nextProgress = clamp(manualProgress + event.deltaY / budget, 0, 0.999);
       manualProgress = nextProgress >= 0.985 ? 0.999 : nextProgress <= 0.015 ? 0 : nextProgress;
       requestPaint();
@@ -1319,7 +1666,11 @@ export default function Home() {
 
         <section className="act-group" aria-labelledby="act-two">
           <h2 className="act-heading" id="act-two">2. A Better Way to Judge AI Work</h2>
-          <ProseSection labelText="Proof-of-Workflow">
+          <ScrollDiagram
+            scene="acceptance"
+            labelText="Proof-of-Workflow"
+            caption="Changing workflow context becomes one acceptance decision."
+          >
             <p>
               <a href="https://metr.org/notes/2026-03-10-many-swe-bench-passing-prs-would-not-be-merged-into-main/">Academic studies</a> and
               <a href="https://aws.amazon.com/blogs/machine-learning/evaluating-ai-agents-real-world-lessons-from-building-agentic-systems-at-amazon/"> industry reports</a> have also identified the same gap between benchmark criteria and real approval criteria in practice. As a result, organizations increasingly pair benchmark scores with evaluation approaches that use live measures such as A/B tests and user feedback.<sup><a href="#note-1">1</a></sup> Among these approaches, the most direct, and <em>in our belief</em> the most useful, is to evaluate whether an organization actually accepts AI-generated work in its real workflow. We refer to such approaches collectively as <strong>Proof-of-Workflow</strong>.
@@ -1343,7 +1694,7 @@ export default function Home() {
               </li>
             </ol>
             <p>Now that we know what PoW measures, we still need to figure out who should actually evaluate the work.</p>
-          </ProseSection>
+          </ScrollDiagram>
         </section>
 
         <section className="act-group" aria-labelledby="act-three">
@@ -1436,7 +1787,11 @@ export default function Home() {
 
         <section className="act-group" aria-labelledby="act-four">
           <h2 className="act-heading" id="act-four">4. From AI Use to AI Value</h2>
-          <ProseSection labelText="Two linked stages">
+          <ScrollDiagram
+            scene="meter"
+            labelText="Two linked stages"
+            caption="Accepted work becomes the unit of both cost and price."
+          >
             <p>
               More specifically, it is easier to see how PoW reshapes AI economics when we break the shift into
               two linked stages. First, it changes how we measure cost, and once accepted work becomes the basis
@@ -1468,7 +1823,7 @@ export default function Home() {
               examples, the direction is consistent. Pricing is shifting away from AI activity and toward work
               that meets the customer’s needs.
             </p>
-          </ProseSection>
+          </ScrollDiagram>
         </section>
 
         <section className="act-group" aria-labelledby="act-five">

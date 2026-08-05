@@ -165,6 +165,12 @@ h1 {
   padding-bottom: 0;
 }
 
+.has-scene.scene-acceptance:not(.long-copy) .section-viz,
+.has-scene.scene-meter:not(.long-copy) .section-viz {
+  position: sticky;
+  top: var(--sticky-top);
+}
+
 .section-viz {
   display: flex;
   max-height: calc(100vh - var(--sticky-top));
@@ -374,6 +380,11 @@ blockquote {
     position: static;
     align-self: auto;
     padding-bottom: 0;
+  }
+
+  .has-scene.scene-acceptance:not(.long-copy) .section-viz,
+  .has-scene.scene-meter:not(.long-copy) .section-viz {
+    position: static;
   }
 
   .section-viz {
