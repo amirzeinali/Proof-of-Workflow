@@ -1546,6 +1546,14 @@ function ScrollDiagram({
       const trigger = section.querySelector<HTMLElement>("[data-diagram-trigger]");
       const triggerReady = !trigger || trigger.getBoundingClientRect().bottom <= window.innerHeight - 40;
       if (event.deltaY > 0 && empty && !triggerReady) return;
+      const heading = section.closest<HTMLElement>(".act-group")?.querySelector<HTMLElement>(".act-heading");
+      const contentsBar = document.querySelector<HTMLElement>(".contents-table");
+      const bottomAir = Number.parseFloat(
+        window.getComputedStyle(document.documentElement).getPropertyValue("--contents-bottom-air"),
+      ) || 0;
+      const titleClearance = (contentsBar?.getBoundingClientRect().bottom ?? 54) + bottomAir;
+      const titleHasScrolledAway = !heading || heading.getBoundingClientRect().bottom <= titleClearance;
+      if (event.deltaY > 0 && empty && !titleHasScrolledAway) return;
       const movingForward = event.deltaY > 0 && !complete;
       const movingBackward = event.deltaY < 0 && !empty;
       if (!movingForward && !movingBackward) return;
