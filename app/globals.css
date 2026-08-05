@@ -325,6 +325,10 @@ h1 {
   transform: translateY(3rem);
 }
 
+.scene-compounding .diagram-canvas {
+  max-width: 440px;
+}
+
 .section-viz {
   display: flex;
   max-height: calc(100vh - var(--sticky-top));
