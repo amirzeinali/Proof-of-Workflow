@@ -2062,12 +2062,12 @@ export default function Home() {
         <p className="mobile-notice">The diagrams are scroll-driven on larger screens and shown complete here.</p>
 
         <section className="act-group" aria-labelledby="act-one">
-          <h2 className="act-heading" id="act-one">1. When Work Changes, Evaluation Must Too</h2>
           <ScrollDiagram
             scene="criteria"
             labelText=""
             caption="One task, different definitions of success."
           >
+            <h2 className="act-heading" id="act-one">1. When Work Changes, Evaluation Must Too</h2>
             <p>
               Benchmarks are getting much better at testing AI on end-to-end professional tasks across
               different fields. <a href="https://www.swebench.com/original.html">SWE-bench</a> asks agents to
@@ -2093,7 +2093,6 @@ export default function Home() {
         </section>
 
         <section className="act-group" aria-labelledby="act-two">
-          <h2 className="act-heading" id="act-two">2. A Better Way to Judge AI Work</h2>
           <ScrollDiagram
             scene="acceptance"
             labelText="Proof-of-Workflow"
@@ -2102,6 +2101,7 @@ export default function Home() {
               <p>Now that we know what PoW measures, the next step is to figure out who should actually evaluate the work.</p>
             }
           >
+            <h2 className="act-heading" id="act-two">2. A Better Way to Judge AI Work</h2>
             <p>
               <a href="https://metr.org/notes/2026-03-10-many-swe-bench-passing-prs-would-not-be-merged-into-main/">Academic studies</a> and <a href="https://aws.amazon.com/blogs/machine-learning/evaluating-ai-agents-real-world-lessons-from-building-agentic-systems-at-amazon/">industry reports</a> have also identified the same gap between benchmark criteria and real approval criteria in practice. As a result, organizations increasingly pair benchmark scores with evaluation approaches that use live measures such as <a href="https://arxiv.org/abs/2512.04123">A/B tests and user feedback</a>. In our view, the most direct and useful of these approaches is to evaluate whether an organization actually accepts AI-generated work in its real workflow. We refer to such approaches collectively as <strong>Proof-of-Workflow.</strong>
             </p>
@@ -2120,13 +2120,15 @@ export default function Home() {
         </section>
 
         <section className="act-group" aria-labelledby="act-three">
-          <h2 className="act-heading" id="act-three">3. How Close the Evaluator Must Be to the Organization</h2>
           <EvaluatorStory>
-            <p>
-              We answer this by looking at how close the evaluator must be to the organization’s people, rules,
-              and private context to understand the approval decision. We trace how the answer changes across
-              three cases.
-            </p>
+            <>
+              <h2 className="act-heading" id="act-three">3. How Close the Evaluator Must Be to the Organization</h2>
+              <p>
+                We answer this by looking at how close the evaluator must be to the organization’s people, rules,
+                and private context to understand the approval decision. We trace how the answer changes across
+                three cases.
+              </p>
+            </>
             <div className="evaluator-story-step" data-story-phase="0" id="case-outside">
               <h3 className="case-heading">Case 1. The Evaluator Is <em>Outside</em> the Organization</h3>
               <p>
@@ -2192,12 +2194,12 @@ export default function Home() {
         </section>
 
         <section className="act-group" aria-labelledby="act-four">
-          <h2 className="act-heading" id="act-four">4. From AI Use to AI Value</h2>
           <ScrollDiagram
             scene="meter"
             labelText="Two linked stages"
             caption="The unit changes from activity to accepted work."
           >
+            <h2 className="act-heading" id="act-four">4. From AI Use to AI Value</h2>
             <p>
               To see how PoW reshapes AI economics, we can break the shift into two connected steps. It first
               changes how we measure cost, and once accepted work becomes the unit of cost, providers can use the

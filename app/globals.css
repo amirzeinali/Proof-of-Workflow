@@ -10,8 +10,8 @@
   --contents-top-air: 36px;
   --contents-bottom-air: 28px;
   --contents-stuck-bottom-air: 8px;
-  --figure-sticky-top: 98px;
-  --sticky-top: 158px;
+  --figure-sticky-top: 18px;
+  --sticky-top: 106px;
 }
 
 * {
@@ -445,14 +445,11 @@ h1 {
 }
 
 .act-heading {
-  position: sticky;
-  z-index: 20;
-  top: var(--figure-sticky-top);
+  position: static;
   margin: 0.85rem 0 0.55rem;
   padding: 0.42rem 0 0.58rem;
   border-bottom: 1px solid rgba(11, 31, 58, 0.18);
-  background: rgba(255, 255, 255, 0.97);
-  backdrop-filter: blur(8px);
+  background: transparent;
   font-size: 25px;
   scroll-margin-top: calc(var(--contents-top-air) + 54px + var(--contents-bottom-air) + 16px);
 }
