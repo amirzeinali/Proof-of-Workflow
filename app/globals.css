@@ -618,6 +618,73 @@ blockquote {
   font-size: 0.9rem;
 }
 
+.evaluator-story {
+  position: relative;
+  width: 100%;
+}
+
+.evaluator-story-viz {
+  position: sticky;
+  z-index: 12;
+  top: var(--figure-sticky-top);
+  display: flex;
+  width: min(100%, 1040px);
+  margin: 0.9rem auto 1.2rem;
+  padding: 0.35rem 0 0.55rem;
+  border-bottom: 1px solid rgba(11, 31, 58, 0.13);
+  background: linear-gradient(to bottom, #fff 88%, rgba(255, 255, 255, 0.94));
+  box-shadow: 0 10px 18px rgba(11, 31, 58, 0.035);
+  flex-direction: column;
+  align-items: center;
+}
+
+.evaluator-story-canvas {
+  display: block;
+  width: min(100%, 900px);
+  height: auto;
+  aspect-ratio: 76 / 23;
+}
+
+.evaluator-story-viz .viz-caption {
+  max-width: 720px;
+  margin: 0.2rem 0 0 !important;
+  font-size: 0.86rem;
+}
+
+.evaluator-story-copy {
+  width: min(100%, 740px);
+  margin: 0 auto;
+}
+
+.evaluator-story-copy > p,
+.evaluator-story-step > p {
+  margin: 0 0 1.1rem;
+}
+
+.evaluator-story-step {
+  scroll-margin-top: calc(var(--figure-sticky-top) + 20rem);
+}
+
+.evaluator-story-step + .evaluator-story-step {
+  margin-top: 1.55rem;
+}
+
+.evaluator-story-transition {
+  margin-top: 2rem !important;
+  padding-top: 0.8rem;
+  border-top: 1px solid rgba(11, 31, 58, 0.12);
+}
+
+.evaluator-story-list {
+  margin-bottom: 1.4rem;
+}
+
+.evaluator-story-list .evaluator-story-step-compact {
+  min-height: clamp(118px, 17vh, 158px);
+  margin: 0;
+  padding-top: 0.72rem;
+}
+
 @media (max-width: 900px) {
   :root {
     --contents-top-air: 20px;
@@ -708,6 +775,37 @@ blockquote {
 
   .scroll-section.has-scene .diagram-canvas {
     max-width: 500px;
+  }
+
+  .evaluator-story-viz {
+    position: static;
+    width: 100%;
+    margin: 0.8rem auto 1.35rem;
+    padding: 0.3rem 0 0.65rem;
+    overflow-x: auto;
+    border: 1px solid rgba(11, 31, 58, 0.22);
+    border-radius: 8px;
+    box-shadow: none;
+    align-items: flex-start;
+  }
+
+  .evaluator-story-canvas {
+    width: 760px;
+    max-width: none;
+  }
+
+  .evaluator-story-viz .viz-caption {
+    width: 760px;
+    padding: 0 16px;
+  }
+
+  .evaluator-story-step + .evaluator-story-step {
+    margin-top: 1.2rem;
+  }
+
+  .evaluator-story-list .evaluator-story-step-compact {
+    min-height: 0;
+    padding-top: 0;
   }
 
   .section-copy,

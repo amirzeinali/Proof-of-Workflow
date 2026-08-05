@@ -726,6 +726,152 @@ function drawCoding(ctx: CanvasRenderingContext2D, p: number) {
   });
 }
 
+function drawEvaluatorStory(ctx: CanvasRenderingContext2D, phase: number) {
+  const proximityOpacity = 1 - smootherEase((phase - 2.55) / 0.42);
+  const ringsOpacity = smootherEase((phase - 2.55) / 0.42);
+  const caseProgress = clamp(phase, 0, 2);
+  const caseWeights = [0, 1, 2].map((index) => {
+    const distance = Math.abs(caseProgress - index);
+    return smootherEase(1 - clamp(distance));
+  });
+  const weightTotal = caseWeights.reduce((sum, weight) => sum + weight, 0) || 1;
+  const weights = caseWeights.map((weight) => weight / weightTotal);
+  const lensStops = [154, 462, 586];
+  const lensX = lensStops.reduce((sum, stop, index) => sum + stop * weights[index], 0);
+  const lensY = 99;
+  const modeStops = [154, 382, 610];
+  const evaluators = ["Codex / Claude Code", "Sierra", "Zoox Evaluator"];
+  const cues = [
+    "Acceptance is directly observable",
+    "Acceptance can be explained",
+    "Acceptance must be interpreted inside",
+  ];
+
+  box(ctx, 482, 45, 214, 108, caseProgress > 1.5, proximityOpacity, 11);
+  label(ctx, "Organization", 589, 60, { color: TEXT, size: 12.5, weight: 650, opacity: proximityOpacity });
+  containedImage(ctx, logoPaths[0], 550, 76, 76, 54, weights[0] * proximityOpacity);
+  containedImage(ctx, logoPaths[1], 506, 83, 42, 34, weights[1] * proximityOpacity);
+  containedImage(ctx, logoPaths[2], 568, 83, 42, 34, weights[1] * proximityOpacity);
+  containedImage(ctx, logoPaths[3], 630, 83, 42, 34, weights[1] * proximityOpacity);
+  containedImage(ctx, logoPaths[4], 551, 80, 76, 39, weights[2] * proximityOpacity);
+
+  arrow(ctx, 690, 193, 70, 193, MUTED, 0.78 * proximityOpacity);
+  arrow(ctx, 70, 193, 690, 193, MUTED, 0.78 * proximityOpacity);
+  const modes = ["Outside", "Alongside", "Inside"];
+  modeStops.forEach((x, index) => {
+    const active = weights[index];
+    dot(
+      ctx,
+      x,
+      193,
+      4.2 + active * 1.6,
+      active > 0.04 ? ACCENT : PAPER,
+      active > 0.04 ? ACCENT : MUTED,
+      proximityOpacity,
+    );
+    label(ctx, modes[index], x, 217, {
+      color: active > 0.04 ? ACCENT : MUTED,
+      size: 11.5,
+      weight: active > 0.04 ? 650 : 450,
+      opacity: proximityOpacity,
+    });
+  });
+
+  drawMagnifier(ctx, lensX, lensY, proximityOpacity);
+  evaluators.forEach((evaluator, index) => {
+    label(ctx, evaluator, lensX, 24, {
+      color: ACCENT,
+      size: 12.5,
+      weight: 650,
+      opacity: weights[index] * proximityOpacity,
+    });
+    wrappedLabel(ctx, cues[index], lensX, 161, 220, 12, {
+      color: ACCENT,
+      size: 10.5,
+      weight: 550,
+      italic: true,
+      opacity: weights[index] * proximityOpacity,
+    });
+  });
+  const center = { x: 255, y: 112 };
+  const radii = [88, 59, 31];
+  const colors = [ACCENT, "#2d7d82", "#6d57a1"];
+  const reveal = [
+    smootherEase((phase - 3.55) / 0.35),
+    smootherEase((phase - 4.55) / 0.35),
+    smootherEase((phase - 5.55) / 0.35),
+  ];
+
+  label(ctx, "Coding: three evaluation modes coexist", center.x, 16, {
+    color: TEXT,
+    size: 12.5,
+    weight: 650,
+    opacity: ringsOpacity,
+  });
+
+  const fillBand = (outer: number, inner: number, color: string, opacity: number) => {
+    ctx.save();
+    ctx.globalAlpha = opacity;
+    ctx.fillStyle = color;
+    ctx.beginPath();
+    ctx.arc(center.x, center.y, outer, 0, Math.PI * 2);
+    if (inner > 0) ctx.arc(center.x, center.y, inner, 0, Math.PI * 2, true);
+    ctx.fill("evenodd");
+    ctx.restore();
+  };
+
+  radii.forEach((radius, index) => {
+    fillBand(radius, index < 2 ? radii[index + 1] : 0, colors[index], (0.035 + reveal[index] * 0.11) * ringsOpacity);
+    ctx.save();
+    ctx.globalAlpha = (0.42 + reveal[index] * 0.58) * ringsOpacity;
+    ctx.strokeStyle = reveal[index] > 0.02 ? colors[index] : MUTED;
+    ctx.lineWidth = 1.35 + reveal[index] * 1.15;
+    ctx.beginPath();
+    ctx.arc(center.x, center.y, radius, 0, Math.PI * 2);
+    ctx.stroke();
+    ctx.restore();
+  });
+  dot(ctx, center.x, center.y, 4.2, INK, INK, ringsOpacity);
+
+  const callouts = [
+    { name: "Codex", detail: "Outside: merge decision is observable", y: 51, anchorX: 325, anchorY: 60 },
+    { name: "CodeRabbit", detail: "Alongside: adapts to repository rules", y: 111, anchorX: 314, anchorY: 111 },
+    { name: "uReview", detail: "Inside Uber: codebase + developer feedback", y: 171, anchorX: 283, anchorY: 137 },
+  ];
+  callouts.forEach((item, index) => {
+    const itemOpacity = (0.2 + reveal[index] * 0.8) * ringsOpacity;
+    line(ctx, item.anchorX, item.anchorY, 428, item.y, colors[index], 1.3, itemOpacity);
+    box(ctx, 432, item.y - 23, 292, 46, reveal[index] > 0.02, itemOpacity, 8);
+    label(ctx, item.name, 453, item.y - 7, {
+      align: "left",
+      color: colors[index],
+      size: 12.5,
+      weight: 700,
+      opacity: itemOpacity,
+    });
+    label(ctx, item.detail, 453, item.y + 11, {
+      align: "left",
+      color: TEXT,
+      size: 10.2,
+      weight: 500,
+      opacity: itemOpacity,
+    });
+  });
+
+  const spectrumLabels = ["Outside", "Alongside", "Inside"];
+  spectrumLabels.forEach((mode, index) => {
+    label(ctx, mode, 168 + index * 87, 220, {
+      color: colors[index],
+      size: 10.5,
+      weight: 650,
+      opacity: (0.45 + reveal[index] * 0.55) * ringsOpacity,
+    });
+    if (index < spectrumLabels.length - 1) {
+      arrow(ctx, 199 + index * 87, 220, 219 + index * 87, 220, MUTED, 0.65 * ringsOpacity);
+    }
+  });
+}
+
 function drawPieFrame(
   ctx: CanvasRenderingContext2D,
   centerX: number,
@@ -1577,6 +1723,99 @@ function ScrollDiagram({
   );
 }
 
+function EvaluatorStory({ children }: { children: ReactNode }) {
+  const storyRef = useRef<HTMLDivElement>(null);
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+
+  useEffect(() => {
+    const story = storyRef.current;
+    const canvas = canvasRef.current;
+    if (!story || !canvas) return;
+    const context = canvas.getContext("2d");
+    if (!context) return;
+    const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    let frame = 0;
+
+    const paint = () => {
+      frame = 0;
+      const logicalWidth = 760;
+      const logicalHeight = 230;
+      const ratio = Math.min(window.devicePixelRatio || 1, 3);
+      if (canvas.width !== Math.round(logicalWidth * ratio) || canvas.height !== Math.round(logicalHeight * ratio)) {
+        canvas.width = Math.round(logicalWidth * ratio);
+        canvas.height = Math.round(logicalHeight * ratio);
+      }
+      context.setTransform(ratio, 0, 0, ratio, 0, 0);
+      context.clearRect(0, 0, logicalWidth, logicalHeight);
+      context.lineCap = "round";
+      context.lineJoin = "round";
+
+      const mobile = window.innerWidth <= 900;
+      let phase = 6;
+      if (!reduced && !mobile) {
+        const visualization = story.querySelector<HTMLElement>(".evaluator-story-viz");
+        const steps = Array.from(story.querySelectorAll<HTMLElement>("[data-story-phase]"));
+        const visualizationBottom = visualization?.getBoundingClientRect().bottom ?? 320;
+        const triggerY = Math.min(window.innerHeight * 0.82, visualizationBottom + 76);
+        let currentIndex = 0;
+        steps.forEach((step, index) => {
+          if (step.getBoundingClientRect().top <= triggerY) currentIndex = index;
+        });
+        const current = steps[currentIndex];
+        const next = steps[currentIndex + 1];
+        const currentPhase = Number(current?.dataset.storyPhase ?? 0);
+        phase = currentPhase;
+        if (current && next) {
+          const currentTop = current.getBoundingClientRect().top;
+          const nextTop = next.getBoundingClientRect().top;
+          const readingProgress = clamp((triggerY - currentTop) / Math.max(1, nextTop - currentTop));
+          const transition = smootherEase((readingProgress - 0.72) / 0.24);
+          const nextPhase = Number(next.dataset.storyPhase ?? currentPhase);
+          phase = currentPhase + (nextPhase - currentPhase) * transition;
+        }
+      }
+      drawEvaluatorStory(context, phase);
+    };
+
+    const requestPaint = () => {
+      if (!frame) frame = window.requestAnimationFrame(paint);
+    };
+    const imageCleanups = logoPaths.map((path) => {
+      const image = canvasImage(path);
+      if (!image) return () => undefined;
+      image.addEventListener("load", requestPaint);
+      return () => image.removeEventListener("load", requestPaint);
+    });
+    const observer = new ResizeObserver(requestPaint);
+    observer.observe(story);
+    window.addEventListener("scroll", requestPaint, { passive: true });
+    window.addEventListener("resize", requestPaint);
+    paint();
+    return () => {
+      if (frame) window.cancelAnimationFrame(frame);
+      observer.disconnect();
+      imageCleanups.forEach((cleanup) => cleanup());
+      window.removeEventListener("scroll", requestPaint);
+      window.removeEventListener("resize", requestPaint);
+    };
+  }, []);
+
+  return (
+    <div className="evaluator-story" ref={storyRef}>
+      <div className="evaluator-story-viz">
+        <canvas
+          className="evaluator-story-canvas"
+          ref={canvasRef}
+          role="img"
+          aria-label="The evaluator moves from outside to inside an organization, then the spectrum becomes nested coding examples: Codex, CodeRabbit, and Uber’s uReview."
+        />
+        <p className="viz-caption">Evaluator distance and coding systems share one acceptance spectrum.</p>
+      </div>
+      <div className="evaluator-story-copy">{children}</div>
+    </div>
+  );
+}
+
 function TextSection({ children }: { labelText: string; children: ReactNode }) {
   return (
     <div className="scroll-section text-only">
@@ -1753,72 +1992,66 @@ export default function Home() {
 
         <section className="act-group" aria-labelledby="act-three">
           <h2 className="act-heading" id="act-three">3. How Close the Evaluator Must Be to the Organization</h2>
-          <ScrollDiagram
-            scene="proximity"
-            labelText="Three cases"
-            caption="How close the evaluator must be to the organization."
-            longCopy
-          >
+          <EvaluatorStory>
             <p>
               We answer this by looking at how close the evaluator must be to the organization’s people, rules,
               and private context to understand the approval decision. We trace how the answer changes across
               three cases.
             </p>
-            <h3 className="case-heading">Case 1. The Evaluator Is <em>Outside</em> the Organization</h3>
-            <p>
-              In some workflows, the expert’s decision is clearly recorded in a structured event, so an outside
-              evaluator can tell whether the work was accepted without having much context about the
-              organization. With <a href="https://developers.openai.com/codex/third-party/github">Codex</a> and <a href="https://docs.anthropic.com/en/docs/claude-code/github-actions">Claude Code</a>, for example, an outside evaluator can see whether a proposed code change was reviewed and <strong>merged</strong> into the codebase. This gives the evaluator a clear answer without requiring an evaluator inside every company.
-            </p>
-            <p>
-              Even in this setting, however, the organization still makes the final call, and the evaluator
-              needs access to the work and its outcome but does not have to understand every company-specific
-              reason behind the acceptance decision. If the outcome alone does not explain why the work was
-              accepted, the evaluator has to move closer.
-            </p>
-            <h3 className="case-heading">Case 2. The Evaluator Is <em>Alongside</em> the Organization</h3>
-            <p>
-              In the middle case, an outside evaluator can judge the work, but only after learning enough about
-              the field and the organization. The company has to explain how it decides whether the work is good
-              enough, usually by working closely with the evaluator.
-            </p>
-            <p>
-              We can see this with <a href="https://sierra.ai/product">Sierra</a>, an AI customer support platform. In our airline example, Sierra would need to learn the airline’s current fare rules and privacy requirements, along with what it counts as a successful resolution. Those details differ across airlines, but the basic customer-support workflow is similar enough for Sierra to use the same evaluation process across customers and adjust it to each airline.
-            </p>
-            <p>
-              We also see the same approach in other workflows. <a href="https://support.ramp.com/use-policy-agent-for-approvals">Ramp</a> can know if a company lets an AI expense recommendation stand. <a href="https://www.harvey.ai/blog/ai-contract-lifecycle-management">Harvey</a> can see whether a lawyer approves an AI-generated draft, and <a href="https://www.openevidence.com/announcements/45-rwandan-clinicians-are-helping-shape-medical-ai-for-low-resource-settings">OpenEvidence</a> can measure whether clinicians find an AI answer useful in the care decision they make. In each case, the organization can explain its needs clearly enough for the platform to judge the outcome properly.
-            </p>
-            <p>
-              Yet an outside evaluator can only help when the organization can clearly explain the context and
-              what good enough looks like. Some workflows push past that limit.
-            </p>
-            <h3 className="case-heading">Case 3. The Evaluator Is <em>Inside</em> the Organization</h3>
-            <p>
-              At the closest level, the evaluator needs so much company knowledge that explaining what acceptance
-              means would be almost as hard as doing the evaluation internally. So the evaluation has to stay
-              inside the company. The workflow is also too specific for an outside platform to learn the process
-              and reuse it across companies.
-            </p>
-            <p>
-              <a href="https://zoox.com/journal/edge-case-testing-zoox">Zoox</a> fits this case. As its engineers improve the AI driving system, they have to compare each change with what its vehicles have seen in the real world and on its private track. They then judge whether the full system is safe enough for the exact place and conditions where it will operate. An outside provider can understand some tests, but it would need too much of Zoox’s testing history and knowledge of its vehicles to understand whether each result shows a real improvement and whether the change is ready to use. So Zoox keeps the final PoW evaluation inside the company.
-            </p>
-          </ScrollDiagram>
-
-          <ScrollDiagram
-            scene="coding"
-            labelText="Coding across the same spectrum"
-            caption="In coding, outside, alongside, and inside evaluation coexist on the same spectrum."
-          >
-            <p>
+            <div className="evaluator-story-step" data-story-phase="0">
+              <h3 className="case-heading">Case 1. The Evaluator Is <em>Outside</em> the Organization</h3>
+              <p>
+                In some workflows, the expert’s decision is clearly recorded in a structured event, so an outside
+                evaluator can tell whether the work was accepted without having much context about the
+                organization. With <a href="https://developers.openai.com/codex/third-party/github">Codex</a> and <a href="https://docs.anthropic.com/en/docs/claude-code/github-actions">Claude Code</a>, for example, an outside evaluator can see whether a proposed code change was reviewed and <strong>merged</strong> into the codebase. This gives the evaluator a clear answer without requiring an evaluator inside every company.
+              </p>
+              <p>
+                Even in this setting, however, the organization still makes the final call, and the evaluator
+                needs access to the work and its outcome but does not have to understand every company-specific
+                reason behind the acceptance decision. If the outcome alone does not explain why the work was
+                accepted, the evaluator has to move closer.
+              </p>
+            </div>
+            <div className="evaluator-story-step" data-story-phase="1">
+              <h3 className="case-heading">Case 2. The Evaluator Is <em>Alongside</em> the Organization</h3>
+              <p>
+                In the middle case, an outside evaluator can judge the work, but only after learning enough about
+                the field and the organization. The company has to explain how it decides whether the work is good
+                enough, usually by working closely with the evaluator.
+              </p>
+              <p>
+                We can see this with <a href="https://sierra.ai/product">Sierra</a>, an AI customer support platform. In our airline example, Sierra would need to learn the airline’s current fare rules and privacy requirements, along with what it counts as a successful resolution. Those details differ across airlines, but the basic customer-support workflow is similar enough for Sierra to use the same evaluation process across customers and adjust it to each airline.
+              </p>
+              <p>
+                We also see the same approach in other workflows. <a href="https://support.ramp.com/use-policy-agent-for-approvals">Ramp</a> can know if a company lets an AI expense recommendation stand. <a href="https://www.harvey.ai/blog/ai-contract-lifecycle-management">Harvey</a> can see whether a lawyer approves an AI-generated draft, and <a href="https://www.openevidence.com/announcements/45-rwandan-clinicians-are-helping-shape-medical-ai-for-low-resource-settings">OpenEvidence</a> can measure whether clinicians find an AI answer useful in the care decision they make. In each case, the organization can explain its needs clearly enough for the platform to judge the outcome properly.
+              </p>
+              <p>
+                Yet an outside evaluator can only help when the organization can clearly explain the context and
+                what good enough looks like. Some workflows push past that limit.
+              </p>
+            </div>
+            <div className="evaluator-story-step" data-story-phase="2">
+              <h3 className="case-heading">Case 3. The Evaluator Is <em>Inside</em> the Organization</h3>
+              <p>
+                At the closest level, the evaluator needs so much company knowledge that explaining what acceptance
+                means would be almost as hard as doing the evaluation internally. So the evaluation has to stay
+                inside the company. The workflow is also too specific for an outside platform to learn the process
+                and reuse it across companies.
+              </p>
+              <p>
+                <a href="https://zoox.com/journal/edge-case-testing-zoox">Zoox</a> fits this case. As its engineers improve the AI driving system, they have to compare each change with what its vehicles have seen in the real world and on its private track. They then judge whether the full system is safe enough for the exact place and conditions where it will operate. An outside provider can understand some tests, but it would need too much of Zoox’s testing history and knowledge of its vehicles to understand whether each result shows a real improvement and whether the change is ready to use. So Zoox keeps the final PoW evaluation inside the company.
+              </p>
+            </div>
+            <p className="evaluator-story-step evaluator-story-transition" data-story-phase="3">
               However, we should not treat these three levels as alternatives; they can all appear in the same
               field or even within the same company. Take coding, for example.
             </p>
-            <ul className="pow-list">
-              <li><a href="https://developers.openai.com/codex/third-party/github">Codex</a> can observe from outside whether a change was merged.</li>
-              <li><a href="https://docs.coderabbit.ai/configuration/path-instructions">CodeRabbit</a>, an AI code-review tool, works alongside teams by adapting its reviews to each repository’s rules.</li>
-              <li>Uber keeps <a href="https://www.uber.com/us/en/blog/ureview/">uReview</a>, its own AI code-review system, inside because judging its comments depends on Uber’s codebase and feedback from its developers.</li>
+            <ul className="pow-list evaluator-story-list">
+              <li className="evaluator-story-step evaluator-story-step-compact" data-story-phase="4"><a href="https://developers.openai.com/codex/third-party/github">Codex</a> can observe from outside whether a change was merged.</li>
+              <li className="evaluator-story-step evaluator-story-step-compact" data-story-phase="5"><a href="https://docs.coderabbit.ai/configuration/path-instructions">CodeRabbit</a>, an AI code-review tool, works alongside teams by adapting its reviews to each repository’s rules.</li>
+              <li className="evaluator-story-step evaluator-story-step-compact" data-story-phase="6">Uber keeps <a href="https://www.uber.com/us/en/blog/ureview/">uReview</a>, its own AI code-review system, inside because judging its comments depends on Uber’s codebase and feedback from its developers.</li>
             </ul>
-          </ScrollDiagram>
+          </EvaluatorStory>
           <TextSection labelText="">
             <p>
               Finally, what stays the same across all three cases is that PoW is usually carried out by the
