@@ -592,7 +592,6 @@ blockquote {
   top: var(--sticky-top);
   align-self: start;
   grid-row: 1;
-  transform: translateY(max(0px, calc(100vh - var(--sticky-top) - 100% - 28px)));
 }
 
 .scroll-section.has-scene .section-after {
@@ -843,10 +842,6 @@ blockquote {
 
   .scroll-section.has-scene .section-inner {
     display: flex;
-  }
-
-  .scroll-section.has-scene .section-copy {
-    transform: none;
   }
 
   .scroll-section.has-scene .diagram-track {
