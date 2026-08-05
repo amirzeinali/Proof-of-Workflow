@@ -929,33 +929,30 @@ function drawPie(ctx: CanvasRenderingContext2D, p: number) {
 
 function drawAcceptance(ctx: CanvasRenderingContext2D, p: number) {
   const grow = smootherEase((p - 0.03) / 0.42);
-  const refresh = smootherEase((p - 0.27) / 0.24);
   const compress = smootherEase((p - 0.5) / 0.27);
   const accept = smootherEase((p - 0.76) / 0.19);
   const core = { x: 142, y: 201 };
   const aperture = { x: 326, y: 201 };
 
-  label(ctx, "the living rubric", core.x, 36, { color: TEXT, size: 11, weight: 600 });
+  label(ctx, "The Living Rubric", core.x, 27, { color: TEXT, size: 11, weight: 600 });
   label(ctx, "organization", aperture.x, 101, { color: TEXT, size: 11, weight: 600 });
 
   const nodes = [
-    { label: "current rules", x: 78, y: 92, color: "#9d5961", delay: 0 },
-    { label: "real data", x: 156, y: 74, color: "#557b7d", delay: 0.04 },
-    { label: "live tools", x: 225, y: 118, color: "#60718c", delay: 0.08 },
-    { label: "tradeoffs", x: 69, y: 237, color: "#917747", delay: 0.12 },
-    { label: "user needs", x: 173, y: 291, color: "#66806f", delay: 0.16 },
-    { label: "new constraint", x: 107, y: 333, color: ACCENT, delay: 0.23, isNew: true },
-    { label: "outdated rule", x: 226, y: 319, color: MUTED, delay: 0.1, outdated: true },
+    { label: "Task quality, accuracy, and grounding", x: 150, y: 67, labelX: 150, labelY: 43, width: 128, color: "#9d5961", delay: 0 },
+    { label: "Cost", x: 222, y: 105, labelX: 247, labelY: 91, width: 52, color: "#557b7d", delay: 0.04 },
+    { label: "Latency / throughput", x: 244, y: 161, labelX: 257, labelY: 142, width: 92, color: "#60718c", delay: 0.08 },
+    { label: "Energy", x: 231, y: 242, labelX: 257, labelY: 256, width: 54, color: "#917747", delay: 0.12 },
+    { label: "Privacy / data control", x: 187, y: 301, labelX: 211, labelY: 327, width: 92, color: "#756681", delay: 0.16 },
+    { label: "Reliability", x: 111, y: 315, labelX: 103, labelY: 342, width: 72, color: "#66806f", delay: 0.2 },
+    { label: "Safety and policy compliance", x: 62, y: 261, labelX: 58, labelY: 288, width: 112, color: "#9a6b59", delay: 0.24 },
+    { label: "Governance and transparency / auditability", x: 55, y: 139, labelX: 66, labelY: 102, width: 126, color: "#596d76", delay: 0.28 },
   ];
 
   nodes.forEach((node, index) => {
     const reveal = smootherEase((grow - node.delay) / 0.52);
-    const arrival = node.isNew ? refresh : 1;
-    const expiry = node.outdated ? 1 - refresh : 1;
-    const opacity = reveal * arrival * expiry;
-    const targetY = 150 + (index % 5) * 25;
-    const nodeX = node.x + (286 - node.x) * compress * 0.7;
-    const nodeY = node.y + (targetY - node.y) * compress * 0.7;
+    const targetY = 155 + index * 13;
+    const nodeX = node.x + (248 - node.x) * compress * 0.68;
+    const nodeY = node.y + (targetY - node.y) * compress * 0.68;
     const bend = index % 2 === 0 ? -18 : 18;
     flowLine(
       ctx,
@@ -964,24 +961,24 @@ function drawAcceptance(ctx: CanvasRenderingContext2D, p: number) {
       { x: nodeX - (nodeX - core.x) * 0.22, y: nodeY - bend * 0.5 },
       { x: nodeX, y: nodeY },
       node.color,
-      opacity * (1 - compress * 0.45),
+      reveal * (1 - compress * 0.42),
       reveal,
-      node.isNew ? 1.8 : 1.25,
+      1.25,
     );
     dot(
       ctx,
       nodeX,
       nodeY,
-      node.isNew ? 7 : 6,
+      6,
       "rgba(255,255,255,.84)",
       node.color,
-      opacity * (1 - compress * 0.35),
+      reveal * (1 - compress * 0.28),
     );
-    label(ctx, node.label, nodeX, nodeY + 16, {
+    wrappedLabel(ctx, node.label, node.labelX, node.labelY, node.width, 8.5, {
       color: node.color,
-      size: 8.2,
-      weight: node.isNew ? 650 : 500,
-      opacity: opacity * (1 - compress),
+      size: 7.3,
+      weight: 600,
+      opacity: reveal * (1 - compress),
     });
   });
 
@@ -998,15 +995,15 @@ function drawAcceptance(ctx: CanvasRenderingContext2D, p: number) {
   label(ctx, "AI work", core.x, core.y - 4, { color: ACCENT, size: 11.5, weight: 700 });
   label(ctx, "in context", core.x, core.y + 11, { color: MUTED, size: 7.8, italic: true });
 
-  nodes.slice(0, 6).forEach((node, index) => {
-    const signalProgress = smootherEase((compress - index * 0.055) / 0.68);
+  nodes.forEach((node, index) => {
+    const signalProgress = smootherEase((compress - index * 0.038) / 0.7);
     const start = {
-      x: node.x + (286 - node.x) * compress * 0.7,
-      y: node.y + (150 + (index % 5) * 25 - node.y) * compress * 0.7,
+      x: node.x + (248 - node.x) * compress * 0.68,
+      y: node.y + (155 + index * 13 - node.y) * compress * 0.68,
     };
     const control1 = { x: start.x + 42, y: start.y };
-    const control2 = { x: aperture.x - 49, y: aperture.y + (index - 2.5) * 4 };
-    const end = { x: aperture.x - 17, y: aperture.y + (index - 2.5) * 3 };
+    const control2 = { x: aperture.x - 72, y: 155 + index * 13 };
+    const end = { x: aperture.x - 55, y: 155 + index * 13 };
     flowLine(ctx, start, control1, control2, end, node.color, compress * 0.75, signalProgress, 1.15);
     if (signalProgress > 0.04) {
       const t = signalProgress;
@@ -1017,11 +1014,10 @@ function drawAcceptance(ctx: CanvasRenderingContext2D, p: number) {
     }
   });
 
-  const gateColor = accept > 0.5 ? SUCCESS : ACCENT;
   const gateGap = 25 - compress * 13;
   ctx.save();
   ctx.globalAlpha = 0.84;
-  ctx.strokeStyle = gateColor;
+  ctx.strokeStyle = ACCENT;
   ctx.lineWidth = 2;
   ctx.beginPath();
   ctx.moveTo(aperture.x - gateGap, 151);
@@ -1040,51 +1036,40 @@ function drawAcceptance(ctx: CanvasRenderingContext2D, p: number) {
   ctx.arc(aperture.x, 141, 13, Math.PI * 1.12, Math.PI * 1.88);
   ctx.stroke();
   ctx.restore();
-  label(ctx, accept > 0.48 ? "accepted" : "judgment", aperture.x, aperture.y, {
-    color: gateColor,
+  label(ctx, "judgment", aperture.x, aperture.y, {
+    color: ACCENT,
     size: 10,
     weight: 700,
   });
 
   flowLine(
     ctx,
-    { x: aperture.x + 18, y: aperture.y },
-    { x: 363, y: aperture.y },
-    { x: 386, y: aperture.y },
-    { x: 406, y: aperture.y },
+    { x: aperture.x + 55, y: aperture.y },
+    { x: 394, y: aperture.y },
+    { x: 407, y: aperture.y },
+    { x: 416, y: aperture.y },
     SUCCESS,
     accept,
     accept,
     2,
   );
 
-  const outputX = 441;
+  const outputX = 446;
   const outputY = 201;
-  ctx.save();
-  ctx.globalAlpha = accept;
-  ctx.fillStyle = "rgba(255,255,255,.86)";
-  ctx.strokeStyle = SUCCESS;
-  ctx.lineWidth = 1.5;
-  ctx.beginPath();
-  ctx.roundRect(outputX - 30, outputY - 36, 60, 72, 7);
-  ctx.fill();
-  ctx.stroke();
-  line(ctx, outputX - 17, outputY - 19, outputX + 17, outputY - 19, MUTED, 1, accept * 0.65);
-  line(ctx, outputX - 17, outputY - 9, outputX + 10, outputY - 9, MUTED, 1, accept * 0.65);
-  ctx.restore();
+  dot(ctx, outputX, outputY, 25, "rgba(47,125,50,.08)", SUCCESS, accept);
   if (accept > 0.02) {
     ctx.save();
     ctx.globalAlpha = accept;
     ctx.strokeStyle = SUCCESS;
     ctx.lineWidth = 3;
     ctx.beginPath();
-    ctx.moveTo(outputX - 11, outputY + 10);
-    ctx.lineTo(outputX - 2, outputY + 19);
-    ctx.lineTo(outputX + 15, outputY + 1);
+    ctx.moveTo(outputX - 11, outputY);
+    ctx.lineTo(outputX - 2, outputY + 9);
+    ctx.lineTo(outputX + 14, outputY - 9);
     ctx.stroke();
     ctx.restore();
   }
-  label(ctx, "accepted work", outputX, outputY + 54, {
+  label(ctx, "Accepted", outputX, outputY + 39, {
     color: SUCCESS,
     size: 9.5,
     weight: 650,
@@ -1136,13 +1121,15 @@ function drawMeter(ctx: CanvasRenderingContext2D, p: number) {
   ctx.translate(250, 127);
   ctx.scale(1, faceScale);
   if (showAccepted) {
-    label(ctx, "ACCEPTED WORK", 0, -27, { color: SUCCESS, size: 9.5, weight: 700 });
-    ctx.fillStyle = SUCCESS;
-    ctx.textAlign = "center";
-    ctx.textBaseline = "middle";
-    ctx.font = '700 34px "SFMono-Regular", Consolas, monospace';
-    ctx.fillText("01", 0, 7);
-    label(ctx, "workflow", 0, 31, { color: TEXT, size: 9.5, weight: 600 });
+    label(ctx, "ACCEPTED WORK", 0, -8, { color: SUCCESS, size: 17, weight: 700 });
+    ctx.strokeStyle = SUCCESS;
+    ctx.lineWidth = 2.5;
+    ctx.beginPath();
+    ctx.moveTo(-11, 17);
+    ctx.lineTo(-3, 25);
+    ctx.lineTo(13, 8);
+    ctx.stroke();
+    label(ctx, "the workflow was approved", 0, 36, { color: TEXT, size: 8.8, weight: 600 });
   } else {
     const total = Math.round(740 + activity * 5860 + burdens * 2240);
     label(ctx, "AI ACTIVITY", 0, -27, { color: ACCENT, size: 9.5, weight: 700 });
@@ -1156,77 +1143,74 @@ function drawMeter(ctx: CanvasRenderingContext2D, p: number) {
   ctx.restore();
 
   const usageOpacity = 1 - smootherEase((flip - 0.02) / 0.58);
-  label(ctx, "retries", 164, 190, {
-    color: ACCENT,
-    size: 9,
-    weight: 600,
-    opacity: burdens * usageOpacity,
-  });
-  label(ctx, "expert corrections", 324, 190, {
-    color: ACCENT,
-    size: 9,
-    weight: 600,
-    opacity: burdens * usageOpacity,
-  });
-  ctx.save();
-  ctx.globalAlpha = burdens * usageOpacity;
-  ctx.strokeStyle = ACCENT;
-  ctx.lineWidth = 1.25;
-  ctx.beginPath();
-  ctx.arc(164, 211, 10, Math.PI * 0.1, Math.PI * 1.85);
-  ctx.stroke();
-  line(ctx, 156, 205, 153, 214, ACCENT, 1.25, burdens * usageOpacity);
-  line(ctx, 156, 205, 166, 204, ACCENT, 1.25, burdens * usageOpacity);
-  ctx.beginPath();
-  ctx.moveTo(316, 205);
-  ctx.lineTo(324, 217);
-  ctx.lineTo(332, 205);
-  ctx.stroke();
-  ctx.restore();
-
   const barStart = 126;
   const barEnd = 374;
-  const fill = clamp(0.2 + activity * 0.38 + burdens * 0.34 - flip * 0.3);
-  line(ctx, barStart, 238, barEnd, 238, "rgba(140,138,128,.58)", 3, 1);
-  line(ctx, barStart, 238, barStart + (barEnd - barStart) * fill, 238, flip > 0.55 ? SUCCESS : ACCENT, 3.4, 1);
+  const activityFill = clamp(0.2 + activity * 0.38 + burdens * 0.34);
+  const retryX = barStart + (barEnd - barStart) * 0.4;
+  const correctionX = barStart + (barEnd - barStart) * 0.72;
+  const retryReached = smootherEase((activityFill - 0.36) / 0.11) * usageOpacity;
+  const correctionReached = smootherEase((activityFill - 0.67) / 0.11) * usageOpacity;
+
+  label(ctx, "retry", retryX, 215, {
+    color: ACCENT,
+    size: 8.7,
+    weight: 600,
+    opacity: retryReached,
+  });
+  label(ctx, "expert correction", correctionX, 215, {
+    color: ACCENT,
+    size: 8.7,
+    weight: 600,
+    opacity: correctionReached,
+  });
+  line(ctx, retryX, 221, retryX, 232, ACCENT, 1, retryReached);
+  line(ctx, correctionX, 221, correctionX, 232, ACCENT, 1, correctionReached);
+  dot(ctx, retryX, 238, 3.5, PAPER, ACCENT, retryReached);
+  dot(ctx, correctionX, 238, 3.5, PAPER, ACCENT, correctionReached);
+
+  line(ctx, barStart, 238, barEnd, 238, "rgba(140,138,128,.58)", 3, usageOpacity);
+  line(ctx, barStart, 238, barStart + (barEnd - barStart) * activityFill, 238, ACCENT, 3.4, usageOpacity);
   for (let index = 0; index <= 8; index += 1) {
     const x = barStart + ((barEnd - barStart) * index) / 8;
-    line(ctx, x, 232, x, 244, MUTED, 0.8, 0.7);
+    line(ctx, x, 232, x, 244, MUTED, 0.8, 0.7 * usageOpacity);
   }
-  dot(ctx, barStart + (barEnd - barStart) * fill, 238, 5.5, PAPER, flip > 0.55 ? SUCCESS : ACCENT, 1);
+  dot(ctx, barStart + (barEnd - barStart) * activityFill, 238, 5.5, PAPER, ACCENT, usageOpacity);
 
-  const receiptTop = 278 + (1 - pricing) * 72;
-  ctx.save();
-  ctx.globalAlpha = pricing;
-  ctx.fillStyle = "rgba(255,255,255,.86)";
-  ctx.strokeStyle = SUCCESS;
-  ctx.lineWidth = 1.35;
-  ctx.beginPath();
-  ctx.roundRect(159, receiptTop, 182, 85, 8);
-  ctx.fill();
-  ctx.stroke();
-  ctx.setLineDash([3, 4]);
-  line(ctx, 176, receiptTop + 25, 324, receiptTop + 25, MUTED, 1, pricing * 0.65);
-  ctx.restore();
-  label(ctx, "PRICING UNIT", 250, receiptTop + 14, {
-    color: TEXT,
-    size: 8.8,
+  const acceptedUnit = smootherEase((flip - 0.5) / 0.42);
+  line(ctx, 129, 202, 371, 202, "rgba(140,138,128,.34)", 1, acceptedUnit);
+  label(ctx, "COST UNIT", 144, 216, {
+    color: MUTED,
+    size: 8.3,
+    align: "left",
     weight: 700,
-    opacity: pricing,
+    opacity: acceptedUnit,
   });
-  label(ctx, "accepted workflow", 238, receiptTop + 50, {
+  label(ctx, "accepted workflow", 356, 216, {
     color: SUCCESS,
-    size: 11,
+    size: 9.5,
+    align: "right",
+    weight: 700,
+    opacity: acceptedUnit,
+  });
+  label(ctx, "PRICE UNIT", 144, 239, {
+    color: MUTED,
+    size: 8.3,
+    align: "left",
     weight: 700,
     opacity: pricing,
   });
-  dot(ctx, 315, receiptTop + 52, 12, "rgba(47,125,50,.08)", SUCCESS, pricing);
-  label(ctx, "$", 315, receiptTop + 52, { color: SUCCESS, size: 12, weight: 700, opacity: pricing });
-  label(ctx, "the same unit sets price", 250, 381, {
-    color: TEXT,
+  label(ctx, "accepted workflow", 356, 239, {
+    color: SUCCESS,
     size: 9.5,
-    weight: 600,
+    align: "right",
+    weight: 700,
     opacity: pricing,
+  });
+  label(ctx, "The unit changes from activity to accepted work.", 250, 306, {
+    color: TEXT,
+    size: 10,
+    weight: 600,
+    opacity: acceptedUnit,
   });
 }
 
