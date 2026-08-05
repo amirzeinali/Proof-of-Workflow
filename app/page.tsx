@@ -611,15 +611,14 @@ function drawMagnifier(
 }
 
 function drawOrganizationSymbol(ctx: CanvasRenderingContext2D, stage: number) {
-  const names = ["Repositories", "Airlines", "Zoox"];
   if (stage === 2) {
     box(ctx, 326, 118, 162, 110, true, 1, 10);
-    label(ctx, names[stage], 445, 139, { color: ACCENT, size: 11.5, weight: 600 });
-    containedImage(ctx, logoPaths[4], 414, 157, 62, 42);
+    label(ctx, "Organization", 407, 139, { color: POLICY_NAVY, size: 11.5, weight: 650 });
+    containedImage(ctx, logoPaths[4], 425, 158, 50, 34);
     return;
   }
   box(ctx, 340, 118, 134, 110, stage === 2, 1, 10);
-  label(ctx, names[stage], 407, 139, { color: stage === 2 ? ACCENT : TEXT, size: 11.5, weight: 600 });
+  label(ctx, "Organization", 407, 139, { color: POLICY_NAVY, size: 11.5, weight: 650 });
   if (stage === 0) {
     containedImage(ctx, logoPaths[0], 378, 151, 58, 58);
   } else if (stage === 1) {
@@ -630,14 +629,16 @@ function drawOrganizationSymbol(ctx: CanvasRenderingContext2D, stage: number) {
 }
 
 function drawProximity(ctx: CanvasRenderingContext2D, p: number) {
-  const stage = Math.min(2, Math.floor(p * 3));
-  const local = ease((p * 3) % 1);
-  const spectrumPositions = [88, 246, 394];
-  const lensPositions = [88, 246, 370];
-  const from = lensPositions[Math.max(0, stage - 1)];
-  const lensX = stage === 0 ? lensPositions[0] : from + (lensPositions[stage] - from) * local;
+  const caseProgress = clamp(p, 0, 2);
+  const weights = [0, 1, 2].map((index) => smootherEase(1 - clamp(Math.abs(caseProgress - index))));
+  const weightTotal = weights.reduce((sum, weight) => sum + weight, 0) || 1;
+  const normalizedWeights = weights.map((weight) => weight / weightTotal);
+  const stage = Math.round(caseProgress);
+  const spectrumPositions = [88, 246, 370];
+  const lensX = spectrumPositions.reduce((sum, position, index) => sum + position * normalizedWeights[index], 0);
   const evaluators = ["Codex / Claude Code", "Sierra", "Zoox Evaluator"];
   const modes = ["Outside", "Alongside", "Inside"];
+  const caseColors = [POLICY_BLUE, POLICY_ORANGE, POLICY_RED];
   const acceptanceCues = [
     "Acceptance is directly observable",
     "Acceptance can be explained",
@@ -647,18 +648,31 @@ function drawProximity(ctx: CanvasRenderingContext2D, p: number) {
   arrow(ctx, 448, 314, 52, 314, MUTED, 0.9);
   arrow(ctx, 52, 314, 448, 314, MUTED, 0.9);
   spectrumPositions.forEach((x, index) => {
-    dot(ctx, x, 314, index === stage ? 5 : 3.5, index === stage ? ACCENT : PAPER, index === stage ? ACCENT : MUTED);
-    label(ctx, modes[index], x, 339, { color: index === stage ? ACCENT : MUTED, size: 11, weight: index === stage ? 600 : 400 });
+    const active = normalizedWeights[index];
+    dot(ctx, x, 314, 3.5 + active * 1.5, active > 0.04 ? caseColors[index] : PAPER, active > 0.04 ? caseColors[index] : MUTED);
+    label(ctx, modes[index], x, 339, {
+      color: active > 0.04 ? caseColors[index] : MUTED,
+      size: 11,
+      weight: active > 0.04 ? 650 : 400,
+    });
   });
 
   drawOrganizationSymbol(ctx, stage);
-  drawMagnifier(ctx, lensX, 177, 1);
-  label(ctx, evaluators[stage], lensX, 101, { color: ACCENT, size: 11.5, weight: 600 });
-  wrappedLabel(ctx, acceptanceCues[stage], lensX, 253, 152, 12, {
-    color: ACCENT,
-    size: 10.5,
-    weight: 500,
-    italic: true,
+  drawMagnifier(ctx, lensX, 165, 1, POLICY_BLUE, POLICY_NAVY);
+  evaluators.forEach((evaluator, index) => {
+    label(ctx, evaluator, lensX, 95, {
+      color: caseColors[index],
+      size: 11.5,
+      weight: 650,
+      opacity: normalizedWeights[index],
+    });
+    wrappedLabel(ctx, acceptanceCues[index], lensX, 258, 170, 12, {
+      color: caseColors[index],
+      size: 10.5,
+      weight: 550,
+      italic: true,
+      opacity: normalizedWeights[index],
+    });
   });
   label(ctx, "Magnifier = Evaluator", 250, 374, { color: MUTED, size: 9.5, italic: true });
 }
@@ -666,16 +680,18 @@ function drawProximity(ctx: CanvasRenderingContext2D, p: number) {
 function drawCoding(ctx: CanvasRenderingContext2D, p: number) {
   const center = { x: 183, y: 190 };
   const radii = [126, 86, 47];
+  const colors = [POLICY_BLUE, POLICY_ORANGE, POLICY_RED];
+  const fills = ["rgba(0,122,228,.12)", "rgba(255,112,29,.12)", "rgba(233,65,27,.12)"];
   const middleShift = ease((p - 0.25) / 0.19);
   const innerShift = ease((p - 0.61) / 0.19);
   const weights = [1 - middleShift, middleShift * (1 - innerShift), innerShift];
   const reveals = [ease((p - 0.02) / 0.12), ease((p - 0.27) / 0.13), ease((p - 0.61) / 0.13)];
 
-  const fillRing = (outerRadius: number, innerRadius: number, opacity: number) => {
+  const fillRing = (outerRadius: number, innerRadius: number, color: string, opacity: number) => {
     if (opacity <= 0) return;
     ctx.save();
     ctx.globalAlpha = opacity * 0.78;
-    ctx.fillStyle = ACCENT_LIGHT;
+    ctx.fillStyle = color;
     ctx.beginPath();
     ctx.arc(center.x, center.y, outerRadius, 0, Math.PI * 2);
     if (innerRadius > 0) ctx.arc(center.x, center.y, innerRadius, 0, Math.PI * 2, true);
@@ -683,21 +699,21 @@ function drawCoding(ctx: CanvasRenderingContext2D, p: number) {
     ctx.restore();
   };
 
-  fillRing(radii[0], radii[1], weights[0]);
-  fillRing(radii[1], radii[2], weights[1]);
-  fillRing(radii[2], 0, weights[2]);
+  fillRing(radii[0], radii[1], fills[0], weights[0]);
+  fillRing(radii[1], radii[2], fills[1], weights[1]);
+  fillRing(radii[2], 0, fills[2], weights[2]);
 
   radii.forEach((radius, index) => {
     ctx.save();
     ctx.globalAlpha = 0.5 + weights[index] * 0.5;
-    ctx.strokeStyle = weights[index] > 0.05 ? ACCENT : MUTED;
+    ctx.strokeStyle = weights[index] > 0.05 ? colors[index] : MUTED;
     ctx.lineWidth = 1.3 + weights[index] * 1.4;
     ctx.beginPath();
     ctx.arc(center.x, center.y, radius, 0, Math.PI * 2);
     ctx.stroke();
     ctx.restore();
   });
-  dot(ctx, center.x, center.y, 4.5, ACCENT, ACCENT);
+  dot(ctx, center.x, center.y, 4.5, POLICY_NAVY, POLICY_NAVY);
 
   const callouts = [
     { name: "Codex", detail: "Outside", y: 84, ringX: 267, ringY: 96 },
@@ -707,11 +723,11 @@ function drawCoding(ctx: CanvasRenderingContext2D, p: number) {
   callouts.forEach((item, index) => {
     const reveal = reveals[index];
     const active = weights[index];
-    line(ctx, item.ringX, item.ringY, 326, item.y, active > 0.05 ? ACCENT : MUTED, 1.1, reveal * (0.55 + active * 0.45));
+    line(ctx, item.ringX, item.ringY, 326, item.y, active > 0.05 ? colors[index] : MUTED, 1.1, reveal * (0.55 + active * 0.45));
     box(ctx, 330, item.y - 23, 154, 46, false, reveal, 8);
     box(ctx, 330, item.y - 23, 154, 46, true, reveal * active, 8);
     label(ctx, item.name, 407, item.y - 7, {
-      color: active > 0.05 ? ACCENT : TEXT,
+      color: active > 0.05 ? colors[index] : TEXT,
       size: 11.5,
       weight: 600,
       opacity: reveal,
@@ -739,169 +755,13 @@ function drawCoding(ctx: CanvasRenderingContext2D, p: number) {
 }
 
 function drawEvaluatorStory(ctx: CanvasRenderingContext2D, phase: number) {
-  const proximityOpacity = 1 - smootherEase((phase - 2.55) / 0.42);
-  const ringsOpacity = smootherEase((phase - 2.55) / 0.42);
-  const caseProgress = clamp(phase, 0, 2);
-  const caseWeights = [0, 1, 2].map((index) => {
-    const distance = Math.abs(caseProgress - index);
-    return smootherEase(1 - clamp(distance));
-  });
-  const weightTotal = caseWeights.reduce((sum, weight) => sum + weight, 0) || 1;
-  const weights = caseWeights.map((weight) => weight / weightTotal);
-  const lensStops = [154, 382, 550];
-  const lensX = lensStops.reduce((sum, stop, index) => sum + stop * weights[index], 0);
-  const lensY = 78;
-  const modeStops = lensStops;
-  const evaluators = ["Codex / Claude Code", "Sierra", "Zoox Evaluator"];
-  const caseColors = [POLICY_BLUE, POLICY_ORANGE, POLICY_RED];
-  const cues = [
-    "Acceptance is directly observable",
-    "Acceptance can be explained",
-    "Acceptance must be interpreted inside",
-  ];
+  if (phase < 3) {
+    drawProximity(ctx, phase);
+    return;
+  }
 
-  ctx.save();
-  ctx.globalAlpha = proximityOpacity;
-  ctx.fillStyle = "rgba(255,255,255,.94)";
-  ctx.strokeStyle = POLICY_NAVY;
-  ctx.lineWidth = 1.3;
-  ctx.beginPath();
-  ctx.roundRect(482, 45, 214, 108, 11);
-  ctx.fill();
-  ctx.stroke();
-  ctx.restore();
-  label(ctx, "Organization", 608, 60, { color: POLICY_NAVY, size: 12.5, weight: 700, opacity: proximityOpacity });
-  containedImage(ctx, logoPaths[0], 550, 76, 76, 54, weights[0] * proximityOpacity);
-  containedImage(ctx, logoPaths[1], 506, 83, 42, 34, weights[1] * proximityOpacity);
-  containedImage(ctx, logoPaths[2], 568, 83, 42, 34, weights[1] * proximityOpacity);
-  containedImage(ctx, logoPaths[3], 630, 83, 42, 34, weights[1] * proximityOpacity);
-  containedImage(ctx, logoPaths[4], 625, 82, 60, 30, weights[2] * proximityOpacity);
-
-  arrow(ctx, 690, 193, 70, 193, POLICY_NAVY, 0.5 * proximityOpacity);
-  arrow(ctx, 70, 193, 690, 193, POLICY_SKY, 0.58 * proximityOpacity);
-  const modes = ["Outside", "Alongside", "Inside"];
-  modeStops.forEach((x, index) => {
-    const active = weights[index];
-    dot(
-      ctx,
-      x,
-      193,
-      4.2 + active * 1.6,
-      active > 0.04 ? caseColors[index] : PAPER,
-      active > 0.04 ? caseColors[index] : MUTED,
-      proximityOpacity,
-    );
-    label(ctx, modes[index], x, 217, {
-      color: active > 0.04 ? caseColors[index] : MUTED,
-      size: 11.5,
-      weight: active > 0.04 ? 650 : 450,
-      opacity: proximityOpacity,
-    });
-  });
-
-  drawMagnifier(ctx, lensX, lensY, proximityOpacity, POLICY_BLUE, POLICY_NAVY);
-  evaluators.forEach((evaluator, index) => {
-    label(ctx, evaluator, lensX, 24, {
-      color: caseColors[index],
-      size: 12.5,
-      weight: 650,
-      opacity: weights[index] * proximityOpacity,
-    });
-    wrappedLabel(ctx, cues[index], lensX, 149, 220, 12, {
-      color: caseColors[index],
-      size: 10.5,
-      weight: 550,
-      italic: true,
-      opacity: weights[index] * proximityOpacity,
-    });
-  });
-  const center = { x: 255, y: 112 };
-  const radii = [88, 59, 31];
-  const colors = [POLICY_BLUE, POLICY_ORANGE, POLICY_RED];
-  const fills = ["rgba(0,122,228,.1)", "rgba(255,112,29,.1)", "rgba(233,65,27,.1)"];
-  const reveal = [
-    smootherEase((phase - 3.55) / 0.35),
-    smootherEase((phase - 4.55) / 0.35),
-    smootherEase((phase - 5.55) / 0.35),
-  ];
-
-  label(ctx, "Coding: three evaluation modes coexist", center.x, 16, {
-    color: POLICY_NAVY,
-    size: 12.5,
-    weight: 650,
-    opacity: ringsOpacity,
-  });
-
-  const fillBand = (outer: number, inner: number, color: string, opacity: number) => {
-    ctx.save();
-    ctx.globalAlpha = opacity;
-    ctx.fillStyle = color;
-    ctx.beginPath();
-    ctx.arc(center.x, center.y, outer, 0, Math.PI * 2);
-    if (inner > 0) ctx.arc(center.x, center.y, inner, 0, Math.PI * 2, true);
-    ctx.fill("evenodd");
-    ctx.restore();
-  };
-
-  radii.forEach((radius, index) => {
-    fillBand(radius, index < 2 ? radii[index + 1] : 0, colors[index], (0.035 + reveal[index] * 0.11) * ringsOpacity);
-    ctx.save();
-    ctx.globalAlpha = (0.42 + reveal[index] * 0.58) * ringsOpacity;
-    ctx.strokeStyle = reveal[index] > 0.02 ? colors[index] : MUTED;
-    ctx.lineWidth = 1.35 + reveal[index] * 1.15;
-    ctx.beginPath();
-    ctx.arc(center.x, center.y, radius, 0, Math.PI * 2);
-    ctx.stroke();
-    ctx.restore();
-  });
-  dot(ctx, center.x, center.y, 4.2, POLICY_NAVY, POLICY_NAVY, ringsOpacity);
-
-  const callouts = [
-    { name: "Codex", detail: "Outside: merge decision is observable", y: 51, anchorX: 325, anchorY: 60 },
-    { name: "CodeRabbit", detail: "Alongside: adapts to repository rules", y: 111, anchorX: 314, anchorY: 111 },
-    { name: "uReview", detail: "Inside Uber: codebase + developer feedback", y: 171, anchorX: 283, anchorY: 137 },
-  ];
-  callouts.forEach((item, index) => {
-    const itemOpacity = (0.2 + reveal[index] * 0.8) * ringsOpacity;
-    line(ctx, item.anchorX, item.anchorY, 428, item.y, colors[index], 1.3, itemOpacity);
-    ctx.save();
-    ctx.globalAlpha = itemOpacity;
-    ctx.fillStyle = reveal[index] > 0.02 ? fills[index] : "rgba(255,255,255,.9)";
-    ctx.strokeStyle = colors[index];
-    ctx.lineWidth = reveal[index] > 0.02 ? 1.65 : 1.05;
-    ctx.beginPath();
-    ctx.roundRect(432, item.y - 23, 292, 46, 8);
-    ctx.fill();
-    ctx.stroke();
-    ctx.restore();
-    label(ctx, item.name, 453, item.y - 7, {
-      align: "left",
-      color: colors[index],
-      size: 12.5,
-      weight: 700,
-      opacity: itemOpacity,
-    });
-    label(ctx, item.detail, 453, item.y + 11, {
-      align: "left",
-      color: TEXT,
-      size: 10.2,
-      weight: 500,
-      opacity: itemOpacity,
-    });
-  });
-
-  const spectrumLabels = ["Outside", "Alongside", "Inside"];
-  spectrumLabels.forEach((mode, index) => {
-    label(ctx, mode, 168 + index * 87, 220, {
-      color: colors[index],
-      size: 10.5,
-      weight: 650,
-      opacity: (0.45 + reveal[index] * 0.55) * ringsOpacity,
-    });
-    if (index < spectrumLabels.length - 1) {
-      arrow(ctx, 199 + index * 87, 220, 219 + index * 87, 220, MUTED, 0.65 * ringsOpacity);
-    }
-  });
+  const codingProgress = 0.1 + clamp(phase - 4, 0, 2) * 0.37;
+  drawCoding(ctx, codingProgress);
 }
 
 function drawPieFrame(
@@ -1228,28 +1088,8 @@ function drawAcceptance(ctx: CanvasRenderingContext2D, p: number) {
   const outputX = 476;
   const acceptedY = 169;
   const rejectedY = 237;
-  flowArrow(
-    ctx,
-    { x: aperture.x + 40, y: aperture.y - 14 },
-    { x: 450, y: aperture.y - 18 },
-    { x: 451, y: acceptedY },
-    { x: outputX - 20, y: acceptedY },
-    SUCCESS,
-    accept,
-    accept,
-    1.8,
-  );
-  flowArrow(
-    ctx,
-    { x: aperture.x + 40, y: aperture.y + 14 },
-    { x: 450, y: aperture.y + 18 },
-    { x: 451, y: rejectedY },
-    { x: outputX - 20, y: rejectedY },
-    POLICY_RED,
-    accept,
-    accept,
-    1.8,
-  );
+  arrow(ctx, aperture.x + 30, aperture.y - 14, outputX - 19, acceptedY, SUCCESS, accept);
+  arrow(ctx, aperture.x + 30, aperture.y + 14, outputX - 19, rejectedY, POLICY_RED, accept);
 
   dot(ctx, outputX, acceptedY, 17, "rgba(47,125,50,.08)", SUCCESS, accept);
   if (accept > 0.02) {
@@ -1807,8 +1647,8 @@ function EvaluatorStory({ children }: { children: ReactNode }) {
 
     const paint = () => {
       frame = 0;
-      const logicalWidth = 760;
-      const logicalHeight = 230;
+      const logicalWidth = 500;
+      const logicalHeight = 400;
       const ratio = Math.min(window.devicePixelRatio || 1, 3);
       if (canvas.width !== Math.round(logicalWidth * ratio) || canvas.height !== Math.round(logicalHeight * ratio)) {
         canvas.width = Math.round(logicalWidth * ratio);

@@ -640,7 +640,13 @@ blockquote {
 
 .evaluator-story {
   position: relative;
-  width: 100%;
+  display: grid;
+  width: min(100%, 1180px);
+  margin: 0 auto;
+  grid-template-columns: minmax(0, 1fr) minmax(350px, 0.6fr);
+  grid-template-rows: auto 1fr;
+  column-gap: 38px;
+  align-items: start;
 }
 
 .evaluator-story-viz {
@@ -648,32 +654,45 @@ blockquote {
   z-index: 12;
   top: var(--figure-sticky-top);
   display: flex;
-  width: min(100%, 780px);
-  margin: 0.55rem auto 0.9rem;
-  padding: 0.2rem 0 0.35rem;
-  border-bottom: 1px solid rgba(11, 31, 58, 0.13);
-  background: linear-gradient(to bottom, #fff 88%, rgba(255, 255, 255, 0.94));
-  box-shadow: 0 7px 14px rgba(11, 31, 58, 0.03);
+  width: 100%;
+  margin: 0;
+  padding: 0.35rem 0 0.55rem;
+  border: 1px solid rgba(0, 68, 127, 0.14);
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.96);
+  box-shadow: 0 8px 22px rgba(0, 68, 127, 0.055);
+  grid-column: 2;
+  grid-row: 2;
   flex-direction: column;
   align-items: center;
 }
 
 .evaluator-story-canvas {
   display: block;
-  width: min(100%, 720px);
+  width: min(100%, 460px);
   height: auto;
-  aspect-ratio: 76 / 23;
+  aspect-ratio: 5 / 4;
 }
 
 .evaluator-story-viz .viz-caption {
-  max-width: 720px;
-  margin: 0.1rem 0 0 !important;
-  font-size: 0.82rem;
+  max-width: 390px;
+  margin: -0.05rem 0 0 !important;
+  padding: 0 0.7rem;
+  font-size: 0.78rem;
 }
 
 .evaluator-story-copy {
+  width: 100%;
+  margin: 0;
+  grid-column: 1;
+  grid-row: 2;
+}
+
+.evaluator-story-intro {
   width: min(100%, 740px);
-  margin: 0 auto;
+  margin: 0 auto 0.55rem;
+  grid-column: 1 / -1;
+  grid-row: 1;
 }
 
 .evaluator-story-copy > p,
@@ -703,6 +722,26 @@ blockquote {
   min-height: 0;
   margin: 0 0 0.55rem;
   padding-top: 0.2rem;
+}
+
+@media (max-width: 1180px) {
+  .evaluator-story {
+    display: block;
+    width: 100%;
+  }
+
+  .evaluator-story-intro,
+  .evaluator-story-copy {
+    width: min(100%, 740px);
+    margin-right: auto;
+    margin-left: auto;
+  }
+
+  .evaluator-story-viz {
+    position: sticky;
+    width: min(100%, 500px);
+    margin: 0.55rem auto 0.9rem;
+  }
 }
 
 @media (min-width: 901px) and (max-width: 1400px) {
@@ -845,12 +884,12 @@ blockquote {
   }
 
   .evaluator-story-canvas {
-    width: 760px;
+    width: 500px;
     max-width: none;
   }
 
   .evaluator-story-viz .viz-caption {
-    width: 760px;
+    width: 500px;
     padding: 0 16px;
   }
 
