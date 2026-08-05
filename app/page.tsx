@@ -1674,16 +1674,16 @@ export default function Home() {
           <p>
             Fixed benchmarks are becoming less useful for evaluating AI. This is because they measure
             performance against fixed criteria, even though each organization has different criteria that
-            change with the needs of their work. Evaluation should therefore <u>prove</u> that an
-            AI-generated outcome meets those criteria within the <u>workflow</u> as it actually operates and is
-            thus <strong>accepted</strong> by the people who are responsible for the work.
+            change with the needs of their work. Evaluation should therefore prove that the AI’s work holds
+            up in the real workflow and is accepted by the people responsible for that work. Approaches built
+            around this kind of acceptance already show up in different forms, but they have rarely been
+            discussed as one group.
           </p>
           <p>
-            In this blog post, we use <strong>Proof-of-Workflow</strong>, or <strong>PoW</strong>, as an umbrella
-            term for acceptance-based evaluation approaches already taking different forms in practice but
-            rarely grouped together. We explain 1) why this shift is happening, 2) why PoW is a better measure,
-            3) who is best positioned to run these evaluations, 4) how PoW changes the economics of AI, and
-            finally 5) what the future could look like with PoW.
+            In this blog, we bring these acceptance-based approaches to evaluating AI together under one name,
+            <strong> Proof-of-Workflow</strong>, or <strong>PoW</strong>. We cover 1) why AI evaluation is moving
+            away from fixed benchmarks, 2) why PoW offers a better way to judge AI work, 3) who is best placed
+            to run these evaluations, 4) how PoW changes AI economics, and 5) where PoW could lead.
           </p>
         </aside>
 
@@ -1701,26 +1701,23 @@ export default function Home() {
             <p>
               Benchmarks are getting much better at testing AI on end-to-end professional tasks across
               different fields. <a href="https://www.swebench.com/original.html">SWE-bench</a> asks agents to
-              fix real software issues, <a href="https://www.mercor.com/apex/apex-agents-leaderboard/">APEX-Agents</a> covers tasks in investment banking, consulting, and law,
-              <a href="https://arxiv.org/abs/2605.16679"> χ-Bench</a> tests healthcare tasks, and
-              <a href="https://taubench.com/"> τ-bench</a> evaluates customer-service agents. But every
+              fix real software issues; <a href="https://www.mercor.com/apex/apex-agents-leaderboard/">APEX-Agents</a> covers tasks in investment banking, consulting, and law; <a href="https://arxiv.org/abs/2605.16679">χ-Bench</a> tests healthcare tasks; and <a href="https://taubench.com/">τ-bench</a> evaluates customer-service agents. But every
               benchmark still applies the same fixed criteria to everyone, even though criteria for real
               workflows 1) differ across organizations and 2) change over time.
             </p>
             <p>
-              To see why this matters, let’s consider a
-              <a href="https://github.com/sierra-research/tau2-bench/blob/main/data/tau2/domains/airline/tasks.json#L444-L543"> simple airline customer-support task</a> from the τ²-bench.
+              To see why this matters, let’s consider a <a href="https://github.com/sierra-research/tau2-bench/blob/main/data/tau2/domains/airline/tasks.json#L444-L543">simple airline customer-support task</a> from the τ²-bench.
             </p>
           </ScrollDiagram>
           <TextSection labelText="The benchmark’s rubric is not universal">
             <p>
-              You can see in the diagram that a benchmark&apos;s rubric only shows what works for one airline for
-              the airline it was designed around; it’s not a universal definition of success. The agent could
-              pass that test and still break the rules of the airline using it, expose its customer data, or
-              approve the invalid transaction. Airlines also make different tradeoffs around payment rules,
-              cost, and latency, so a faster but expensive process may be fine for one airline and not for
-              another. Within each airline, the rules keep changing too, which means even an internal benchmark
-              can become outdated, as the Ryanair example shows.<sup><a href="#note-3">3</a></sup>
+              As you can see in the diagram, a benchmark’s rubric only shows what works for the airline it was
+              designed around; it’s not a universal definition of success. The agent could pass that test and
+              still break the rules of the airline using it, expose its customer data, or approve the invalid
+              transaction. Airlines also make different tradeoffs around payment rules, cost, and latency, so a
+              faster but more expensive process may be fine for one airline and not for another. Within each
+              airline, the rules keep changing too, which means even an internal benchmark can become outdated,
+              as the Ryanair example shows.<sup><a href="#note-1">1</a></sup>
             </p>
           </TextSection>
         </section>
@@ -1733,28 +1730,20 @@ export default function Home() {
             caption="Changing workflow context becomes one acceptance decision."
           >
             <p>
-              <a href="https://metr.org/notes/2026-03-10-many-swe-bench-passing-prs-would-not-be-merged-into-main/">Academic studies</a> and
-              <a href="https://aws.amazon.com/blogs/machine-learning/evaluating-ai-agents-real-world-lessons-from-building-agentic-systems-at-amazon/"> industry reports</a> have also identified the same gap between benchmark criteria and real approval criteria in practice. As a result, organizations increasingly pair benchmark scores with evaluation approaches that use live measures such as A/B tests and user feedback.<sup><a href="#note-1">1</a></sup> Among these approaches, the most direct, and <em>in our belief</em> the most useful, is to evaluate whether an organization actually accepts AI-generated work in its real workflow. We refer to such approaches collectively as <strong>Proof-of-Workflow</strong>.
+              <a href="https://metr.org/notes/2026-03-10-many-swe-bench-passing-prs-would-not-be-merged-into-main/">Academic studies</a> and <a href="https://aws.amazon.com/blogs/machine-learning/evaluating-ai-agents-real-world-lessons-from-building-agentic-systems-at-amazon/">industry reports</a> have also identified the same gap between benchmark criteria and real approval criteria in practice. As a result, organizations increasingly pair benchmark scores with evaluation approaches that use live measures such as <a href="https://arxiv.org/abs/2512.04123">A/B tests and user feedback</a>. In our view, the most direct and useful of these approaches is to evaluate whether an organization actually accepts AI-generated work in its real workflow. We refer to such approaches collectively as <strong>Proof-of-Workflow.</strong>
             </p>
             <p>
               We think PoW works better here for two main reasons:
             </p>
-            <ol className="pow-list">
-              <li>
-                <strong>First, PoW lets the people responsible for the work decide what counts as good instead
-                of using a benchmark as a stand-in for their judgment.</strong> While a benchmark can only have
-                a simplified version of what a practical result should look like, the organization using the
-                output sees the entire situation, including current rules and practical tradeoffs that may
-                never fit into a rubric. By asking whether the organization approved the work, PoW brings all
-                of the requirements into one decision.
-              </li>
-              <li>
-                <strong>Second, since PoW tests AI on the organization’s real work, it uses the same data and
-                tools it would use on the job instead of arbitrary tasks in a fixed test setup.</strong> This
-                lets us measure performance in the setting where real value is created.
-              </li>
-            </ol>
-            <p>Now that we know what PoW measures, we still need to figure out who should actually evaluate the work.</p>
+            <div className="pow-list">
+              <p>
+                <strong>First, PoW leaves the final call to the people responsible for the work.</strong> A benchmark is only a stand-in for their judgment and can capture only a simplified version of what a practical result should look like. The organization using the output sees the whole situation, including current rules and practical tradeoffs that may never fit into a rubric. The final approval tells us whether the work met all those requirements at once.
+              </p>
+              <p>
+                <strong>Second, since PoW tests AI on the organization’s real work,</strong> the evaluation uses the same data and tools the AI would use on the job instead of arbitrary tasks in a fixed test setup. This allows us to test AI in the setting where real value is created.
+              </p>
+            </div>
+            <p>Now that we know what PoW measures, the next step is to figure out who should actually evaluate the work.</p>
           </ScrollDiagram>
         </section>
 
@@ -1767,58 +1756,47 @@ export default function Home() {
             longCopy
           >
             <p>
-              We try to answer it by looking at how close the evaluator must be to the organization’s people,
-              rules, and private context to understand the approval decision reliably. We trace how the answer
-              changes across three cases.
+              We answer this by looking at how close the evaluator must be to the organization’s people, rules,
+              and private context to understand the approval decision. We trace how the answer changes across
+              three cases.
             </p>
-            <h3 className="case-heading">Case 1. The Evaluator Works <em>Outside</em> the Organization</h3>
+            <h3 className="case-heading">Case 1. The Evaluator Is <em>Outside</em> the Organization</h3>
             <p>
-              Some workflows record acceptance through a clear and structured event that an outside evaluator
-              can interpret with limited company context. Codex and Claude Code show this pattern. Since they
-              can observe whether a proposed code change was reviewed and merged, they can see whether the
-              AI-generated work cleared a real workflow without placing an evaluator inside every company. The
-              organization still makes the final decision; the evaluator just sees the results.<sup><a href="#note-4">4</a></sup>
+              In some workflows, the expert’s decision is clearly recorded in a structured event, so an outside
+              evaluator can tell whether the work was accepted without having much context about the
+              organization. With <a href="https://developers.openai.com/codex/third-party/github">Codex</a> and <a href="https://docs.anthropic.com/en/docs/claude-code/github-actions">Claude Code</a>, for example, an outside evaluator can see whether a proposed code change was reviewed and <strong>merged</strong> into the codebase. This gives the evaluator a clear answer without requiring an evaluator inside every company.
             </p>
             <p>
-              Keep in mind that working outside the organization does not mean being disconnected from the
-              workflow. The evaluator still needs access to the work and its final outcome but does not need to
-              reconstruct every company-specific reason behind the decision. When the outcome alone is no
-              longer enough to understand acceptance, the evaluator must move closer.
+              Even in this setting, however, the organization still makes the final call, and the evaluator
+              needs access to the work and its outcome but does not have to understand every company-specific
+              reason behind the acceptance decision. If the outcome alone does not explain why the work was
+              accepted, the evaluator has to move closer.
             </p>
-            <h3 className="case-heading">Case 2. The Evaluator Works <em>Alongside</em> the Organization</h3>
+            <h3 className="case-heading">Case 2. The Evaluator Is <em>Alongside</em> the Organization</h3>
             <p>
-              In the middle case, the acceptance bar is specific to the organization, but it can still be
-              explained to an outside evaluator through close collaboration. Sierra shows this well. Returning
-              to our airline example, it would need to learn the airline’s current fare rules, privacy
-              requirements, and definition of a successful resolution. Still, the workflows remain similar
-              enough across organizations for Sierra to reuse the same basic evaluation process across customers
-              while adapting it to each airline’s standards.<sup><a href="#note-5">5</a></sup>
+              In the middle case, an outside evaluator can judge the work, but only after learning enough about
+              the field and the organization. The company has to explain how it decides whether the work is good
+              enough, usually by working closely with the evaluator.
             </p>
             <p>
-              A similar pattern appears in other workflows. Ramp can observe whether an expense recommendation
-              stands, Harvey whether lawyers approve a draft, and Abridge whether clinicians sign a note. In
-              each case, the organization can make enough of its requirements clear for the platform to evaluate
-              the outcome meaningfully.<sup><a href="#note-6">6</a></sup>
+              We can see this with <a href="https://sierra.ai/product">Sierra</a>, an AI customer support platform. In our airline example, Sierra would need to learn the airline’s current fare rules and privacy requirements, along with what it counts as a successful resolution. Those details differ across airlines, but the basic customer-support workflow is similar enough for Sierra to use the same evaluation process across customers and adjust it to each airline.
             </p>
             <p>
-              Working alongside the organization is enough only when the acceptance can be clearly explained
-              and shared. In some workflows, transferring enough context to an outside evaluator would be nearly
-              as difficult as keeping the evaluation inside the company.
-            </p>
-            <h3 className="case-heading">Case 3. The Evaluator Works <em>Inside</em> the Organization</h3>
-            <p>
-              At the closest end of the spectrum, understanding acceptance requires so much internal context
-              that an outside evaluator cannot interpret it reliably without becoming deeply embedded in the
-              organization. The evaluator would need deep internal knowledge to understand what the test results
-              actually mean. The workflow is also too specific for an outside platform to learn one general
-              evaluation process and reuse it across companies.
+              We also see the same approach in other workflows. <a href="https://support.ramp.com/use-policy-agent-for-approvals">Ramp</a> can know if a company lets an AI expense recommendation stand. <a href="https://www.harvey.ai/blog/ai-contract-lifecycle-management">Harvey</a> can see whether a lawyer approves an AI-generated draft, and <a href="https://www.openevidence.com/announcements/45-rwandan-clinicians-are-helping-shape-medical-ai-for-low-resource-settings">OpenEvidence</a> can measure whether clinicians find an AI answer useful in the care decision they make. In each case, the organization can explain its needs clearly enough for the platform to judge the outcome properly.
             </p>
             <p>
-              Zoox provides a neat example of this case. For Zoox, a test result only becomes meaningful when
-              viewed through the company’s understanding of its proprietary vehicle design, safety standards,
-              and operating conditions. An outside provider may help run parts of the process, but explaining
-              enough of the complicated context for it to make the final decision would be impractical. Zoox
-              would therefore keep the final PoW evaluation inside the organization.<sup><a href="#note-7">7</a></sup>
+              Yet an outside evaluator can only help when the organization can clearly explain the context and
+              what good enough looks like. Some workflows push past that limit.
+            </p>
+            <h3 className="case-heading">Case 3. The Evaluator Is <em>Inside</em> the Organization</h3>
+            <p>
+              At the closest level, the evaluator needs so much company knowledge that explaining what acceptance
+              means would be almost as hard as doing the evaluation internally. So the evaluation has to stay
+              inside the company. The workflow is also too specific for an outside platform to learn the process
+              and reuse it across companies.
+            </p>
+            <p>
+              <a href="https://zoox.com/journal/edge-case-testing-zoox">Zoox</a> fits this case. As its engineers improve the AI driving system, they have to compare each change with what its vehicles have seen in the real world and on its private track. They then judge whether the full system is safe enough for the exact place and conditions where it will operate. An outside provider can understand some tests, but it would need too much of Zoox’s testing history and knowledge of its vehicles to understand whether each result shows a real improvement and whether the change is ready to use. So Zoox keeps the final PoW evaluation inside the company.
             </p>
           </ScrollDiagram>
 
@@ -1828,20 +1806,21 @@ export default function Home() {
             caption="In coding, outside, alongside, and inside evaluation coexist on the same spectrum."
           >
             <p>
-              More broadly, we can see all three levels within the same domain or even the same company. Coding
-              offers a clear example of how the evaluator moves closer as more organizational context is needed.
-              Codex can observe a merge from <em>outside</em>, CodeRabbit works <em>alongside</em> teams by
-              adapting to their repository rules, and Uber keeps its own code review system, uReview,
-              <em> inside</em> because useful judgment depends on its own codebase and developer feedback.<sup><a href="#note-8">8</a></sup>
+              However, we should not treat these three levels as alternatives; they can all appear in the same
+              field or even within the same company. Take coding, for example.
             </p>
+            <ol className="pow-list">
+              <li><a href="https://developers.openai.com/codex/third-party/github">Codex</a> can observe from outside whether a change was merged.</li>
+              <li><a href="https://docs.coderabbit.ai/configuration/path-instructions">CodeRabbit</a>, an AI code-review tool, works alongside teams by adapting its reviews to each repository’s rules.</li>
+              <li>Uber keeps <a href="https://www.uber.com/us/en/blog/ureview/">uReview</a>, its own AI code-review system, inside because judging its comments depends on Uber’s codebase and feedback from its developers.</li>
+            </ol>
           </ScrollDiagram>
           <TextSection labelText="">
             <p>
-              Together, we see across these examples is that PoW does not need to come from a company whose
-              main business is evaluation. Often, the company in the best position is simply the one already
-              close enough to the workflow to see whether people actually approve the AI-generated outcome.
-              When that judgment becomes measurable, it creates real economic value and starts to change both
-              what AI costs and how providers charge for it
+              Finally, what stays the same across all three cases is that PoW is usually carried out by the
+              company whose product is already close enough to the workflow to see whether the organization
+              accepts the AI’s work, even if evaluation is not its main business (as we saw in the examples
+              above). Measuring that acceptance starts to change what AI costs and how providers charge for it.
             </p>
           </TextSection>
         </section>
@@ -1854,35 +1833,22 @@ export default function Home() {
             caption="The unit changes from activity to accepted work."
           >
             <p>
-              More specifically, it is easier to see how PoW reshapes AI economics when we break the shift into
-              two linked stages. First, it changes how we measure cost, and once accepted work becomes the basis
-              for that measurement, it becomes the basis for pricing. Let’s take a closer look at each stage:
+              To see how PoW reshapes AI economics, we can break the shift into two connected steps. It first
+              changes how we measure cost, and once accepted work becomes the unit of cost, providers can use the
+              same unit for pricing. Let’s take a closer look at each stage:
             </p>
             <h3 className="case-heading">1. Cost shifts from AI activity to accepted work</h3>
             <p>
-              The first stage begins with a mismatch between what we count and what we actually value. Tokens
-              consumed can help us know how much AI was used, but not whether the resulting work was good enough
-              to use. Cheap inference can become expensive after retries and expert corrections, while a more
-              expensive model may lower the total cost if it clears the production bar in fewer attempts. Satya
-              Nadella has argued for optimizing the
-              <a href="https://www.itpro.com/technology/artificial-intelligence/we-are-now-seeing-mai-models-outperform-general-purpose-frontier-models-microsoft-ceo-satya-nadella-touts-in-house-models-to-cut-spiralling-ai-costs-and-reduce-growing-reliance-on-frontier-labs"> cost-to-outcome frontier</a>, while OpenAI CFO Sarah Friar frames the metric as
-              <a href="https://openai.com/index/a-scorecard-for-the-ai-age/"> cost per successful task</a>. PoW
-              follows the same logic by defining success as acceptance in the real workflow, which leads to
-              measuring cost per accepted workflow
+              We often count tokens consumed or sessions started because they help us know how much AI was used.
+              But that leaves out whether the result turned out useful. A cheap model can end up costing more
+              after retries and expert fixes, and a more expensive model may cost less overall if it clears the
+              production bar in fewer attempts. People in the industry are already thinking about cost this way.
+              Satya Nadella has discussed optimizing the <a href="https://www.microsoft.com/en-us/investor/events/fy-2026/earnings-fy-2026-q4">cost-to-outcome</a> frontier in real-world settings, and Sarah Friar, OpenAI’s CFO, has described the metric as <a href="https://openai.com/index/a-scorecard-for-the-ai-age/">cost per successful task</a>. PoW follows the same logic by defining success as acceptance in the real workflow, which leads to measuring <strong>cost per accepted workflow.</strong>
             </p>
             <h3 className="case-heading">2. Pricing follows the same unit</h3>
             <p>
               Subsequently, when accepted work becomes the unit of cost, providers can also use it as the basis
-              for pricing. Back to customer support, Sierra already applies this logic by charging when its
-              agents achieve business outcomes agreed upon with the customer.<sup><a href="#note-9">9</a></sup> The same commercial logic is
-              appearing elsewhere in
-              <a href="https://www.intercom.com/help/en/articles/8205718-fin-ai-agent-outcomes"> customer support</a>, and in fields such
-              <a href="https://www.eudia.com/blog/the-roi-of-an-ai-native-law-firm"> legal services</a>,
-              <a href="https://swordhealth.com/value/fair-pricing"> healthcare</a>, and
-              <a href="https://www.riskified.com/chargeback-guarantee/"> finance</a>, where payment may depend on
-              recovered compensation, measurable clinical improvement, or approved transactions. Across these
-              examples, the direction is consistent. Pricing is shifting away from AI activity and toward work
-              that meets the customer’s needs.
+              for pricing. Back to customer support, <a href="https://sierra.ai/blog/outcome-based-pricing-for-ai-agents">Sierra</a> already applies this logic by charging when its agents achieve business outcomes agreed upon with the customer. The same pricing approach is appearing elsewhere in <a href="https://www.intercom.com/help/en/articles/8205718-fin-ai-agent-outcomes">customer support</a> and in fields such as <a href="https://www.eudia.com/blog/the-roi-of-an-ai-native-law-firm">legal services,</a> <a href="https://swordhealth.com/value/fair-pricing">healthcare</a>, and <a href="https://www.riskified.com/chargeback-guarantee/">finance</a>, where payment may depend on recovered compensation, measurable clinical improvement, or approved transactions. What stays consistent is the shift from AI activity toward work that meets the customer’s needs.
             </p>
           </ScrollDiagram>
         </section>
@@ -1895,18 +1861,14 @@ export default function Home() {
               idea of moving beyond static benchmarks and evaluating AI in real workflows, however, is not new,
               as <a href="https://agents.cs.princeton.edu/"><em>AI Agents That Matter</em></a> argued in 2024.
               But what has changed is the timing. Even two years ago, PoW would have been premature because
-              models still struggled to complete serious workflows, even under controlled benchmark conditions
-              of static benchmarks. Today, AI can attempt and increasingly complete those tasks end to end, so
-              we are beginning to use it for professional work.
+              models still struggled to complete serious workflows, even under controlled conditions of static
+              benchmarks. Today, AI can attempt and <a href="https://hai.stanford.edu/ai-index/2026-ai-index-report/technical-performance">increasingly complete those tasks end to end</a>, so we are beginning to use it for professional work.
             </p>
             <p>
               In turn, the same capability shift creates the next bottleneck. As AI produces more work,
               organizations face the harder task of deciding which outputs are reliable enough to use.
-              <a href="https://arxiv.org/abs/2607.01904"> Production research</a> suggests that the ability to
-              judge all this work reliably is becoming a scarce resource,
-              <a href="https://outlierspath.com/2026/03/23/ai-adoption-vs-ai-advantage/"> an idea</a> Alfred Lin
-              has also discussed. And this scarcity is, in fact, what makes reliable evaluation, including PoW,
-              increasingly valuable.
+              {" "}<a href="https://arxiv.org/abs/2607.01904">Production research</a> suggests that the ability to
+              judge all this work reliably is becoming a scarce resource, an idea <a href="https://outlierspath.com/2026/03/23/ai-adoption-vs-ai-advantage/">Alfred Lin</a> has also discussed.<sup><a href="#note-2">2</a></sup> And this scarcity is, in fact, what makes reliable evaluation, including PoW, increasingly valuable.
             </p>
           </ProseSection>
           <ScrollDiagram
@@ -1917,10 +1879,8 @@ export default function Home() {
             <p>
               And as value begins to accumulate around judgment, more players will naturally offer these
               evaluations, including the groups we discussed above. Yet the pie is huge, and because acceptance
-              depends on the specific task, no single method or player can cover everything, leaving plenty of
-              room for others to participate in PoW. Data and evaluation companies have already begun to take
-              part too. Scale AI, for example, is moving in this direction by turning expert approvals from real
-              work into organization-specific evaluations.<sup><a href="#note-2">2</a></sup>
+              depends on the specific task, no single method or evaluator can cover everything, leaving plenty of
+              slices for others. Data and evaluation companies have already begun to take part too. <a href="https://scale.com/blog/dialect">Scale AI</a>, for example, is moving in this direction by turning expert approvals from real work into organization-specific evaluations.<sup><a href="#note-3">3</a></sup>
             </p>
           </ScrollDiagram>
           <ScrollDiagram
@@ -1929,7 +1889,7 @@ export default function Home() {
             caption="PoW compounds utility."
           >
             <p>
-              No matter who runs PoW, its larger value is that it connects fast-growing AI capability to work
+              No matter who runs PoW, however, its larger value is that it connects fast-growing AI capability to work
               people actually need. As enterprises make their standards clearer, vendors can test and improve
               systems against human judgment, and organizations can hand more nuanced work to AI with greater
               confidence. Each acceptance decision gives the next version a better target. Because those
@@ -1941,18 +1901,13 @@ export default function Home() {
             </p>
           </ScrollDiagram>
           <TextSection labelText="">
-            <p>Finally, as AI takes on more of the world’s work, one question will matter most. Did the work count?</p>
+            <p>Yet as we continue this journey and AI takes on more of the world’s work, we’ll keep coming back to one question.</p>
+            <p><strong>Did the work count?</strong></p>
           </TextSection>
           <ol className="source-notes">
-            <li id="note-1">Measuring Agents in Production: <a href="https://arxiv.org/abs/2512.04123">https://arxiv.org/abs/2512.04123</a></li>
-            <li id="note-2"><a href="https://scale.com/blog/dialect">https://scale.com/blog/dialect</a></li>
-            <li id="note-3"><a href="https://github.com/sierra-research/tau2-bench/blob/main/data/tau2/domains/airline/tasks.json#L444-L543">Sierra Research, τ²-bench airline task and policy data</a></li>
-            <li id="note-4"><a href="https://openai.com/index/introducing-codex/">OpenAI, Introducing Codex</a>; <a href="https://code.claude.com/docs/en/github-actions">Anthropic, Claude Code GitHub Actions</a></li>
-            <li id="note-5"><a href="https://github.com/sierra-research/tau2-bench">Sierra Research, τ²-bench</a></li>
-            <li id="note-6"><a href="https://support.ramp.com/policy-agent-overview/">Ramp, Policy Agent</a>; <a href="https://www.harvey.ai/blog/ai-for-legal-drafting">Harvey, AI for legal drafting</a>; <a href="https://www.abridge.com/press-release/highmark-health-ahn-abridge-prior-authorization">Abridge, real-time clinical notes</a></li>
-            <li id="note-7"><a href="https://zoox.com/common/files/zoox-safety-report-volume-3-0-published-2024.pdf">Zoox, Operational Safety</a></li>
-            <li id="note-8"><a href="https://docs.coderabbit.ai/knowledge-base/learnings">CodeRabbit, Learnings</a>; <a href="https://www.uber.com/us/en/blog/ureview/">Uber, uReview</a></li>
-            <li id="note-9"><a href="https://sierra.ai/product">Sierra, Product overview and outcome-based pricing</a></li>
+            <li id="note-1">The Ryanair row is a booking-channel change, not a blanket reversal: <a href="https://corporate.ryanair.com/news/ryanair-launches-new-parntership-with-leading-ota-on-the-beach/">customers booking through unauthorized OTAs</a> still have to verify, while customers using Approved OTA partners do not. Booking.com, KAYAK, Priceline, and Agoda entered that program through Ryanair&apos;s <a href="https://corporate.ryanair.com/news/ryanair-booking-holdings-sign-partnership-agreement/">August 2025 Booking Holdings agreement</a>. <a href="https://www.delta.com/us/en/gift-cards/overview">Delta</a> allows gift cards within one transaction regardless of the number of tickets; <a href="https://www.aa.com/web/i18n/customer-service/payment-options/travel-credit.html">American</a> limits Flight Credit to the named passenger.</li>
+            <li id="note-2">A <a href="https://arxiv.org/abs/2607.01904">July 2026 Stanford-CMU study</a> followed 802 developers and 196,212 pull requests. Throughput reached 2.09x the pre-mandate baseline, while per-reviewer load roughly doubled and automated review overtook human review.</li>
+            <li id="note-3">Scale&apos;s <a href="https://scale.com/blog/dialect">Dialect</a> captures expert edits, approvals, overrides, and outcomes from real usage, then uses them for enterprise-specific evaluation and learning. In PoW terms, the organization&apos;s own judgment becomes both the test and the feedback signal.</li>
           </ol>
         </section>
       </article>
