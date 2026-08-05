@@ -931,38 +931,41 @@ function drawAcceptance(ctx: CanvasRenderingContext2D, p: number) {
   const grow = smootherEase((p - 0.03) / 0.42);
   const compress = smootherEase((p - 0.5) / 0.27);
   const accept = smootherEase((p - 0.76) / 0.19);
-  const core = { x: 142, y: 201 };
-  const aperture = { x: 360, y: 201 };
+  const core = { x: 108, y: 202 };
+  const aperture = { x: 400, y: 202 };
+  const registerX = 282;
 
-  label(ctx, "The Living Rubric", core.x, 48, { color: TEXT, size: 11, weight: 600 });
+  label(ctx, "The Living Rubric", core.x, 49, { color: TEXT, size: 11, weight: 600 });
   label(ctx, "organization", aperture.x, 101, { color: TEXT, size: 11, weight: 600 });
 
   const nodes = [
-    { label: "Task quality, accuracy, and grounding", x: 150, y: 67, labelX: 150, labelY: 43, width: 128, color: "#9d5961", delay: 0 },
-    { label: "Cost", x: 222, y: 105, labelX: 247, labelY: 91, width: 52, color: "#557b7d", delay: 0.04 },
-    { label: "Latency / throughput", x: 244, y: 161, labelX: 257, labelY: 142, width: 92, color: "#60718c", delay: 0.08 },
-    { label: "Energy", x: 231, y: 242, labelX: 257, labelY: 256, width: 54, color: "#917747", delay: 0.12 },
-    { label: "Privacy / data control", x: 187, y: 301, labelX: 211, labelY: 327, width: 92, color: "#756681", delay: 0.16 },
-    { label: "Reliability", x: 111, y: 315, labelX: 103, labelY: 342, width: 72, color: "#66806f", delay: 0.2 },
-    { label: "Safety and policy compliance", x: 62, y: 261, labelX: 58, labelY: 288, width: 112, color: "#9a6b59", delay: 0.24 },
-    { label: "Governance and transparency / auditability", x: 55, y: 139, labelX: 66, labelY: 102, width: 126, color: "#596d76", delay: 0.28 },
+    { label: "Cost", x: 198, y: 78, labelX: 220, labelY: 65, width: 58, color: "#557b7d", delay: 0 },
+    { label: "Latency", x: 235, y: 108, labelX: 267, labelY: 101, width: 62, color: "#60718c", delay: 0.04 },
+    { label: "Energy", x: 258, y: 145, labelX: 292, labelY: 141, width: 58, color: "#917747", delay: 0.08 },
+    { label: "Privacy", x: 270, y: 184, labelX: 303, labelY: 183, width: 60, color: "#756681", delay: 0.12 },
+    { label: "Safety", x: 266, y: 224, labelX: 299, labelY: 225, width: 56, color: "#9a6b59", delay: 0.16 },
+    { label: "Policy", x: 250, y: 264, labelX: 283, labelY: 270, width: 56, color: "#66806f", delay: 0.2 },
+    { label: "Auditability", x: 220, y: 301, labelX: 251, labelY: 315, width: 76, color: "#596d76", delay: 0.24 },
+    { label: "Grounding", x: 176, y: 329, labelX: 178, labelY: 352, width: 74, color: "#9d5961", delay: 0.28 },
   ];
 
   nodes.forEach((node, index) => {
     const reveal = smootherEase((grow - node.delay) / 0.52);
-    const targetX = 192 + index * 15;
-    const targetY = 122;
+    const targetX = registerX;
+    const targetY = 88 + index * 32.5;
     const nodeX = node.x + (targetX - node.x) * compress;
     const nodeY = node.y + (targetY - node.y) * compress;
-    const bend = index % 2 === 0 ? -18 : 18;
+    const anchorOffset = -22 + (44 * index) / (nodes.length - 1);
+    const anchorX = core.x + Math.sqrt(Math.max(0, 31 * 31 - anchorOffset * anchorOffset));
+    const anchorY = core.y + anchorOffset;
     flowLine(
       ctx,
-      core,
-      { x: core.x + (nodeX - core.x) * 0.34, y: core.y + bend },
-      { x: nodeX - (nodeX - core.x) * 0.22, y: nodeY - bend * 0.5 },
+      { x: anchorX, y: anchorY },
+      { x: anchorX + (nodeX - anchorX) * 0.35, y: anchorY + (nodeY - anchorY) * 0.32 },
+      { x: nodeX - (nodeX - anchorX) * 0.22, y: nodeY },
       { x: nodeX, y: nodeY },
       node.color,
-      reveal * (1 - compress * 0.42),
+      reveal * (1 - compress * 0.12),
       reveal,
       1.25,
     );
@@ -996,12 +999,12 @@ function drawAcceptance(ctx: CanvasRenderingContext2D, p: number) {
   label(ctx, "AI work", core.x, core.y - 4, { color: ACCENT, size: 11.5, weight: 700 });
   label(ctx, "in context", core.x, core.y + 11, { color: MUTED, size: 7.8, italic: true });
 
-  line(ctx, 182, 122, 307, 122, MUTED, 1.5, compress * 0.78);
+  line(ctx, registerX, 78, registerX, 326, MUTED, 1.5, compress * 0.8);
   flowLine(
     ctx,
-    { x: 307, y: 122 },
-    { x: 326, y: 133 },
-    { x: aperture.x - 60, y: 174 },
+    { x: registerX, y: aperture.y },
+    { x: registerX + 26, y: aperture.y },
+    { x: aperture.x - 63, y: aperture.y },
     { x: aperture.x - 55, y: aperture.y },
     ACCENT,
     compress * 0.82,
@@ -1039,17 +1042,17 @@ function drawAcceptance(ctx: CanvasRenderingContext2D, p: number) {
 
   flowLine(
     ctx,
-    { x: aperture.x + 55, y: aperture.y },
-    { x: 424, y: aperture.y },
-    { x: 434, y: aperture.y },
-    { x: 439, y: aperture.y },
+    { x: aperture.x + 49, y: aperture.y },
+    { x: 453, y: aperture.y },
+    { x: 456, y: aperture.y },
+    { x: 458, y: aperture.y },
     SUCCESS,
     accept,
     accept,
     2,
   );
 
-  const outputX = 466;
+  const outputX = 476;
   const outputY = 201;
   dot(ctx, outputX, outputY, 21, "rgba(47,125,50,.08)", SUCCESS, accept);
   if (accept > 0.02) {
