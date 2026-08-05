@@ -8,7 +8,7 @@
   --doc-bg: #ffffff;
   --doc-muted: #6f7f93;
   --contents-top-air: 36px;
-  --contents-bottom-air: 46px;
+  --contents-bottom-air: 28px;
   --sticky-top: 106px;
 }
 
@@ -528,7 +528,7 @@ blockquote {
 @media (max-width: 900px) {
   :root {
     --contents-top-air: 20px;
-    --contents-bottom-air: 28px;
+    --contents-bottom-air: 20px;
     --sticky-top: 0px;
   }
 
