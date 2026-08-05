@@ -751,13 +751,170 @@ function drawCoding(ctx: CanvasRenderingContext2D, p: number) {
 }
 
 function drawEvaluatorStory(ctx: CanvasRenderingContext2D, phase: number) {
-  if (phase < 3) {
-    drawProximity(ctx, phase);
-    return;
-  }
+  const proximityOpacity = 1 - smootherEase((phase - 2.55) / 0.42);
+  const ringsOpacity = smootherEase((phase - 2.55) / 0.42);
+  const caseProgress = clamp(phase, 0, 2);
+  const caseWeights = [0, 1, 2].map((index) => {
+    const distance = Math.abs(caseProgress - index);
+    return smootherEase(1 - clamp(distance));
+  });
+  const weightTotal = caseWeights.reduce((sum, weight) => sum + weight, 0) || 1;
+  const weights = caseWeights.map((weight) => weight / weightTotal);
+  const lensStops = [154, 382, 550];
+  const lensX = lensStops.reduce((sum, stop, index) => sum + stop * weights[index], 0);
+  const lensY = 78;
+  const modeStops = lensStops;
+  const evaluators = ["Codex / Claude Code", "Sierra", "Zoox Evaluator"];
+  const caseColors = [POLICY_BLUE, POLICY_ORANGE, POLICY_RED];
+  const cues = [
+    "Acceptance is directly observable",
+    "Acceptance can be explained",
+    "Acceptance must be interpreted inside",
+  ];
 
-  const codingProgress = 0.1 + clamp(phase - 4, 0, 2) * 0.37;
-  drawCoding(ctx, codingProgress);
+  ctx.save();
+  ctx.globalAlpha = proximityOpacity;
+  ctx.fillStyle = "rgba(255,255,255,.94)";
+  ctx.strokeStyle = POLICY_NAVY;
+  ctx.lineWidth = 1.3;
+  ctx.beginPath();
+  ctx.roundRect(482, 45, 214, 108, 11);
+  ctx.fill();
+  ctx.stroke();
+  ctx.restore();
+  label(ctx, "Organization", 608, 60, { color: POLICY_NAVY, size: 12.5, weight: 700, opacity: proximityOpacity });
+  containedImage(ctx, logoPaths[0], 550, 76, 76, 54, weights[0] * proximityOpacity);
+  containedImage(ctx, logoPaths[1], 506, 83, 42, 34, weights[1] * proximityOpacity);
+  containedImage(ctx, logoPaths[2], 568, 83, 42, 34, weights[1] * proximityOpacity);
+  containedImage(ctx, logoPaths[3], 630, 83, 42, 34, weights[1] * proximityOpacity);
+  containedImage(ctx, logoPaths[4], 625, 82, 60, 30, weights[2] * proximityOpacity);
+
+  arrow(ctx, 690, 193, 70, 193, POLICY_NAVY, 0.5 * proximityOpacity);
+  arrow(ctx, 70, 193, 690, 193, POLICY_SKY, 0.58 * proximityOpacity);
+  const modes = ["Outside", "Alongside", "Inside"];
+  modeStops.forEach((x, index) => {
+    const active = weights[index];
+    dot(
+      ctx,
+      x,
+      193,
+      4.2 + active * 1.6,
+      active > 0.04 ? caseColors[index] : PAPER,
+      active > 0.04 ? caseColors[index] : MUTED,
+      proximityOpacity,
+    );
+    label(ctx, modes[index], x, 217, {
+      color: active > 0.04 ? caseColors[index] : MUTED,
+      size: 11.5,
+      weight: active > 0.04 ? 650 : 450,
+      opacity: proximityOpacity,
+    });
+  });
+
+  drawMagnifier(ctx, lensX, lensY, proximityOpacity, POLICY_BLUE, POLICY_NAVY);
+  evaluators.forEach((evaluator, index) => {
+    label(ctx, evaluator, lensX, 24, {
+      color: caseColors[index],
+      size: 12.5,
+      weight: 650,
+      opacity: weights[index] * proximityOpacity,
+    });
+    wrappedLabel(ctx, cues[index], lensX, 168, 220, 12, {
+      color: caseColors[index],
+      size: 10.5,
+      weight: 550,
+      italic: true,
+      opacity: weights[index] * proximityOpacity,
+    });
+  });
+
+  const center = { x: 255, y: 112 };
+  const radii = [88, 59, 31];
+  const colors = [POLICY_BLUE, POLICY_ORANGE, POLICY_RED];
+  const fills = ["rgba(0,122,228,.1)", "rgba(255,112,29,.1)", "rgba(233,65,27,.1)"];
+  const reveal = [
+    smootherEase((phase - 3.55) / 0.35),
+    smootherEase((phase - 4.55) / 0.35),
+    smootherEase((phase - 5.55) / 0.35),
+  ];
+
+  label(ctx, "Coding: three evaluation modes coexist", center.x, 16, {
+    color: POLICY_NAVY,
+    size: 12.5,
+    weight: 650,
+    opacity: ringsOpacity,
+  });
+
+  const fillBand = (outer: number, inner: number, color: string, opacity: number) => {
+    ctx.save();
+    ctx.globalAlpha = opacity;
+    ctx.fillStyle = color;
+    ctx.beginPath();
+    ctx.arc(center.x, center.y, outer, 0, Math.PI * 2);
+    if (inner > 0) ctx.arc(center.x, center.y, inner, 0, Math.PI * 2, true);
+    ctx.fill("evenodd");
+    ctx.restore();
+  };
+
+  radii.forEach((radius, index) => {
+    fillBand(radius, index < 2 ? radii[index + 1] : 0, colors[index], (0.035 + reveal[index] * 0.11) * ringsOpacity);
+    ctx.save();
+    ctx.globalAlpha = (0.42 + reveal[index] * 0.58) * ringsOpacity;
+    ctx.strokeStyle = reveal[index] > 0.02 ? colors[index] : MUTED;
+    ctx.lineWidth = 1.35 + reveal[index] * 1.15;
+    ctx.beginPath();
+    ctx.arc(center.x, center.y, radius, 0, Math.PI * 2);
+    ctx.stroke();
+    ctx.restore();
+  });
+  dot(ctx, center.x, center.y, 4.2, POLICY_NAVY, POLICY_NAVY, ringsOpacity);
+
+  const callouts = [
+    { name: "Codex", detail: "Outside: merge decision is observable", y: 51, anchorX: 325, anchorY: 60 },
+    { name: "CodeRabbit", detail: "Alongside: adapts to repository rules", y: 111, anchorX: 314, anchorY: 111 },
+    { name: "uReview", detail: "Inside Uber: codebase + developer feedback", y: 171, anchorX: 283, anchorY: 137 },
+  ];
+  callouts.forEach((item, index) => {
+    const itemOpacity = (0.2 + reveal[index] * 0.8) * ringsOpacity;
+    line(ctx, item.anchorX, item.anchorY, 428, item.y, colors[index], 1.3, itemOpacity);
+    ctx.save();
+    ctx.globalAlpha = itemOpacity;
+    ctx.fillStyle = reveal[index] > 0.02 ? fills[index] : "rgba(255,255,255,.9)";
+    ctx.strokeStyle = colors[index];
+    ctx.lineWidth = reveal[index] > 0.02 ? 1.65 : 1.05;
+    ctx.beginPath();
+    ctx.roundRect(432, item.y - 23, 292, 46, 8);
+    ctx.fill();
+    ctx.stroke();
+    ctx.restore();
+    label(ctx, item.name, 453, item.y - 7, {
+      align: "left",
+      color: colors[index],
+      size: 12.5,
+      weight: 700,
+      opacity: itemOpacity,
+    });
+    label(ctx, item.detail, 453, item.y + 11, {
+      align: "left",
+      color: TEXT,
+      size: 10.2,
+      weight: 500,
+      opacity: itemOpacity,
+    });
+  });
+
+  const spectrumLabels = ["Outside", "Alongside", "Inside"];
+  spectrumLabels.forEach((mode, index) => {
+    label(ctx, mode, 168 + index * 87, 220, {
+      color: colors[index],
+      size: 10.5,
+      weight: 650,
+      opacity: (0.45 + reveal[index] * 0.55) * ringsOpacity,
+    });
+    if (index < spectrumLabels.length - 1) {
+      arrow(ctx, 199 + index * 87, 220, 219 + index * 87, 220, MUTED, 0.65 * ringsOpacity);
+    }
+  });
 }
 
 function drawPieFrame(
@@ -1643,8 +1800,8 @@ function EvaluatorStory({ children }: { children: ReactNode }) {
 
     const paint = () => {
       frame = 0;
-      const logicalWidth = 500;
-      const logicalHeight = 400;
+      const logicalWidth = 760;
+      const logicalHeight = 230;
       const ratio = Math.min(window.devicePixelRatio || 1, 3);
       if (canvas.width !== Math.round(logicalWidth * ratio) || canvas.height !== Math.round(logicalHeight * ratio)) {
         canvas.width = Math.round(logicalWidth * ratio);
@@ -1852,6 +2009,7 @@ export default function Home() {
           <h1>Proof-of-Workflow</h1>
           <p className="post-subtitle">AI Evaluation Based on Real Workflows</p>
           <div className="author-block">
+            <p className="post-date">August 5, 2026</p>
             <p className="post-authors">
               Amir Zeinali<sup>1,2</sup>, Shayan Talaei<sup>2</sup>, Avanika Narayan<sup>1</sup>, and Jon Saad-Falcon<sup>1,2</sup>
             </p>
