@@ -1,10 +1,10 @@
 @import "tailwindcss";
 
 :root {
-  --doc-line: #0b1f3a;
-  --doc-text: #20344f;
-  --doc-accent: #1558d6;
-  --doc-accent-light: rgba(21, 88, 214, 0.14);
+  --doc-line: #00447f;
+  --doc-text: #0b2b4b;
+  --doc-accent: #007ae4;
+  --doc-accent-light: rgba(0, 122, 228, 0.14);
   --doc-bg: #ffffff;
   --doc-muted: #6f7f93;
   --contents-top-air: 36px;
@@ -27,7 +27,7 @@ body {
   margin: 0;
   color: var(--doc-text);
   background:
-    radial-gradient(circle at 50% -18%, rgba(21, 88, 214, 0.075), transparent 38rem),
+    radial-gradient(circle at 50% -18%, rgba(0, 122, 228, 0.075), transparent 38rem),
     var(--doc-bg);
   font-family: "Iowan Old Style", "Iowan Old Style BT", Georgia, serif;
   font-size: 17px;
@@ -134,7 +134,7 @@ h1 {
   margin: 1.75rem auto 2.4rem;
   padding: 0.9rem 1.15rem 0.95rem;
   border-left: 3px solid var(--doc-accent);
-  background: rgba(21, 88, 214, 0.055);
+  background: rgba(0, 122, 228, 0.055);
   border-radius: 4px;
 }
 
@@ -150,7 +150,7 @@ h1 {
   position: fixed;
   z-index: 30;
   top: 24px;
-  left: max(18px, calc(50vw - 628px));
+  left: 24px;
   display: block;
   width: 228px;
   min-height: 0;
@@ -180,7 +180,7 @@ h1 {
   text-transform: uppercase;
 }
 
-.contents-table ol {
+.contents-table > ol {
   display: flex;
   gap: 3px;
   margin: 0;
@@ -223,14 +223,45 @@ h1 {
   min-width: 0;
 }
 
+.contents-subsections {
+  display: flex;
+  gap: 1px;
+  margin: 1px 0 4px 33px;
+  padding: 0;
+  flex-direction: column;
+  list-style: none;
+}
+
+.contents-subsections a {
+  align-items: center;
+  gap: 6px;
+  padding: 3px 6px;
+  color: #60718a;
+  font-size: 0.61rem;
+  font-weight: 550;
+  line-height: 1.22;
+}
+
+.contents-subsection-mark {
+  width: 5px;
+  height: 5px;
+  flex: 0 0 5px;
+  border-radius: 50%;
+  background: rgba(0, 122, 228, 0.34);
+}
+
+.contents-subsections a.is-active .contents-subsection-mark {
+  background: var(--doc-accent);
+}
+
 .contents-table a:hover {
   color: var(--doc-line);
-  background: rgba(21, 88, 214, 0.06);
+  background: rgba(0, 122, 228, 0.06);
 }
 
 .contents-table a.is-active {
   color: var(--doc-accent);
-  background: rgba(21, 88, 214, 0.085);
+  background: rgba(0, 122, 228, 0.085);
 }
 
 .contents-table a.is-active .contents-number {
@@ -382,7 +413,7 @@ h1 {
   margin: 1.15rem 0;
   padding: 0.8rem 0.95rem;
   border-left: 3px solid var(--doc-accent);
-  background: rgba(21, 88, 214, 0.055);
+  background: rgba(0, 122, 228, 0.055);
   border-radius: 4px;
 }
 
@@ -670,7 +701,7 @@ blockquote {
   padding-top: 0.72rem;
 }
 
-@media (min-width: 901px) and (max-width: 1280px) {
+@media (min-width: 901px) and (max-width: 1400px) {
   .contents-table {
     left: 12px;
     width: 50px;
@@ -678,7 +709,8 @@ blockquote {
   }
 
   .contents-title,
-  .contents-label {
+  .contents-label,
+  .contents-subsections {
     display: none;
   }
 
@@ -733,11 +765,15 @@ blockquote {
     text-align: left;
   }
 
-  .contents-table ol {
+  .contents-table > ol {
     display: grid;
     grid-template-columns: 1.25fr 1.05fr 1.55fr 0.85fr 1.1fr;
     min-width: 760px;
     flex-direction: initial;
+  }
+
+  .contents-subsections {
+    display: none;
   }
 
   .contents-number {

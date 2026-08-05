@@ -11,12 +11,12 @@ type SceneName =
   | "pie"
   | "compounding";
 
-const INK = "#0b1f3a";
-const TEXT = "#20344f";
+const INK = "#00447f";
+const TEXT = "#0b2b4b";
 const MUTED = "#6f7f93";
-const ACCENT = "#1558d6";
+const ACCENT = "#007ae4";
 const SUCCESS = "#16843f";
-const ACCENT_LIGHT = "rgba(21,88,214,.14)";
+const ACCENT_LIGHT = "rgba(0,122,228,.14)";
 const PAPER = "#ffffff";
 const WHITE = "rgba(255,255,255,.88)";
 const POLICY_BLUE = "#007ae4";
@@ -748,7 +748,7 @@ function drawEvaluatorStory(ctx: CanvasRenderingContext2D, phase: number) {
   });
   const weightTotal = caseWeights.reduce((sum, weight) => sum + weight, 0) || 1;
   const weights = caseWeights.map((weight) => weight / weightTotal);
-  const lensStops = [154, 462, 586];
+  const lensStops = [154, 482, 642];
   const lensX = lensStops.reduce((sum, stop, index) => sum + stop * weights[index], 0);
   const lensY = 99;
   const modeStops = [154, 382, 610];
@@ -775,7 +775,7 @@ function drawEvaluatorStory(ctx: CanvasRenderingContext2D, phase: number) {
   containedImage(ctx, logoPaths[1], 506, 83, 42, 34, weights[1] * proximityOpacity);
   containedImage(ctx, logoPaths[2], 568, 83, 42, 34, weights[1] * proximityOpacity);
   containedImage(ctx, logoPaths[3], 630, 83, 42, 34, weights[1] * proximityOpacity);
-  containedImage(ctx, logoPaths[4], 551, 80, 76, 39, weights[2] * proximityOpacity);
+  containedImage(ctx, logoPaths[4], 515, 80, 70, 39, weights[2] * proximityOpacity);
 
   arrow(ctx, 690, 193, 70, 193, POLICY_NAVY, 0.5 * proximityOpacity);
   arrow(ctx, 70, 193, 690, 193, POLICY_SKY, 0.58 * proximityOpacity);
@@ -919,8 +919,8 @@ function drawPieFrame(
   ctx.shadowColor = "rgba(11,31,58,.1)";
   ctx.shadowBlur = Math.max(4, radius * 0.04);
   ctx.shadowOffsetY = Math.max(2, radius * 0.016);
-  ctx.fillStyle = "rgba(187,145,96,.16)";
-  ctx.strokeStyle = "rgba(145,105,66,.62)";
+  ctx.fillStyle = "rgba(255,112,29,.1)";
+  ctx.strokeStyle = "rgba(255,112,29,.7)";
   ctx.lineWidth = Math.max(1.2, radius * 0.01);
   ctx.beginPath();
   for (let index = 0; index <= points; index += 1) {
@@ -937,14 +937,14 @@ function drawPieFrame(
   ctx.stroke();
 
   ctx.fillStyle = "rgba(255,255,255,.9)";
-  ctx.strokeStyle = "rgba(21,88,214,.34)";
+  ctx.strokeStyle = "rgba(0,122,228,.36)";
   ctx.lineWidth = Math.max(1, radius * 0.012);
   ctx.beginPath();
   ctx.arc(centerX, centerY, innerRadius, 0, Math.PI * 2);
   ctx.fill();
   ctx.stroke();
 
-  ctx.strokeStyle = "rgba(145,105,66,.46)";
+  ctx.strokeStyle = "rgba(233,65,27,.42)";
   ctx.lineWidth = Math.max(0.9, radius * 0.007);
   ctx.setLineDash([Math.max(1.5, radius * 0.012), Math.max(4, radius * 0.035)]);
   ctx.beginPath();
@@ -966,16 +966,16 @@ function drawPie(ctx: CanvasRenderingContext2D, p: number) {
   drawPieFrame(ctx, center.x, center.y, size);
 
   const colors = [
-    "#9d5961",
-    "#557b7d",
-    "#917747",
-    "#60718c",
-    "#756681",
-    "#66806f",
-    "#9a6b59",
-    "#596d76",
-    "#8d6378",
-    "#747a5b",
+    POLICY_BLUE,
+    POLICY_ORANGE,
+    POLICY_RED,
+    POLICY_NAVY,
+    POLICY_SKY,
+    POLICY_ORANGE,
+    POLICY_BLUE,
+    POLICY_RED,
+    POLICY_SKY,
+    POLICY_NAVY,
   ];
   const symbols: Record<string, string> = {
     Software: "</>",
@@ -1001,7 +1001,7 @@ function drawPie(ctx: CanvasRenderingContext2D, p: number) {
       const middle = (start + end) / 2;
 
       ctx.save();
-      ctx.globalAlpha = opacity * (count === 1 ? 0.22 : count === 5 ? 0.26 : 0.3);
+      ctx.globalAlpha = opacity * (count === 1 ? 0.34 : count === 5 ? 0.48 : 0.52);
       ctx.fillStyle = colors[index % colors.length];
       ctx.beginPath();
       ctx.moveTo(center.x, center.y);
@@ -1097,14 +1097,14 @@ function drawAcceptance(ctx: CanvasRenderingContext2D, p: number) {
   label(ctx, "Organization", aperture.x, 88, { color: TEXT, size: 11, weight: 600 });
 
   const nodes = [
-    { label: "Cost", angle: -Math.PI / 2, labelX: 108, labelY: 119, width: 58, color: "#557b7d", delay: 0 },
-    { label: "Latency", angle: -Math.PI / 4, labelX: 199, labelY: 145, width: 62, color: "#60718c", delay: 0.04 },
-    { label: "Energy", angle: 0, labelX: 225, labelY: 218, width: 58, color: "#917747", delay: 0.08 },
-    { label: "Privacy", angle: Math.PI / 4, labelX: 201, labelY: 293, width: 60, color: "#756681", delay: 0.12 },
-    { label: "Safety", angle: Math.PI / 2, labelX: 108, labelY: 326, width: 56, color: "#9a6b59", delay: 0.16 },
-    { label: "Policy", angle: (Math.PI * 3) / 4, labelX: 37, labelY: 294, width: 56, color: "#66806f", delay: 0.2 },
-    { label: "Auditability", angle: Math.PI, labelX: 43, labelY: 239, width: 76, color: "#596d76", delay: 0.24 },
-    { label: "Grounding", angle: (Math.PI * 5) / 4, labelX: 38, labelY: 145, width: 74, color: "#9d5961", delay: 0.28 },
+    { label: "Cost", angle: -Math.PI / 2, labelX: 108, labelY: 119, width: 58, color: POLICY_BLUE, delay: 0 },
+    { label: "Latency", angle: -Math.PI / 4, labelX: 199, labelY: 145, width: 62, color: POLICY_SKY, delay: 0.04 },
+    { label: "Energy", angle: 0, labelX: 225, labelY: 218, width: 58, color: POLICY_ORANGE, delay: 0.08 },
+    { label: "Privacy", angle: Math.PI / 4, labelX: 201, labelY: 293, width: 60, color: POLICY_NAVY, delay: 0.12 },
+    { label: "Safety", angle: Math.PI / 2, labelX: 108, labelY: 326, width: 56, color: POLICY_RED, delay: 0.16 },
+    { label: "Policy", angle: (Math.PI * 3) / 4, labelX: 37, labelY: 294, width: 56, color: POLICY_BLUE, delay: 0.2 },
+    { label: "Auditability", angle: Math.PI, labelX: 43, labelY: 239, width: 76, color: POLICY_ORANGE, delay: 0.24 },
+    { label: "Grounding", angle: (Math.PI * 5) / 4, labelX: 38, labelY: 145, width: 74, color: POLICY_RED, delay: 0.28 },
   ];
 
   nodes.forEach((node, index) => {
@@ -1210,7 +1210,7 @@ function drawAcceptance(ctx: CanvasRenderingContext2D, p: number) {
   ctx.stroke();
   ctx.restore();
 
-  dot(ctx, aperture.x, 124, 6, PAPER, TEXT, 0.9);
+  dot(ctx, aperture.x, 116, 6, PAPER, TEXT, 0.9);
   ctx.save();
   ctx.globalAlpha = 0.9;
   ctx.strokeStyle = TEXT;
@@ -1554,7 +1554,7 @@ function drawCompounding(ctx: CanvasRenderingContext2D, p: number) {
   flowArrow(ctx, brainToOrg[0], brainToOrg[1], brainToOrg[2], brainToOrg[3], ACCENT, backToOrganizations.opacity, backToOrganizations.progress, 2.4);
   flowArrow(ctx, orgToUtility[0], orgToUtility[1], orgToUtility[2], orgToUtility[3], SUCCESS, intoUtility.opacity, intoUtility.progress, 2.4);
 
-  const organizationColors = ["#9d5961", "#557b7d", "#917747", "#60718c", "#756681", "#66806f"];
+  const organizationColors = [POLICY_BLUE, POLICY_ORANGE, POLICY_RED, POLICY_NAVY, POLICY_SKY];
   const cloudPoint = (index: number, total: number, radiusX: number, radiusY: number, phase: number) => {
     const distance = Math.sqrt((index + 1) / total);
     const angle = index * 2.399963 + phase;
@@ -1576,7 +1576,7 @@ function drawCompounding(ctx: CanvasRenderingContext2D, p: number) {
     );
   });
 
-  const brainColors = ["#557b7d", "#9a6b59", "#756681", "#66806f"];
+  const brainColors = [POLICY_NAVY, POLICY_BLUE, POLICY_SKY, POLICY_ORANGE, POLICY_RED];
   Array.from({ length: 75 }).forEach((_, index) => {
     const reveal = smootherEase(clamp(intelligenceCount - index));
     const point = cloudPoint(index, 75, 70, 55, 1.15);
@@ -1590,7 +1590,7 @@ function drawCompounding(ctx: CanvasRenderingContext2D, p: number) {
     );
   });
 
-  const smileColors = ["#66806f", "#917747", "#557b7d", "#9d5961", "#756681"];
+  const smileColors = [POLICY_ORANGE, POLICY_BLUE, POLICY_RED, POLICY_SKY, POLICY_NAVY];
   Array.from({ length: 100 }).forEach((_, index) => {
     const reveal = smootherEase(clamp(utilityCount - index));
     const point = cloudPoint(index, 100, 70, 61, 2.1);
@@ -1610,10 +1610,10 @@ function drawCompounding(ctx: CanvasRenderingContext2D, p: number) {
   const innerRadius = 27 + powActivity;
   ctx.save();
   ctx.globalAlpha = 0.96;
-  ctx.fillStyle = "rgba(21,88,214,.13)";
+  ctx.fillStyle = "rgba(0,122,228,.13)";
   ctx.strokeStyle = ACCENT;
   ctx.lineWidth = 2.7 + powActivity * 0.8;
-  ctx.shadowColor = "rgba(21,88,214,.48)";
+  ctx.shadowColor = "rgba(0,122,228,.48)";
   ctx.shadowBlur = 9 + powActivity * 9;
   ctx.beginPath();
   for (let index = 0; index < 32; index += 1) {
@@ -1632,7 +1632,7 @@ function drawCompounding(ctx: CanvasRenderingContext2D, p: number) {
   ctx.fillStyle = "rgba(255,255,255,.92)";
   ctx.strokeStyle = ACCENT;
   ctx.lineWidth = 2.5;
-  ctx.shadowColor = "rgba(21,88,214,.42)";
+  ctx.shadowColor = "rgba(0,122,228,.42)";
   ctx.shadowBlur = 8 + powActivity * 7;
   ctx.beginPath();
   ctx.arc(powCenter.x, powCenter.y, 24 + powActivity * 1.5, 0, Math.PI * 2);
@@ -1867,13 +1867,42 @@ function ProseSection({ children }: { labelText: string; children: ReactNode }) 
   );
 }
 
-const contents = [
+type ContentsItem = {
+  id: string;
+  number: string;
+  label: string;
+  children?: Array<{ id: string; label: string }>;
+};
+
+const contents: ContentsItem[] = [
   { id: "act-one", number: "1", label: "When Work Changes, Evaluation Must Too" },
   { id: "act-two", number: "2", label: "A Better Way to Judge AI Work" },
-  { id: "act-three", number: "3", label: "How Close the Evaluator Must Be to the Organization" },
-  { id: "act-four", number: "4", label: "From AI Use to AI Value" },
+  {
+    id: "act-three",
+    number: "3",
+    label: "How Close the Evaluator Must Be to the Organization",
+    children: [
+      { id: "case-outside", label: "Case 1: Outside" },
+      { id: "case-alongside", label: "Case 2: Alongside" },
+      { id: "case-inside", label: "Case 3: Inside" },
+    ],
+  },
+  {
+    id: "act-four",
+    number: "4",
+    label: "From AI Use to AI Value",
+    children: [
+      { id: "cost-accepted-work", label: "Cost Shifts to Accepted Work" },
+      { id: "pricing-accepted-work", label: "Pricing Follows the Same Unit" },
+    ],
+  },
   { id: "act-five", number: "5", label: "What Better Evaluation Could Unlock" },
 ];
+
+const contentTargets = contents.flatMap((item) => [
+  { id: item.id },
+  ...(item.children ?? []).map(({ id }) => ({ id })),
+]);
 
 function SectionTable() {
   const [activeId, setActiveId] = useState(contents[0].id);
@@ -1886,7 +1915,7 @@ function SectionTable() {
       frame = 0;
       const marker = Math.min(180, window.innerHeight * 0.28);
       let current = contents[0].id;
-      contents.forEach(({ id }) => {
+      contentTargets.forEach(({ id }) => {
         const heading = document.getElementById(id);
         if (heading && heading.getBoundingClientRect().top <= marker) current = id;
       });
@@ -1916,14 +1945,29 @@ function SectionTable() {
     <nav className="contents-table contents-side" aria-label="Table of contents" ref={tableRef}>
       <span className="contents-title">Contents</span>
       <ol>
-        {contents.map((item) => (
-          <li key={item.id}>
-            <a href={`#${item.id}`} className={activeId === item.id ? "is-active" : undefined}>
-              <span className="contents-number">{item.number}</span>
-              <span className="contents-label">{item.label}</span>
-            </a>
-          </li>
-        ))}
+        {contents.map((item) => {
+          const sectionActive = activeId === item.id || item.children?.some(({ id }) => id === activeId);
+          return (
+            <li key={item.id}>
+              <a href={`#${item.id}`} className={sectionActive ? "is-active" : undefined} title={item.label}>
+                <span className="contents-number">{item.number}</span>
+                <span className="contents-label">{item.label}</span>
+              </a>
+              {item.children ? (
+                <ol className="contents-subsections">
+                  {item.children.map((child) => (
+                    <li key={child.id}>
+                      <a href={`#${child.id}`} className={activeId === child.id ? "is-active" : undefined} title={child.label}>
+                        <span className="contents-subsection-mark" aria-hidden="true" />
+                        <span>{child.label}</span>
+                      </a>
+                    </li>
+                  ))}
+                </ol>
+              ) : null}
+            </li>
+          );
+        })}
       </ol>
     </nav>
   );
@@ -2033,7 +2077,7 @@ export default function Home() {
               and private context to understand the approval decision. We trace how the answer changes across
               three cases.
             </p>
-            <div className="evaluator-story-step" data-story-phase="0">
+            <div className="evaluator-story-step" data-story-phase="0" id="case-outside">
               <h3 className="case-heading">Case 1. The Evaluator Is <em>Outside</em> the Organization</h3>
               <p>
                 In some workflows, the expert’s decision is clearly recorded in a structured event, so an outside
@@ -2047,7 +2091,7 @@ export default function Home() {
                 accepted, the evaluator has to move closer.
               </p>
             </div>
-            <div className="evaluator-story-step" data-story-phase="1">
+            <div className="evaluator-story-step" data-story-phase="1" id="case-alongside">
               <h3 className="case-heading">Case 2. The Evaluator Is <em>Alongside</em> the Organization</h3>
               <p>
                 In the middle case, an outside evaluator can judge the work, but only after learning enough about
@@ -2065,7 +2109,7 @@ export default function Home() {
                 what good enough looks like. Some workflows push past that limit.
               </p>
             </div>
-            <div className="evaluator-story-step" data-story-phase="2">
+            <div className="evaluator-story-step" data-story-phase="2" id="case-inside">
               <h3 className="case-heading">Case 3. The Evaluator Is <em>Inside</em> the Organization</h3>
               <p>
                 At the closest level, the evaluator needs so much company knowledge that explaining what acceptance
@@ -2109,7 +2153,7 @@ export default function Home() {
               changes how we measure cost, and once accepted work becomes the unit of cost, providers can use the
               same unit for pricing. Let’s take a closer look at each stage:
             </p>
-            <h3 className="case-heading">1. Cost shifts from AI activity to accepted work</h3>
+            <h3 className="case-heading" id="cost-accepted-work">1. Cost shifts from AI activity to accepted work</h3>
             <p>
               We often count tokens consumed or sessions started because they help us know how much AI was used.
               But that leaves out whether the result turned out useful. A cheap model can end up costing more
@@ -2117,7 +2161,7 @@ export default function Home() {
               production bar in fewer attempts. People in the industry are already thinking about cost this way.
               Satya Nadella has discussed optimizing the <a href="https://www.microsoft.com/en-us/investor/events/fy-2026/earnings-fy-2026-q4">cost-to-outcome</a> frontier in real-world settings, and Sarah Friar, OpenAI’s CFO, has described the metric as <a href="https://openai.com/index/a-scorecard-for-the-ai-age/">cost per successful task</a>. PoW follows the same logic by defining success as acceptance in the real workflow, which leads to measuring <strong>cost per accepted workflow.</strong>
             </p>
-            <h3 className="case-heading">2. Pricing follows the same unit</h3>
+            <h3 className="case-heading" id="pricing-accepted-work">2. Pricing follows the same unit</h3>
             <p data-diagram-trigger>
               Subsequently, when accepted work becomes the unit of cost, providers can also use it as the basis
               for pricing. Back to customer support, <a href="https://sierra.ai/blog/outcome-based-pricing-for-ai-agents">Sierra</a> already applies this logic by charging when its agents achieve business outcomes agreed upon with the customer. The same pricing approach is appearing elsewhere in <a href="https://www.intercom.com/help/en/articles/8205718-fin-ai-agent-outcomes">customer support</a> and in fields such as <a href="https://www.eudia.com/blog/the-roi-of-an-ai-native-law-firm">legal services,</a> <a href="https://swordhealth.com/value/fair-pricing">healthcare</a>, and <a href="https://www.riskified.com/chargeback-guarantee/">finance</a>, where payment may depend on recovered compensation, measurable clinical improvement, or approved transactions. What stays consistent is the shift from AI activity toward work that meets the customer’s needs.
