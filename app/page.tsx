@@ -1813,7 +1813,7 @@ function SectionTable() {
   }, []);
 
   return (
-    <nav className="contents-table contents-side" aria-label="Table of contents" ref={tableRef}>
+    <nav className="contents-table" aria-label="Table of contents" ref={tableRef}>
       <span className="contents-title">Contents</span>
       <ol>
         {contents.map((item) => {
