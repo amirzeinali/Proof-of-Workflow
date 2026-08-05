@@ -289,6 +289,14 @@ h1 {
   top: var(--sticky-top);
 }
 
+.has-scene.scene-acceptance:not(.long-copy) .section-viz {
+  top: calc(var(--sticky-top) + 5rem);
+}
+
+.has-scene.scene-meter:not(.long-copy) .section-viz {
+  top: calc(var(--sticky-top) + 6rem);
+}
+
 /* Let short copy continue down the left while these diagrams remain on the right. */
 .scene-criteria .section-viz,
 .scene-coding .section-viz {
@@ -296,6 +304,25 @@ h1 {
   top: 2px;
   right: 0;
   width: calc(50% - 14px);
+}
+
+.scene-pie .section-inner {
+  min-height: 285px;
+}
+
+.scene-pie .section-viz {
+  position: absolute !important;
+  top: -35px;
+  right: 0;
+  width: calc(50% - 14px);
+}
+
+.scene-pie .diagram-canvas {
+  max-width: 350px;
+}
+
+.scene-compounding .section-viz {
+  transform: translateY(-1.25rem);
 }
 
 .section-viz {
@@ -571,12 +598,26 @@ blockquote {
   .has-scene.scene-acceptance:not(.long-copy) .section-viz,
   .has-scene.scene-meter:not(.long-copy) .section-viz {
     position: static;
+    top: auto;
   }
 
   .scene-criteria .section-viz,
   .scene-coding .section-viz {
     position: static !important;
     width: auto;
+  }
+
+  .scene-pie .section-inner {
+    min-height: 0;
+  }
+
+  .scene-pie .section-viz {
+    position: static !important;
+    width: auto;
+  }
+
+  .scene-compounding .section-viz {
+    transform: none;
   }
 
   .section-viz {

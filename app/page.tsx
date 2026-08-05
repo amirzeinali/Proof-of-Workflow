@@ -1513,6 +1513,9 @@ function ScrollDiagram({
       if (!fullyVisible) return;
       const complete = manualProgress >= 0.985;
       const empty = manualProgress <= 0.015;
+      const trigger = section.querySelector<HTMLElement>("[data-diagram-trigger]");
+      const triggerReady = !trigger || trigger.getBoundingClientRect().bottom <= window.innerHeight - 40;
+      if (event.deltaY > 0 && empty && !triggerReady) return;
       const movingForward = event.deltaY > 0 && !complete;
       const movingBackward = event.deltaY < 0 && !empty;
       if (!movingForward && !movingBackward) return;
@@ -1712,7 +1715,7 @@ export default function Home() {
               <li>
                 <strong>First, PoW leaves the final call to the people responsible for the work.</strong> A benchmark is only a stand-in for their judgment and can capture only a simplified version of what a practical result should look like. The organization using the output sees the whole situation, including current rules and practical tradeoffs that may never fit into a rubric. The final approval tells us whether the work met all those requirements at once.
               </li>
-              <li>
+              <li data-diagram-trigger>
                 <strong>Second, since PoW tests AI on the organization’s real work,</strong> the evaluation uses the same data and tools the AI would use on the job instead of arbitrary tasks in a fixed test setup. This allows us to test AI in the setting where real value is created.
               </li>
             </ul>
@@ -1819,7 +1822,7 @@ export default function Home() {
               Satya Nadella has discussed optimizing the <a href="https://www.microsoft.com/en-us/investor/events/fy-2026/earnings-fy-2026-q4">cost-to-outcome</a> frontier in real-world settings, and Sarah Friar, OpenAI’s CFO, has described the metric as <a href="https://openai.com/index/a-scorecard-for-the-ai-age/">cost per successful task</a>. PoW follows the same logic by defining success as acceptance in the real workflow, which leads to measuring <strong>cost per accepted workflow.</strong>
             </p>
             <h3 className="case-heading">2. Pricing follows the same unit</h3>
-            <p>
+            <p data-diagram-trigger>
               Subsequently, when accepted work becomes the unit of cost, providers can also use it as the basis
               for pricing. Back to customer support, <a href="https://sierra.ai/blog/outcome-based-pricing-for-ai-agents">Sierra</a> already applies this logic by charging when its agents achieve business outcomes agreed upon with the customer. The same pricing approach is appearing elsewhere in <a href="https://www.intercom.com/help/en/articles/8205718-fin-ai-agent-outcomes">customer support</a> and in fields such as <a href="https://www.eudia.com/blog/the-roi-of-an-ai-native-law-firm">legal services,</a> <a href="https://swordhealth.com/value/fair-pricing">healthcare</a>, and <a href="https://www.riskified.com/chargeback-guarantee/">finance</a>, where payment may depend on recovered compensation, measurable clinical improvement, or approved transactions. What stays consistent is the shift from AI activity toward work that meets the customer’s needs.
             </p>
