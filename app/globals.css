@@ -256,16 +256,13 @@ h1 {
 }
 
 .act-heading {
-  position: sticky;
-  z-index: 10;
-  top: calc(var(--contents-top-air) + 54px + var(--contents-bottom-air));
+  position: static;
   margin: 0.85rem 0 0.55rem;
   padding: 0.42rem 0 0.58rem;
   border-bottom: 1px solid rgba(11, 31, 58, 0.18);
-  background: rgba(255, 255, 255, 0.96);
-  backdrop-filter: blur(4px);
+  background: transparent;
   font-size: 28px;
-  scroll-margin-top: 108px;
+  scroll-margin-top: calc(var(--contents-top-air) + 54px + var(--contents-bottom-air) + 16px);
 }
 
 .scroll-section {
