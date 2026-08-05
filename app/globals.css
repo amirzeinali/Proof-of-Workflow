@@ -582,17 +582,12 @@ blockquote {
   align-items: start;
 }
 
-.scroll-section.has-scene .section-copy,
-.scroll-section.has-scene .section-after {
+.scroll-section.has-scene .section-copy {
   width: auto;
   max-width: none;
   margin: 0;
-  position: static;
   padding: 0;
   grid-column: 1;
-}
-
-.scroll-section.has-scene .section-copy {
   position: sticky;
   top: var(--sticky-top);
   align-self: start;
@@ -600,7 +595,11 @@ blockquote {
 }
 
 .scroll-section.has-scene .section-after {
-  grid-row: 2;
+  width: calc(46.5% - 17px);
+  max-width: none;
+  margin: 0;
+  padding: 0;
+  position: static;
 }
 
 .diagram-track {
@@ -701,10 +700,12 @@ blockquote {
 }
 
 .evaluator-story-viz .viz-caption {
-  max-width: 620px;
-  margin: 0.1rem 0 0 !important;
+  width: 100%;
+  max-width: 720px;
+  margin: 0.1rem auto 0 !important;
   padding: 0 0.7rem;
   font-size: 0.82rem;
+  text-align: center;
 }
 
 .evaluator-story-copy {
@@ -855,6 +856,10 @@ blockquote {
 
   .scroll-section.has-scene .diagram-canvas {
     max-width: 500px;
+  }
+
+  .scroll-section.has-scene .section-after {
+    width: 100%;
   }
 
   .evaluator-story-viz {

@@ -751,8 +751,8 @@ function drawCoding(ctx: CanvasRenderingContext2D, p: number) {
 }
 
 function drawEvaluatorStory(ctx: CanvasRenderingContext2D, phase: number) {
-  const proximityOpacity = 1 - smootherEase((phase - 2.55) / 0.42);
-  const ringsOpacity = smootherEase((phase - 2.55) / 0.42);
+  const proximityOpacity = 1 - smootherEase((phase - 3.25) / 0.45);
+  const ringsOpacity = smootherEase((phase - 3.25) / 0.45);
   const caseProgress = clamp(phase, 0, 2);
   const caseWeights = [0, 1, 2].map((index) => {
     const distance = Math.abs(caseProgress - index);
@@ -762,7 +762,7 @@ function drawEvaluatorStory(ctx: CanvasRenderingContext2D, phase: number) {
   const weights = caseWeights.map((weight) => weight / weightTotal);
   const lensStops = [154, 382, 550];
   const lensX = lensStops.reduce((sum, stop, index) => sum + stop * weights[index], 0);
-  const lensY = 78;
+  const lensY = 87;
   const modeStops = lensStops;
   const evaluators = ["Codex / Claude Code", "Sierra", "Zoox Evaluator"];
   const caseColors = [POLICY_BLUE, POLICY_ORANGE, POLICY_RED];
@@ -782,7 +782,7 @@ function drawEvaluatorStory(ctx: CanvasRenderingContext2D, phase: number) {
   ctx.fill();
   ctx.stroke();
   ctx.restore();
-  label(ctx, "Organization", 608, 60, { color: POLICY_NAVY, size: 12.5, weight: 700, opacity: proximityOpacity });
+  label(ctx, "Organization", 626, 61, { color: POLICY_NAVY, size: 12.5, weight: 700, opacity: proximityOpacity });
   containedImage(ctx, logoPaths[0], 550, 76, 76, 54, weights[0] * proximityOpacity);
   containedImage(ctx, logoPaths[1], 506, 83, 42, 34, weights[1] * proximityOpacity);
   containedImage(ctx, logoPaths[2], 568, 83, 42, 34, weights[1] * proximityOpacity);
@@ -903,18 +903,6 @@ function drawEvaluatorStory(ctx: CanvasRenderingContext2D, phase: number) {
     });
   });
 
-  const spectrumLabels = ["Outside", "Alongside", "Inside"];
-  spectrumLabels.forEach((mode, index) => {
-    label(ctx, mode, 168 + index * 87, 220, {
-      color: colors[index],
-      size: 10.5,
-      weight: 650,
-      opacity: (0.45 + reveal[index] * 0.55) * ringsOpacity,
-    });
-    if (index < spectrumLabels.length - 1) {
-      arrow(ctx, 199 + index * 87, 220, 219 + index * 87, 220, MUTED, 0.65 * ringsOpacity);
-    }
-  });
 }
 
 function drawPieFrame(
@@ -1778,8 +1766,8 @@ function ScrollDiagram({
             <p className="viz-caption">{caption}</p>
           </div>
         </div>
-        {afterDiagram ? <div className="section-after">{afterDiagram}</div> : null}
       </div>
+      {afterDiagram ? <div className="section-after">{afterDiagram}</div> : null}
     </div>
   );
 }
