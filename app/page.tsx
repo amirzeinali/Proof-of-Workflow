@@ -842,13 +842,6 @@ function drawEvaluatorStory(ctx: CanvasRenderingContext2D, phase: number) {
     smootherEase((phase - 5.55) / 0.35),
   ];
 
-  label(ctx, "Coding: three evaluation modes coexist", center.x, 16, {
-    color: POLICY_NAVY,
-    size: 12.5,
-    weight: 650,
-    opacity: ringsOpacity,
-  });
-
   const fillBand = (outer: number, inner: number, color: string, opacity: number) => {
     ctx.save();
     ctx.globalAlpha = opacity;
@@ -1830,6 +1823,12 @@ function EvaluatorStory({ children }: { children: ReactNode }) {
       }
       const visualization = story.querySelector<HTMLElement>(".evaluator-story-viz");
       const storyOpacities = evaluatorStoryOpacities(phase);
+      const caption = visualization?.querySelector<HTMLElement>(".viz-caption");
+      if (caption) {
+        caption.textContent = storyOpacities.coding > storyOpacities.proximity
+          ? "Coding: three evaluation modes coexist."
+          : "Evaluator distance and coding systems share one acceptance spectrum.";
+      }
       visualization?.style.setProperty(
         "--story-caption-opacity",
         String(Math.max(storyOpacities.proximity, storyOpacities.coding)),
