@@ -1867,7 +1867,7 @@ export default function Home() {
             <p>
               No matter who runs PoW, however, its immediate promise is practical. A clearer bar gives vendors something real to improve against and gives teams more confidence to hand nuanced work to AI. Each decision about whether the work was good enough feeds the next version. Better evaluation leads to better systems, and better systems earn the chance to take on harder work. Together, they create a strong positive feedback loop.
             </p>
-            <p>
+            <p data-diagram-trigger>
               As that loop spreads across companies and industries, the stakes get much bigger. More AI capability turns into useful output, and work that used to be too costly or too slow becomes worth doing. Across the wider economy, those gains could add up to higher productivity and stronger GDP growth. Because the loop stays grounded in human judgment, it could also accelerate recursive self-improvement without losing sight of what people value. That makes the shift positive-sum, turning more AI capability into more utility for everyone.
             </p>
             <p>
