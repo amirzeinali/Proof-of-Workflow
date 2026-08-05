@@ -7,7 +7,7 @@
   --doc-accent-light: rgba(155, 45, 45, 0.16);
   --doc-bg: #f4f3ee;
   --doc-muted: #8c8a80;
-  --sticky-top: 94px;
+  --sticky-top: 106px;
 }
 
 * {
@@ -111,7 +111,7 @@ h1 {
   grid-template-columns: auto minmax(0, 1fr);
   align-items: center;
   gap: 14px;
-  min-height: 44px;
+  min-height: 54px;
   margin: 0 0 0.45rem;
   padding: 5px 10px;
   border-top: 1px solid rgba(140, 138, 128, 0.3);
@@ -132,7 +132,7 @@ h1 {
 
 .contents-table ol {
   display: grid;
-  grid-template-columns: repeat(5, minmax(0, 1fr));
+  grid-template-columns: 1.25fr 1.05fr 1.55fr 0.85fr 1.1fr;
   gap: 4px;
   margin: 0;
   padding: 0;
@@ -147,11 +147,11 @@ h1 {
   display: flex;
   align-items: center;
   gap: 6px;
-  min-height: 30px;
-  padding: 3px 8px;
+  min-height: 40px;
+  padding: 4px 6px;
   border-radius: 4px;
   color: #6d6a63;
-  font-size: 0.72rem;
+  font-size: 0.65rem;
   font-weight: 600;
   line-height: 1.15;
   text-decoration: none;
@@ -192,14 +192,14 @@ h1 {
 .act-heading {
   position: sticky;
   z-index: 10;
-  top: 44px;
+  top: 54px;
   margin: 0.45rem 0 0;
   padding: 0.3rem 0 0.35rem;
   border-bottom: 1px solid rgba(140, 138, 128, 0.25);
   background: rgba(244, 243, 238, 0.96);
   backdrop-filter: blur(4px);
   font-size: 28px;
-  scroll-margin-top: 96px;
+  scroll-margin-top: 108px;
 }
 
 .scroll-section {
@@ -352,7 +352,7 @@ blockquote {
 }
 
 .scene-meter .diagram-canvas {
-  aspect-ratio: 500 / 315;
+  aspect-ratio: 2 / 1;
 }
 
 .viz-caption {
@@ -415,9 +415,10 @@ blockquote {
   .contents-table {
     grid-template-columns: minmax(0, 1fr);
     gap: 0;
-    min-height: 42px;
+    min-height: 44px;
     margin-bottom: 0.35rem;
     padding: 4px;
+    overflow-x: auto;
   }
 
   .contents-title {
@@ -425,11 +426,16 @@ blockquote {
   }
 
   .contents-table a {
-    justify-content: center;
+    justify-content: flex-start;
     gap: 3px;
     padding: 3px;
-    font-size: 0.62rem;
-    text-align: center;
+    font-size: 0.64rem;
+    text-align: left;
+  }
+
+  .contents-table ol {
+    grid-template-columns: 1.25fr 1.05fr 1.55fr 0.85fr 1.1fr;
+    min-width: 760px;
   }
 
   .contents-table a span {

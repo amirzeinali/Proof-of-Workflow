@@ -1083,7 +1083,7 @@ function drawMeter(ctx: CanvasRenderingContext2D, p: number) {
   const meterX = 86;
   const meterY = 28;
   const meterWidth = 328;
-  const meterHeight = 238;
+  const meterHeight = 196;
 
   ctx.save();
   ctx.fillStyle = "rgba(255,255,255,.74)";
@@ -1148,62 +1148,62 @@ function drawMeter(ctx: CanvasRenderingContext2D, p: number) {
   const retryReached = smootherEase((activityFill - 0.36) / 0.11) * usageOpacity;
   const correctionReached = smootherEase((activityFill - 0.67) / 0.11) * usageOpacity;
 
-  label(ctx, "retry", retryX, 215, {
+  label(ctx, "retry", retryX, 173, {
     color: ACCENT,
     size: 8.7,
     weight: 600,
     opacity: retryReached,
   });
-  label(ctx, "expert correction", correctionX, 215, {
+  label(ctx, "expert correction", correctionX, 173, {
     color: ACCENT,
     size: 8.7,
     weight: 600,
     opacity: correctionReached,
   });
-  line(ctx, retryX, 221, retryX, 232, ACCENT, 1, retryReached);
-  line(ctx, correctionX, 221, correctionX, 232, ACCENT, 1, correctionReached);
-  dot(ctx, retryX, 238, 3.5, PAPER, ACCENT, retryReached);
-  dot(ctx, correctionX, 238, 3.5, PAPER, ACCENT, correctionReached);
+  line(ctx, retryX, 179, retryX, 191, ACCENT, 1, retryReached);
+  line(ctx, correctionX, 179, correctionX, 191, ACCENT, 1, correctionReached);
+  dot(ctx, retryX, 197, 3.5, PAPER, ACCENT, retryReached);
+  dot(ctx, correctionX, 197, 3.5, PAPER, ACCENT, correctionReached);
 
-  line(ctx, barStart, 238, barEnd, 238, "rgba(140,138,128,.58)", 3, usageOpacity);
-  line(ctx, barStart, 238, barStart + (barEnd - barStart) * activityFill, 238, ACCENT, 3.4, usageOpacity);
+  line(ctx, barStart, 197, barEnd, 197, "rgba(140,138,128,.58)", 3, usageOpacity);
+  line(ctx, barStart, 197, barStart + (barEnd - barStart) * activityFill, 197, ACCENT, 3.4, usageOpacity);
   for (let index = 0; index <= 8; index += 1) {
     const x = barStart + ((barEnd - barStart) * index) / 8;
-    line(ctx, x, 232, x, 244, MUTED, 0.8, 0.7 * usageOpacity);
+    line(ctx, x, 191, x, 203, MUTED, 0.8, 0.7 * usageOpacity);
   }
-  dot(ctx, barStart + (barEnd - barStart) * activityFill, 238, 5.5, PAPER, ACCENT, usageOpacity);
+  dot(ctx, barStart + (barEnd - barStart) * activityFill, 197, 5.5, PAPER, ACCENT, usageOpacity);
 
   const acceptedUnit = smootherEase((flip - 0.5) / 0.42);
-  line(ctx, 129, 202, 371, 202, "rgba(140,138,128,.34)", 1, acceptedUnit);
-  label(ctx, "COST UNIT", 144, 216, {
+  line(ctx, 129, 154, 371, 154, "rgba(140,138,128,.34)", 1, acceptedUnit);
+  label(ctx, "COST UNIT", 144, 171, {
     color: MUTED,
     size: 8.3,
     align: "left",
     weight: 700,
     opacity: acceptedUnit,
   });
-  label(ctx, "accepted workflow", 356, 216, {
+  label(ctx, "accepted workflow", 356, 171, {
     color: SUCCESS,
     size: 9.5,
     align: "right",
     weight: 700,
     opacity: acceptedUnit,
   });
-  label(ctx, "PRICE UNIT", 144, 239, {
+  label(ctx, "PRICE UNIT", 144, 197, {
     color: MUTED,
     size: 8.3,
     align: "left",
     weight: 700,
     opacity: pricing,
   });
-  dot(ctx, 250, 239, 8.5, "rgba(47,125,50,.08)", SUCCESS, pricing);
-  label(ctx, "$", 250, 239, {
+  dot(ctx, 250, 197, 8.5, "rgba(47,125,50,.08)", SUCCESS, pricing);
+  label(ctx, "$", 250, 197, {
     color: SUCCESS,
     size: 9.5,
     weight: 800,
     opacity: pricing,
   });
-  label(ctx, "dollars / accepted workflow", 267, 239, {
+  label(ctx, "dollars / accepted workflow", 267, 197, {
     color: SUCCESS,
     size: 8.4,
     align: "left",
@@ -1320,7 +1320,13 @@ function drawCompounding(ctx: CanvasRenderingContext2D, p: number) {
     if (cycle === 2) return initial + (firstExpansion - initial) * growth;
     return firstExpansion + (finalExpansion - firstExpansion) * growth;
   };
-  const organizationCount = counts(3, 30, 85);
+  const organizationCount = cycle === 0
+    ? 3 + (11 - 3) * growth
+    : cycle === 1
+      ? 11
+      : cycle === 2
+        ? 11 + (30 - 11) * growth
+        : 30 + (85 - 30) * growth;
   const intelligenceCount = counts(2, 26, 75);
   const utilityCount = counts(2, 36, 100);
 
@@ -1498,7 +1504,7 @@ function ScrollDiagram({
     const paint = () => {
       frame = 0;
       const ratio = Math.min(window.devicePixelRatio || 1, 2);
-      const logicalHeight = scene === "meter" ? 315 : 400;
+      const logicalHeight = scene === "meter" ? 250 : 400;
       if (canvas.width !== Math.round(500 * ratio) || canvas.height !== Math.round(logicalHeight * ratio)) {
         canvas.width = Math.round(500 * ratio);
         canvas.height = Math.round(logicalHeight * ratio);
@@ -1596,11 +1602,11 @@ function ProseSection({ children }: { labelText: string; children: ReactNode }) 
 }
 
 const contents = [
-  { id: "act-one", number: "1", label: "Work Changes" },
-  { id: "act-two", number: "2", label: "Judging AI Work" },
-  { id: "act-three", number: "3", label: "Evaluator Distance" },
-  { id: "act-four", number: "4", label: "AI Value" },
-  { id: "act-five", number: "5", label: "What It Unlocks" },
+  { id: "act-one", number: "1", label: "When Work Changes, Evaluation Must Too" },
+  { id: "act-two", number: "2", label: "A Better Way to Judge AI Work" },
+  { id: "act-three", number: "3", label: "How Close the Evaluator Must Be to the Organization" },
+  { id: "act-four", number: "4", label: "From AI Use to AI Value" },
+  { id: "act-five", number: "5", label: "What Better Evaluation Could Unlock" },
 ];
 
 function SectionTable() {
