@@ -1865,21 +1865,15 @@ export default function Home() {
             caption="PoW compounds utility."
           >
             <p>
-              No matter who runs PoW, however, its larger value is that it connects fast-growing AI capability to work
-              people actually need. As enterprises make their standards clearer, vendors can test and improve
-              systems against human judgment, and organizations can hand more nuanced work to AI with greater
-              confidence. Each acceptance decision gives the next version a better target. Because those
-              decisions come from real work, the feedback loop can keep up with how 1) varied and 2)
-              fast-changing that work is. As the loop spreads across industries and then across the wider
-              economy, the gains can compound. At that scale, PoW could help ground and accelerate recursive
-              self-improvement, making the shift deeply positive-sum and turning more AI capability into more
-              utility for everyone.
+              No matter who runs PoW, however, its immediate promise is practical. A clearer bar gives vendors something real to improve against and gives teams more confidence to hand nuanced work to AI. Each decision about whether the work was good enough feeds the next version. Better evaluation leads to better systems, and better systems earn the chance to take on harder work. Together, they create a strong positive feedback loop.
+            </p>
+            <p>
+              As that loop spreads across companies and industries, the stakes get much bigger. More AI capability turns into useful output, and work that used to be too costly or too slow becomes worth doing. Across the wider economy, those gains could add up to higher productivity and stronger GDP growth. Because the loop stays grounded in human judgment, it could also accelerate recursive self-improvement without losing sight of what people value. That makes the shift positive-sum, turning more AI capability into more utility for everyone.
+            </p>
+            <p>
+              And as AI takes on more of the world’s work, we will keep coming back to one question. <strong>Did the work count?</strong>
             </p>
           </ScrollDiagram>
-          <TextSection labelText="">
-            <p>Yet as we continue this journey and AI takes on more of the world’s work, we’ll keep coming back to one question.</p>
-            <p><strong>Did the work count?</strong></p>
-          </TextSection>
           <ol className="source-notes">
             <li id="note-1">The Ryanair row is a booking-channel change, not a blanket reversal: <a href="https://corporate.ryanair.com/news/ryanair-launches-new-parntership-with-leading-ota-on-the-beach/">customers booking through unauthorized OTAs</a> still have to verify, while customers using Approved OTA partners do not. Booking.com, KAYAK, Priceline, and Agoda entered that program through Ryanair&apos;s <a href="https://corporate.ryanair.com/news/ryanair-booking-holdings-sign-partnership-agreement/">August 2025 Booking Holdings agreement</a>. <a href="https://www.delta.com/us/en/gift-cards/overview">Delta</a> allows gift cards within one transaction regardless of the number of tickets; <a href="https://www.aa.com/web/i18n/customer-service/payment-options/travel-credit.html">American</a> limits Flight Credit to the named passenger.</li>
             <li id="note-2">A <a href="https://arxiv.org/abs/2607.01904">July 2026 Stanford-CMU study</a> followed 802 developers and 196,212 pull requests. Throughput reached 2.09x the pre-mandate baseline, while per-reviewer load roughly doubled and automated review overtook human review.</li>

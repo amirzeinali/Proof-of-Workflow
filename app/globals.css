@@ -321,10 +321,6 @@ h1 {
   max-width: 350px;
 }
 
-.scene-compounding .section-viz {
-  transform: translateY(-1.25rem);
-}
-
 .section-viz {
   display: flex;
   max-height: calc(100vh - var(--sticky-top));
@@ -614,10 +610,6 @@ blockquote {
   .scene-pie .section-viz {
     position: static !important;
     width: auto;
-  }
-
-  .scene-compounding .section-viz {
-    transform: none;
   }
 
   .section-viz {
