@@ -1548,8 +1548,11 @@ function ScrollDiagram({
       if (event.deltaY > 0 && empty && !triggerReady) return;
       const heading = section.closest<HTMLElement>(".act-group")?.querySelector<HTMLElement>(".act-heading");
       const contentsBar = document.querySelector<HTMLElement>(".contents-table");
+      const bottomAirProperty = contentsBar?.classList.contains("is-stuck")
+        ? "--contents-stuck-bottom-air"
+        : "--contents-bottom-air";
       const bottomAir = Number.parseFloat(
-        window.getComputedStyle(document.documentElement).getPropertyValue("--contents-bottom-air"),
+        window.getComputedStyle(document.documentElement).getPropertyValue(bottomAirProperty),
       ) || 0;
       const titleClearance = (contentsBar?.getBoundingClientRect().bottom ?? 54) + bottomAir;
       const titleHasScrolledAway = !heading || heading.getBoundingClientRect().bottom <= titleClearance;
@@ -1624,9 +1627,11 @@ const contents = [
 
 function SectionTable() {
   const [activeId, setActiveId] = useState(contents[0].id);
+  const tableRef = useRef<HTMLElement>(null);
 
   useEffect(() => {
     let frame = 0;
+    const table = tableRef.current;
     const update = () => {
       frame = 0;
       const marker = Math.min(180, window.innerHeight * 0.28);
@@ -1636,6 +1641,12 @@ function SectionTable() {
         if (heading && heading.getBoundingClientRect().top <= marker) current = id;
       });
       setActiveId(current);
+      if (table) {
+        const topAir = Number.parseFloat(
+          window.getComputedStyle(document.documentElement).getPropertyValue("--contents-top-air"),
+        ) || 0;
+        table.classList.toggle("is-stuck", window.scrollY > 0 && table.getBoundingClientRect().top <= topAir + 1);
+      }
     };
     const requestUpdate = () => {
       if (!frame) frame = window.requestAnimationFrame(update);
@@ -1645,13 +1656,14 @@ function SectionTable() {
     window.addEventListener("resize", requestUpdate);
     return () => {
       if (frame) window.cancelAnimationFrame(frame);
+      table?.classList.remove("is-stuck");
       window.removeEventListener("scroll", requestUpdate);
       window.removeEventListener("resize", requestUpdate);
     };
   }, []);
 
   return (
-    <nav className="contents-table" aria-label="Table of contents">
+    <nav className="contents-table" aria-label="Table of contents" ref={tableRef}>
       <span className="contents-title">Contents</span>
       <ol>
         {contents.map((item) => (

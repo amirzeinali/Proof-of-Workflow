@@ -9,6 +9,7 @@
   --doc-muted: #6f7f93;
   --contents-top-air: 36px;
   --contents-bottom-air: 28px;
+  --contents-stuck-bottom-air: 8px;
   --sticky-top: 106px;
 }
 
@@ -27,9 +28,9 @@ body {
   background:
     radial-gradient(circle at 50% -18%, rgba(21, 88, 214, 0.075), transparent 38rem),
     var(--doc-bg);
-  font-family: Palatino, "URW Palladio L", Georgia, serif;
-  font-size: 18px;
-  line-height: 1.64;
+  font-family: "Iowan Old Style", "Iowan Old Style BT", Georgia, serif;
+  font-size: 17px;
+  line-height: 1.6;
   text-rendering: optimizeLegibility;
 }
 
@@ -76,13 +77,13 @@ h2 {
 
 h1 {
   margin: 0 0 0.15em;
-  font-size: clamp(2.25rem, 4vw, 42px);
+  font-size: clamp(2rem, 3.4vw, 36px);
 }
 
 .post-subtitle {
   margin: 0.4rem 0 0;
   color: var(--doc-muted);
-  font-size: 1.05rem;
+  font-size: 1rem;
   font-style: italic;
 }
 
@@ -184,6 +185,11 @@ h1 {
   height: var(--contents-bottom-air);
 }
 
+.contents-table.is-stuck::after {
+  bottom: calc(var(--contents-stuck-bottom-air) * -1);
+  height: var(--contents-stuck-bottom-air);
+}
+
 .contents-title {
   color: var(--doc-muted);
   font-size: 0.68rem;
@@ -261,7 +267,7 @@ h1 {
   padding: 0.42rem 0 0.58rem;
   border-bottom: 1px solid rgba(11, 31, 58, 0.18);
   background: transparent;
-  font-size: 28px;
+  font-size: 25px;
   scroll-margin-top: calc(var(--contents-top-air) + 54px + var(--contents-bottom-air) + 16px);
 }
 
@@ -375,7 +381,7 @@ h1 {
 }
 
 .scroll-section p {
-  margin: 0.78rem 0;
+  margin: 0 0 1.1rem;
 }
 
 .case-heading {
@@ -588,7 +594,7 @@ blockquote {
     margin-top: 1.8rem;
     background: transparent;
     backdrop-filter: none;
-    font-size: 25px;
+    font-size: 23px;
   }
 
   .section-inner {
@@ -690,12 +696,8 @@ blockquote {
 }
 
 @media (max-width: 520px) {
-  body {
-    font-size: 17px;
-  }
-
   h1 {
-    font-size: 2.1rem;
+    font-size: 2rem;
   }
 
   .post-subtitle {
