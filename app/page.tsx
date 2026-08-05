@@ -19,6 +19,11 @@ const SUCCESS = "#16843f";
 const ACCENT_LIGHT = "rgba(21,88,214,.14)";
 const PAPER = "#ffffff";
 const WHITE = "rgba(255,255,255,.88)";
+const POLICY_BLUE = "#007ae4";
+const POLICY_SKY = "#009de4";
+const POLICY_NAVY = "#00447f";
+const POLICY_ORANGE = "#ff701d";
+const POLICY_RED = "#e9411b";
 
 const clamp = (value: number, min = 0, max = 1) =>
   Math.max(min, Math.min(max, value));
@@ -556,7 +561,14 @@ function drawCriteria(ctx: CanvasRenderingContext2D, p: number) {
   });
 }
 
-function drawMagnifier(ctx: CanvasRenderingContext2D, x: number, y: number, opacity = 1) {
+function drawMagnifier(
+  ctx: CanvasRenderingContext2D,
+  x: number,
+  y: number,
+  opacity = 1,
+  accentColor = ACCENT,
+  outlineColor = INK,
+) {
   ctx.save();
   ctx.globalAlpha = opacity;
   ctx.shadowColor = "rgba(11,31,58,.16)";
@@ -567,10 +579,10 @@ function drawMagnifier(ctx: CanvasRenderingContext2D, x: number, y: number, opac
   ctx.arc(x, y, 33, 0, Math.PI * 2);
   ctx.fill();
   ctx.shadowColor = "transparent";
-  ctx.strokeStyle = INK;
+  ctx.strokeStyle = outlineColor;
   ctx.lineWidth = 5.5;
   ctx.stroke();
-  ctx.strokeStyle = ACCENT;
+  ctx.strokeStyle = accentColor;
   ctx.lineWidth = 2.2;
   ctx.beginPath();
   ctx.arc(x, y, 28.5, 0, Math.PI * 2);
@@ -583,13 +595,13 @@ function drawMagnifier(ctx: CanvasRenderingContext2D, x: number, y: number, opac
   ctx.stroke();
 
   ctx.lineCap = "round";
-  ctx.strokeStyle = INK;
+  ctx.strokeStyle = outlineColor;
   ctx.lineWidth = 11;
   ctx.beginPath();
   ctx.moveTo(x + 24, y + 24);
   ctx.lineTo(x + 55, y + 55);
   ctx.stroke();
-  ctx.strokeStyle = ACCENT;
+  ctx.strokeStyle = accentColor;
   ctx.lineWidth = 6;
   ctx.beginPath();
   ctx.moveTo(x + 25, y + 25);
@@ -741,22 +753,32 @@ function drawEvaluatorStory(ctx: CanvasRenderingContext2D, phase: number) {
   const lensY = 99;
   const modeStops = [154, 382, 610];
   const evaluators = ["Codex / Claude Code", "Sierra", "Zoox Evaluator"];
+  const caseColors = [POLICY_BLUE, POLICY_ORANGE, POLICY_RED];
   const cues = [
     "Acceptance is directly observable",
     "Acceptance can be explained",
     "Acceptance must be interpreted inside",
   ];
 
-  box(ctx, 482, 45, 214, 108, caseProgress > 1.5, proximityOpacity, 11);
-  label(ctx, "Organization", 589, 60, { color: TEXT, size: 12.5, weight: 650, opacity: proximityOpacity });
+  ctx.save();
+  ctx.globalAlpha = proximityOpacity;
+  ctx.fillStyle = "rgba(255,255,255,.94)";
+  ctx.strokeStyle = POLICY_NAVY;
+  ctx.lineWidth = 1.3;
+  ctx.beginPath();
+  ctx.roundRect(482, 45, 214, 108, 11);
+  ctx.fill();
+  ctx.stroke();
+  ctx.restore();
+  label(ctx, "Organization", 589, 60, { color: POLICY_NAVY, size: 12.5, weight: 700, opacity: proximityOpacity });
   containedImage(ctx, logoPaths[0], 550, 76, 76, 54, weights[0] * proximityOpacity);
   containedImage(ctx, logoPaths[1], 506, 83, 42, 34, weights[1] * proximityOpacity);
   containedImage(ctx, logoPaths[2], 568, 83, 42, 34, weights[1] * proximityOpacity);
   containedImage(ctx, logoPaths[3], 630, 83, 42, 34, weights[1] * proximityOpacity);
   containedImage(ctx, logoPaths[4], 551, 80, 76, 39, weights[2] * proximityOpacity);
 
-  arrow(ctx, 690, 193, 70, 193, MUTED, 0.78 * proximityOpacity);
-  arrow(ctx, 70, 193, 690, 193, MUTED, 0.78 * proximityOpacity);
+  arrow(ctx, 690, 193, 70, 193, POLICY_NAVY, 0.5 * proximityOpacity);
+  arrow(ctx, 70, 193, 690, 193, POLICY_SKY, 0.58 * proximityOpacity);
   const modes = ["Outside", "Alongside", "Inside"];
   modeStops.forEach((x, index) => {
     const active = weights[index];
@@ -765,28 +787,28 @@ function drawEvaluatorStory(ctx: CanvasRenderingContext2D, phase: number) {
       x,
       193,
       4.2 + active * 1.6,
-      active > 0.04 ? ACCENT : PAPER,
-      active > 0.04 ? ACCENT : MUTED,
+      active > 0.04 ? caseColors[index] : PAPER,
+      active > 0.04 ? caseColors[index] : MUTED,
       proximityOpacity,
     );
     label(ctx, modes[index], x, 217, {
-      color: active > 0.04 ? ACCENT : MUTED,
+      color: active > 0.04 ? caseColors[index] : MUTED,
       size: 11.5,
       weight: active > 0.04 ? 650 : 450,
       opacity: proximityOpacity,
     });
   });
 
-  drawMagnifier(ctx, lensX, lensY, proximityOpacity);
+  drawMagnifier(ctx, lensX, lensY, proximityOpacity, POLICY_BLUE, POLICY_NAVY);
   evaluators.forEach((evaluator, index) => {
     label(ctx, evaluator, lensX, 24, {
-      color: ACCENT,
+      color: caseColors[index],
       size: 12.5,
       weight: 650,
       opacity: weights[index] * proximityOpacity,
     });
     wrappedLabel(ctx, cues[index], lensX, 161, 220, 12, {
-      color: ACCENT,
+      color: caseColors[index],
       size: 10.5,
       weight: 550,
       italic: true,
@@ -795,7 +817,8 @@ function drawEvaluatorStory(ctx: CanvasRenderingContext2D, phase: number) {
   });
   const center = { x: 255, y: 112 };
   const radii = [88, 59, 31];
-  const colors = [ACCENT, "#2d7d82", "#6d57a1"];
+  const colors = [POLICY_BLUE, POLICY_ORANGE, POLICY_RED];
+  const fills = ["rgba(0,122,228,.1)", "rgba(255,112,29,.1)", "rgba(233,65,27,.1)"];
   const reveal = [
     smootherEase((phase - 3.55) / 0.35),
     smootherEase((phase - 4.55) / 0.35),
@@ -803,7 +826,7 @@ function drawEvaluatorStory(ctx: CanvasRenderingContext2D, phase: number) {
   ];
 
   label(ctx, "Coding: three evaluation modes coexist", center.x, 16, {
-    color: TEXT,
+    color: POLICY_NAVY,
     size: 12.5,
     weight: 650,
     opacity: ringsOpacity,
@@ -831,7 +854,7 @@ function drawEvaluatorStory(ctx: CanvasRenderingContext2D, phase: number) {
     ctx.stroke();
     ctx.restore();
   });
-  dot(ctx, center.x, center.y, 4.2, INK, INK, ringsOpacity);
+  dot(ctx, center.x, center.y, 4.2, POLICY_NAVY, POLICY_NAVY, ringsOpacity);
 
   const callouts = [
     { name: "Codex", detail: "Outside: merge decision is observable", y: 51, anchorX: 325, anchorY: 60 },
@@ -841,7 +864,16 @@ function drawEvaluatorStory(ctx: CanvasRenderingContext2D, phase: number) {
   callouts.forEach((item, index) => {
     const itemOpacity = (0.2 + reveal[index] * 0.8) * ringsOpacity;
     line(ctx, item.anchorX, item.anchorY, 428, item.y, colors[index], 1.3, itemOpacity);
-    box(ctx, 432, item.y - 23, 292, 46, reveal[index] > 0.02, itemOpacity, 8);
+    ctx.save();
+    ctx.globalAlpha = itemOpacity;
+    ctx.fillStyle = reveal[index] > 0.02 ? fills[index] : "rgba(255,255,255,.9)";
+    ctx.strokeStyle = colors[index];
+    ctx.lineWidth = reveal[index] > 0.02 ? 1.65 : 1.05;
+    ctx.beginPath();
+    ctx.roundRect(432, item.y - 23, 292, 46, 8);
+    ctx.fill();
+    ctx.stroke();
+    ctx.restore();
     label(ctx, item.name, 453, item.y - 7, {
       align: "left",
       color: colors[index],
@@ -1675,7 +1707,10 @@ function ScrollDiagram({
       const bottomAir = Number.parseFloat(
         window.getComputedStyle(document.documentElement).getPropertyValue(bottomAirProperty),
       ) || 0;
-      const pinTop = (contentsBar?.getBoundingClientRect().bottom ?? 90) + bottomAir + 14;
+      const sideContents = window.innerWidth > 900 && contentsBar?.classList.contains("contents-side");
+      const pinTop = sideContents
+        ? 18
+        : (contentsBar?.getBoundingClientRect().bottom ?? 90) + bottomAir + 14;
       const travel = Math.max(1, trackRect.height - visualizationHeight);
       const scrollProgress = clamp((pinTop - trackRect.top) / travel, 0, 0.999);
       const progress = reduced || mobile ? 0.999 : scrollProgress;
@@ -1878,14 +1913,14 @@ function SectionTable() {
   }, []);
 
   return (
-    <nav className="contents-table" aria-label="Table of contents" ref={tableRef}>
+    <nav className="contents-table contents-side" aria-label="Table of contents" ref={tableRef}>
       <span className="contents-title">Contents</span>
       <ol>
         {contents.map((item) => (
           <li key={item.id}>
             <a href={`#${item.id}`} className={activeId === item.id ? "is-active" : undefined}>
-              <span>{item.number}</span>
-              {item.label}
+              <span className="contents-number">{item.number}</span>
+              <span className="contents-label">{item.label}</span>
             </a>
           </li>
         ))}
