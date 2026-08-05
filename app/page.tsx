@@ -575,7 +575,7 @@ function drawCriteria(ctx: CanvasRenderingContext2D, p: number) {
 
     if (index === 2) {
       shadeOutdated(ctx, 226, y - 29, 267, 58, outdated * reveal);
-      label(ctx, "Policy outdated", 268, y + 35, {
+      label(ctx, "Policy Outdated", 268, y + 35, {
         color: ACCENT,
         size: 9.2,
         weight: 600,
@@ -648,12 +648,12 @@ function drawProximity(ctx: CanvasRenderingContext2D, p: number) {
   const positions = [88, 246, 394];
   const from = positions[Math.max(0, stage - 1)];
   const lensX = stage === 0 ? positions[0] : from + (positions[stage] - from) * local;
-  const evaluators = ["Codex / Claude Code", "Sierra", "Zoox evaluator"];
-  const modes = ["outside", "alongside", "inside"];
+  const evaluators = ["Codex / Claude Code", "Sierra", "Zoox Evaluator"];
+  const modes = ["Outside", "Alongside", "Inside"];
   const acceptanceCues = [
-    "acceptance is directly observable",
-    "acceptance can be explained",
-    "acceptance must be interpreted inside",
+    "Acceptance is directly observable",
+    "Acceptance can be explained",
+    "Acceptance must be interpreted inside",
   ];
 
   arrow(ctx, 448, 314, 52, 314, MUTED, 0.9);
@@ -672,7 +672,7 @@ function drawProximity(ctx: CanvasRenderingContext2D, p: number) {
     weight: 500,
     italic: true,
   });
-  label(ctx, "Magnifier = evaluator", 250, 374, { color: MUTED, size: 9.5, italic: true });
+  label(ctx, "Magnifier = Evaluator", 250, 374, { color: MUTED, size: 9.5, italic: true });
 }
 
 function drawCoding(ctx: CanvasRenderingContext2D, p: number) {
@@ -712,9 +712,9 @@ function drawCoding(ctx: CanvasRenderingContext2D, p: number) {
   dot(ctx, center.x, center.y, 4.5, ACCENT, ACCENT);
 
   const callouts = [
-    { name: "Codex", detail: "outer ring · outside", y: 84, ringX: 267, ringY: 96 },
-    { name: "CodeRabbit", detail: "middle ring · alongside", y: 171, ringX: 267, ringY: 171 },
-    { name: "uReview", detail: "inner ring · inside Uber", y: 258, ringX: 218, ringY: 223 },
+    { name: "Codex", detail: "Outside", y: 84, ringX: 267, ringY: 96 },
+    { name: "CodeRabbit", detail: "Alongside", y: 171, ringX: 267, ringY: 171 },
+    { name: "uReview", detail: "Inside Uber", y: 258, ringX: 218, ringY: 223 },
   ];
   callouts.forEach((item, index) => {
     const reveal = reveals[index];
@@ -883,7 +883,7 @@ function drawPie(ctx: CanvasRenderingContext2D, p: number) {
           weight: 700,
           opacity,
         });
-        wrappedLabel(ctx, "Software development", center.x, center.y + 4, innerRadius * 1.45, 13, {
+        wrappedLabel(ctx, "Software Development", center.x, center.y + 4, innerRadius * 1.45, 13, {
           color: TEXT,
           size: 11.5,
           weight: 600,
@@ -935,43 +935,45 @@ function drawAcceptance(ctx: CanvasRenderingContext2D, p: number) {
   const grow = smootherEase((p - 0.03) / 0.42);
   const compress = smootherEase((p - 0.5) / 0.27);
   const accept = smootherEase((p - 0.76) / 0.19);
-  const core = { x: 108, y: 202 };
-  const aperture = { x: 400, y: 202 };
+  const core = { x: 108, y: 218 };
+  const aperture = { x: 400, y: 218 };
   const registerX = 282;
 
-  label(ctx, "The Living Rubric", core.x, 49, { color: TEXT, size: 11, weight: 600 });
-  label(ctx, "organization", aperture.x, 101, { color: TEXT, size: 11, weight: 600 });
+  label(ctx, "The Living Rubric", core.x, 78, { color: TEXT, size: 11, weight: 600 });
+  label(ctx, "Organization", aperture.x, 117, { color: TEXT, size: 11, weight: 600 });
 
   const nodes = [
-    { label: "Cost", x: 198, y: 78, labelX: 220, labelY: 65, width: 58, color: "#557b7d", delay: 0 },
-    { label: "Latency", x: 235, y: 108, labelX: 267, labelY: 101, width: 62, color: "#60718c", delay: 0.04 },
-    { label: "Energy", x: 258, y: 145, labelX: 292, labelY: 141, width: 58, color: "#917747", delay: 0.08 },
-    { label: "Privacy", x: 270, y: 184, labelX: 303, labelY: 183, width: 60, color: "#756681", delay: 0.12 },
-    { label: "Safety", x: 266, y: 224, labelX: 299, labelY: 225, width: 56, color: "#9a6b59", delay: 0.16 },
-    { label: "Policy", x: 250, y: 264, labelX: 283, labelY: 270, width: 56, color: "#66806f", delay: 0.2 },
-    { label: "Auditability", x: 220, y: 301, labelX: 251, labelY: 315, width: 76, color: "#596d76", delay: 0.24 },
-    { label: "Grounding", x: 176, y: 329, labelX: 178, labelY: 352, width: 74, color: "#9d5961", delay: 0.28 },
+    { label: "Cost", angle: -Math.PI / 2, labelX: 108, labelY: 119, width: 58, color: "#557b7d", delay: 0 },
+    { label: "Latency", angle: -Math.PI / 4, labelX: 199, labelY: 145, width: 62, color: "#60718c", delay: 0.04 },
+    { label: "Energy", angle: 0, labelX: 225, labelY: 218, width: 58, color: "#917747", delay: 0.08 },
+    { label: "Privacy", angle: Math.PI / 4, labelX: 201, labelY: 293, width: 60, color: "#756681", delay: 0.12 },
+    { label: "Safety", angle: Math.PI / 2, labelX: 108, labelY: 326, width: 56, color: "#9a6b59", delay: 0.16 },
+    { label: "Policy", angle: (Math.PI * 3) / 4, labelX: 37, labelY: 294, width: 56, color: "#66806f", delay: 0.2 },
+    { label: "Auditability", angle: Math.PI, labelX: 43, labelY: 239, width: 76, color: "#596d76", delay: 0.24 },
+    { label: "Grounding", angle: (Math.PI * 5) / 4, labelX: 38, labelY: 145, width: 74, color: "#9d5961", delay: 0.28 },
   ];
 
   nodes.forEach((node, index) => {
     const reveal = smootherEase((grow - node.delay) / 0.52);
+    const orbitRadius = 83;
+    const orbitX = core.x + Math.cos(node.angle) * orbitRadius;
+    const orbitY = core.y + Math.sin(node.angle) * orbitRadius;
     const targetX = registerX;
     const targetY = 88 + index * 32.5;
-    const nodeX = node.x + (targetX - node.x) * compress;
-    const nodeY = node.y + (targetY - node.y) * compress;
-    const anchorOffset = -22 + (44 * index) / (nodes.length - 1);
-    const anchorX = core.x + Math.sqrt(Math.max(0, 31 * 31 - anchorOffset * anchorOffset));
-    const anchorY = core.y + anchorOffset;
-    flowLine(
+    const nodeX = orbitX + (targetX - orbitX) * compress;
+    const nodeY = orbitY + (targetY - orbitY) * compress;
+    const anchorX = core.x + Math.cos(node.angle) * 31;
+    const anchorY = core.y + Math.sin(node.angle) * 31;
+    const spokeAmount = reveal * (1 - smootherEase(compress / 0.72));
+    line(
       ctx,
-      { x: anchorX, y: anchorY },
-      { x: anchorX + (nodeX - anchorX) * 0.35, y: anchorY + (nodeY - anchorY) * 0.32 },
-      { x: nodeX - (nodeX - anchorX) * 0.22, y: nodeY },
-      { x: nodeX, y: nodeY },
+      anchorX,
+      anchorY,
+      anchorX + (orbitX - anchorX) * spokeAmount,
+      anchorY + (orbitY - anchorY) * spokeAmount,
       node.color,
-      reveal * (1 - compress * 0.12),
-      reveal,
       1.25,
+      reveal * (1 - compress),
     );
     dot(
       ctx,
@@ -986,7 +988,7 @@ function drawAcceptance(ctx: CanvasRenderingContext2D, p: number) {
       color: node.color,
       size: 7.3,
       weight: 600,
-      opacity: reveal * (1 - compress),
+      opacity: reveal * (1 - smootherEase(compress / 0.48)),
     });
   });
 
@@ -1000,8 +1002,8 @@ function drawAcceptance(ctx: CanvasRenderingContext2D, p: number) {
   ctx.fill();
   ctx.stroke();
   ctx.restore();
-  label(ctx, "AI work", core.x, core.y - 4, { color: ACCENT, size: 11.5, weight: 700 });
-  label(ctx, "in context", core.x, core.y + 11, { color: MUTED, size: 7.8, italic: true });
+  label(ctx, "AI Work", core.x, core.y - 4, { color: ACCENT, size: 11.5, weight: 700 });
+  label(ctx, "In Context", core.x, core.y + 11, { color: MUTED, size: 7.8, italic: true });
 
   line(ctx, registerX, 78, registerX, 326, MUTED, 1.5, compress * 0.8);
   flowLine(
@@ -1038,7 +1040,7 @@ function drawAcceptance(ctx: CanvasRenderingContext2D, p: number) {
   ctx.arc(aperture.x, 141, 13, Math.PI * 1.12, Math.PI * 1.88);
   ctx.stroke();
   ctx.restore();
-  label(ctx, "judgment", aperture.x, aperture.y, {
+  label(ctx, "Judgment", aperture.x, aperture.y, {
     color: ACCENT,
     size: 10,
     weight: 700,
@@ -1130,7 +1132,7 @@ function drawMeter(ctx: CanvasRenderingContext2D, p: number) {
     ctx.lineTo(-3, 25);
     ctx.lineTo(13, 8);
     ctx.stroke();
-    label(ctx, "the workflow was approved", 0, 36, { color: TEXT, size: 8.8, weight: 600 });
+    label(ctx, "The workflow was approved", 0, 36, { color: TEXT, size: 8.8, weight: 600 });
   } else {
     const total = Math.round(740 + activity * 5860 + burdens * 2240);
     label(ctx, "AI ACTIVITY", 0, -27, { color: ACCENT, size: 9.5, weight: 700 });
@@ -1139,7 +1141,7 @@ function drawMeter(ctx: CanvasRenderingContext2D, p: number) {
     ctx.textBaseline = "middle";
     ctx.font = '700 29px "SFMono-Regular", Consolas, monospace';
     ctx.fillText(String(total).padStart(6, "0"), 0, 7);
-    label(ctx, "tokens used", 0, 31, { color: MUTED, size: 9.5, weight: 600 });
+    label(ctx, "Tokens Used", 0, 31, { color: MUTED, size: 9.5, weight: 600 });
   }
   ctx.restore();
 
@@ -1152,13 +1154,13 @@ function drawMeter(ctx: CanvasRenderingContext2D, p: number) {
   const retryReached = smootherEase((activityFill - 0.36) / 0.11) * usageOpacity;
   const correctionReached = smootherEase((activityFill - 0.67) / 0.11) * usageOpacity;
 
-  label(ctx, "retry", retryX, 173, {
+  label(ctx, "Retry", retryX, 173, {
     color: ACCENT,
     size: 8.7,
     weight: 600,
     opacity: retryReached,
   });
-  label(ctx, "expert correction", correctionX, 173, {
+  label(ctx, "Expert Correction", correctionX, 173, {
     color: ACCENT,
     size: 8.7,
     weight: 600,
@@ -1186,7 +1188,7 @@ function drawMeter(ctx: CanvasRenderingContext2D, p: number) {
     weight: 700,
     opacity: acceptedUnit,
   });
-  label(ctx, "accepted workflow", 356, 171, {
+  label(ctx, "Accepted Workflow", 356, 171, {
     color: SUCCESS,
     size: 9.5,
     align: "right",
@@ -1207,7 +1209,7 @@ function drawMeter(ctx: CanvasRenderingContext2D, p: number) {
     weight: 800,
     opacity: pricing,
   });
-  label(ctx, "dollars / accepted workflow", 267, 197, {
+  label(ctx, "Dollars / Accepted Workflow", 267, 197, {
     color: SUCCESS,
     size: 8.4,
     align: "left",
@@ -1910,7 +1912,7 @@ export default function Home() {
           <ScrollDiagram
             scene="pie"
             labelText="A growing, diverse market"
-            caption="As Proof-of-Workflow spreads, the market grows and its slices become more diverse."
+            caption="Pie (market) grows."
           >
             <p>
               And as value begins to accumulate around judgment, more players will naturally offer these
