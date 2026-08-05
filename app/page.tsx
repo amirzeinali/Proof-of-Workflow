@@ -1667,6 +1667,13 @@ export default function Home() {
         <header className="scroll-header">
           <h1>Proof-of-Workflow</h1>
           <p className="post-subtitle">AI Evaluation Based on Real Workflows</p>
+          <div className="author-block">
+            <p className="post-authors">
+              Amir Zeinali<sup>1,2</sup>, Shayan Talaei<sup>2</sup>, Avanika Narayan<sup>1</sup>, and Jon Saad-Falcon<sup>1,2</sup>
+            </p>
+            <p className="post-affiliations"><sup>1</sup> Hazy Research&nbsp;&nbsp; <sup>2</sup> Scaling Intelligence Lab</p>
+            <p className="post-reading-time">8–9 min read</p>
+          </div>
         </header>
 
         <aside className="tldr" aria-labelledby="tldr-title">
@@ -1735,14 +1742,14 @@ export default function Home() {
             <p>
               We think PoW works better here for two main reasons:
             </p>
-            <div className="pow-list">
-              <p>
+            <ul className="pow-list">
+              <li>
                 <strong>First, PoW leaves the final call to the people responsible for the work.</strong> A benchmark is only a stand-in for their judgment and can capture only a simplified version of what a practical result should look like. The organization using the output sees the whole situation, including current rules and practical tradeoffs that may never fit into a rubric. The final approval tells us whether the work met all those requirements at once.
-              </p>
-              <p>
+              </li>
+              <li>
                 <strong>Second, since PoW tests AI on the organization’s real work,</strong> the evaluation uses the same data and tools the AI would use on the job instead of arbitrary tasks in a fixed test setup. This allows us to test AI in the setting where real value is created.
-              </p>
-            </div>
+              </li>
+            </ul>
             <p>Now that we know what PoW measures, the next step is to figure out who should actually evaluate the work.</p>
           </ScrollDiagram>
         </section>
@@ -1809,11 +1816,11 @@ export default function Home() {
               However, we should not treat these three levels as alternatives; they can all appear in the same
               field or even within the same company. Take coding, for example.
             </p>
-            <ol className="pow-list">
+            <ul className="pow-list">
               <li><a href="https://developers.openai.com/codex/third-party/github">Codex</a> can observe from outside whether a change was merged.</li>
               <li><a href="https://docs.coderabbit.ai/configuration/path-instructions">CodeRabbit</a>, an AI code-review tool, works alongside teams by adapting its reviews to each repository’s rules.</li>
               <li>Uber keeps <a href="https://www.uber.com/us/en/blog/ureview/">uReview</a>, its own AI code-review system, inside because judging its comments depends on Uber’s codebase and feedback from its developers.</li>
-            </ol>
+            </ul>
           </ScrollDiagram>
           <TextSection labelText="">
             <p>

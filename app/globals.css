@@ -59,7 +59,7 @@ a:focus-visible {
 }
 
 .scroll-header {
-  margin-bottom: 1rem;
+  margin-bottom: 0.75rem;
   padding-top: 20px;
   text-align: center;
 }
@@ -82,6 +82,41 @@ h1 {
   color: var(--doc-muted);
   font-size: 1.05rem;
   font-style: italic;
+}
+
+.author-block {
+  margin: 0.72rem auto 0;
+  color: var(--doc-muted);
+  font-family: "Avenir Next", "Helvetica Neue", Arial, sans-serif;
+  text-align: center;
+}
+
+.author-block p {
+  margin: 0;
+}
+
+.post-authors {
+  font-size: 0.94rem;
+  line-height: 1.45;
+}
+
+.post-affiliations {
+  margin-top: 0.12rem !important;
+  font-size: 0.79rem;
+  line-height: 1.4;
+}
+
+.author-block sup {
+  color: var(--doc-accent);
+  font-size: 0.68em;
+}
+
+.post-reading-time {
+  margin-top: 0.38rem !important;
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
 }
 
 .post-meta {
@@ -193,8 +228,8 @@ h1 {
   position: sticky;
   z-index: 10;
   top: 54px;
-  margin: 0.45rem 0 0;
-  padding: 0.3rem 0 0.35rem;
+  margin: 0.25rem 0 0;
+  padding: 0.22rem 0 0.28rem;
   border-bottom: 1px solid rgba(140, 138, 128, 0.25);
   background: rgba(244, 243, 238, 0.96);
   backdrop-filter: blur(4px);
@@ -229,7 +264,7 @@ h1 {
 }
 
 .long-copy .section-inner {
-  min-height: 760px;
+  min-height: 0;
 }
 
 .has-scene:not(.long-copy) .section-inner {
@@ -254,6 +289,15 @@ h1 {
   top: var(--sticky-top);
 }
 
+/* Let short copy continue down the left while these diagrams remain on the right. */
+.scene-criteria .section-viz,
+.scene-coding .section-viz {
+  position: absolute !important;
+  top: 2px;
+  right: 0;
+  width: calc(50% - 14px);
+}
+
 .section-viz {
   display: flex;
   max-height: calc(100vh - var(--sticky-top));
@@ -272,11 +316,11 @@ h1 {
 }
 
 .scroll-section p {
-  margin: 0.32rem 0;
+  margin: 0.24rem 0;
 }
 
 .case-heading {
-  margin: 0.85rem 0 0.25rem;
+  margin: 0.62rem 0 0.18rem;
   color: var(--doc-line);
   font-size: 1.02rem;
   font-weight: 600;
@@ -306,13 +350,19 @@ h1 {
 }
 
 .pow-list {
-  margin: 0.55rem 0 0.65rem;
-  padding-left: 1.6rem;
+  margin: 0.42rem 0 0.52rem;
+  padding-left: 1.45rem;
+  list-style: disc outside;
 }
 
 .pow-list li {
-  margin: 0.5rem 0;
-  padding-left: 0.35rem;
+  margin: 0.34rem 0;
+  padding-left: 0.22rem;
+}
+
+.pow-list li::marker {
+  color: var(--doc-accent);
+  font-size: 0.78em;
 }
 
 sup a {
@@ -321,13 +371,13 @@ sup a {
 
 .text-only {
   max-width: calc(50% - 20px);
-  padding: 0.1rem 0 0.5rem;
+  padding: 0 0 0.35rem;
 }
 
 .prose-only {
   max-width: calc(50% - 20px);
   margin: 0;
-  padding: 0.1rem 0 0.75rem;
+  padding: 0 0 0.5rem;
 }
 
 blockquote {
@@ -373,17 +423,28 @@ blockquote {
 
 .source-notes {
   max-width: 850px;
-  margin: 1.5rem auto 0;
-  padding-top: 0.7rem;
+  margin: 1rem auto 0;
+  padding-top: 0.6rem;
   padding-left: 1.8rem;
   border-top: 1px solid rgba(140, 138, 128, 0.34);
   color: var(--doc-muted);
   font-size: 0.82rem;
+  list-style: decimal outside;
 }
 
 .source-notes li {
-  margin: 0.22rem 0;
+  margin: 0 0 1em;
   padding-left: 0.25rem;
+  line-height: 1.45;
+}
+
+.source-notes li:last-child {
+  margin-bottom: 0;
+}
+
+.source-notes li::marker {
+  color: var(--doc-line);
+  font-variant-numeric: tabular-nums;
 }
 
 .post-footer {
@@ -504,6 +565,12 @@ blockquote {
   .has-scene.scene-acceptance:not(.long-copy) .section-viz,
   .has-scene.scene-meter:not(.long-copy) .section-viz {
     position: static;
+  }
+
+  .scene-criteria .section-viz,
+  .scene-coding .section-viz {
+    position: static !important;
+    width: auto;
   }
 
   .section-viz {
