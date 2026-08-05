@@ -932,9 +932,9 @@ function drawAcceptance(ctx: CanvasRenderingContext2D, p: number) {
   const compress = smootherEase((p - 0.5) / 0.27);
   const accept = smootherEase((p - 0.76) / 0.19);
   const core = { x: 142, y: 201 };
-  const aperture = { x: 326, y: 201 };
+  const aperture = { x: 360, y: 201 };
 
-  label(ctx, "The Living Rubric", core.x, 27, { color: TEXT, size: 11, weight: 600 });
+  label(ctx, "The Living Rubric", core.x, 48, { color: TEXT, size: 11, weight: 600 });
   label(ctx, "organization", aperture.x, 101, { color: TEXT, size: 11, weight: 600 });
 
   const nodes = [
@@ -950,9 +950,10 @@ function drawAcceptance(ctx: CanvasRenderingContext2D, p: number) {
 
   nodes.forEach((node, index) => {
     const reveal = smootherEase((grow - node.delay) / 0.52);
-    const targetY = 155 + index * 13;
-    const nodeX = node.x + (248 - node.x) * compress * 0.68;
-    const nodeY = node.y + (targetY - node.y) * compress * 0.68;
+    const targetX = 192 + index * 15;
+    const targetY = 122;
+    const nodeX = node.x + (targetX - node.x) * compress;
+    const nodeY = node.y + (targetY - node.y) * compress;
     const bend = index % 2 === 0 ? -18 : 18;
     flowLine(
       ctx,
@@ -995,24 +996,18 @@ function drawAcceptance(ctx: CanvasRenderingContext2D, p: number) {
   label(ctx, "AI work", core.x, core.y - 4, { color: ACCENT, size: 11.5, weight: 700 });
   label(ctx, "in context", core.x, core.y + 11, { color: MUTED, size: 7.8, italic: true });
 
-  nodes.forEach((node, index) => {
-    const signalProgress = smootherEase((compress - index * 0.038) / 0.7);
-    const start = {
-      x: node.x + (248 - node.x) * compress * 0.68,
-      y: node.y + (155 + index * 13 - node.y) * compress * 0.68,
-    };
-    const control1 = { x: start.x + 42, y: start.y };
-    const control2 = { x: aperture.x - 72, y: 155 + index * 13 };
-    const end = { x: aperture.x - 55, y: 155 + index * 13 };
-    flowLine(ctx, start, control1, control2, end, node.color, compress * 0.75, signalProgress, 1.15);
-    if (signalProgress > 0.04) {
-      const t = signalProgress;
-      const inverse = 1 - t;
-      const signalX = inverse ** 3 * start.x + 3 * inverse ** 2 * t * control1.x + 3 * inverse * t ** 2 * control2.x + t ** 3 * end.x;
-      const signalY = inverse ** 3 * start.y + 3 * inverse ** 2 * t * control1.y + 3 * inverse * t ** 2 * control2.y + t ** 3 * end.y;
-      dot(ctx, signalX, signalY, 2.2, node.color, node.color, compress * 0.82);
-    }
-  });
+  line(ctx, 182, 122, 307, 122, MUTED, 1.5, compress * 0.78);
+  flowLine(
+    ctx,
+    { x: 307, y: 122 },
+    { x: 326, y: 133 },
+    { x: aperture.x - 60, y: 174 },
+    { x: aperture.x - 55, y: aperture.y },
+    ACCENT,
+    compress * 0.82,
+    compress,
+    1.7,
+  );
 
   const gateGap = 25 - compress * 13;
   ctx.save();
@@ -1045,18 +1040,18 @@ function drawAcceptance(ctx: CanvasRenderingContext2D, p: number) {
   flowLine(
     ctx,
     { x: aperture.x + 55, y: aperture.y },
-    { x: 394, y: aperture.y },
-    { x: 407, y: aperture.y },
-    { x: 416, y: aperture.y },
+    { x: 424, y: aperture.y },
+    { x: 434, y: aperture.y },
+    { x: 439, y: aperture.y },
     SUCCESS,
     accept,
     accept,
     2,
   );
 
-  const outputX = 446;
+  const outputX = 466;
   const outputY = 201;
-  dot(ctx, outputX, outputY, 25, "rgba(47,125,50,.08)", SUCCESS, accept);
+  dot(ctx, outputX, outputY, 21, "rgba(47,125,50,.08)", SUCCESS, accept);
   if (accept > 0.02) {
     ctx.save();
     ctx.globalAlpha = accept;
@@ -1083,11 +1078,10 @@ function drawMeter(ctx: CanvasRenderingContext2D, p: number) {
   const flip = smootherEase((p - 0.43) / 0.24);
   const pricing = smootherEase((p - 0.7) / 0.21);
   const meterX = 86;
-  const meterY = 54;
+  const meterY = 28;
   const meterWidth = 328;
-  const meterHeight = 204;
+  const meterHeight = 238;
 
-  label(ctx, "MEASURE COST", 250, 31, { color: TEXT, size: 10.5, weight: 700 });
   ctx.save();
   ctx.fillStyle = "rgba(255,255,255,.74)";
   ctx.strokeStyle = MUTED;
@@ -1110,7 +1104,7 @@ function drawMeter(ctx: CanvasRenderingContext2D, p: number) {
   ctx.strokeStyle = "rgba(140,138,128,.72)";
   ctx.lineWidth = 1.1;
   ctx.beginPath();
-  ctx.roundRect(119, 82, 262, 91, 9);
+  ctx.roundRect(119, 50, 262, 91, 9);
   ctx.fill();
   ctx.stroke();
   ctx.restore();
@@ -1118,7 +1112,7 @@ function drawMeter(ctx: CanvasRenderingContext2D, p: number) {
   const faceScale = Math.max(0.035, Math.abs(Math.cos(Math.PI * flip)));
   const showAccepted = flip >= 0.5;
   ctx.save();
-  ctx.translate(250, 127);
+  ctx.translate(250, 95);
   ctx.scale(1, faceScale);
   if (showAccepted) {
     label(ctx, "ACCEPTED WORK", 0, -8, { color: SUCCESS, size: 17, weight: 700 });
@@ -1199,18 +1193,19 @@ function drawMeter(ctx: CanvasRenderingContext2D, p: number) {
     weight: 700,
     opacity: pricing,
   });
-  label(ctx, "accepted workflow", 356, 239, {
+  dot(ctx, 250, 239, 8.5, "rgba(47,125,50,.08)", SUCCESS, pricing);
+  label(ctx, "$", 250, 239, {
     color: SUCCESS,
     size: 9.5,
-    align: "right",
-    weight: 700,
+    weight: 800,
     opacity: pricing,
   });
-  label(ctx, "The unit changes from activity to accepted work.", 250, 306, {
-    color: TEXT,
-    size: 10,
-    weight: 600,
-    opacity: acceptedUnit,
+  label(ctx, "dollars / accepted workflow", 267, 239, {
+    color: SUCCESS,
+    size: 8.4,
+    align: "left",
+    weight: 700,
+    opacity: pricing,
   });
 }
 
@@ -1421,10 +1416,12 @@ function drawCompounding(ctx: CanvasRenderingContext2D, p: number) {
   const outerRadius = 35 + powActivity * 2;
   const innerRadius = 27 + powActivity;
   ctx.save();
-  ctx.globalAlpha = 0.82;
-  ctx.fillStyle = "rgba(166,52,48,.08)";
+  ctx.globalAlpha = 0.96;
+  ctx.fillStyle = "rgba(166,52,48,.13)";
   ctx.strokeStyle = ACCENT;
-  ctx.lineWidth = 1.4;
+  ctx.lineWidth = 2.7 + powActivity * 0.8;
+  ctx.shadowColor = "rgba(155,45,45,.48)";
+  ctx.shadowBlur = 9 + powActivity * 9;
   ctx.beginPath();
   for (let index = 0; index < 32; index += 1) {
     const angle = -Math.PI / 2 + (index / 32) * Math.PI * 2;
@@ -1438,9 +1435,18 @@ function drawCompounding(ctx: CanvasRenderingContext2D, p: number) {
   ctx.fill();
   ctx.stroke();
   ctx.restore();
-  dot(ctx, powCenter.x, powCenter.y, 24 + powActivity * 1.5, "rgba(255,255,255,.9)", ACCENT);
-  label(ctx, "PoW", powCenter.x, powCenter.y - 5, { color: ACCENT, size: 13, weight: 700 });
-  label(ctx, "acceptance", powCenter.x, powCenter.y + 10, { color: TEXT, size: 7.4, weight: 500 });
+  ctx.save();
+  ctx.fillStyle = "rgba(255,255,255,.92)";
+  ctx.strokeStyle = ACCENT;
+  ctx.lineWidth = 2.5;
+  ctx.shadowColor = "rgba(155,45,45,.42)";
+  ctx.shadowBlur = 8 + powActivity * 7;
+  ctx.beginPath();
+  ctx.arc(powCenter.x, powCenter.y, 24 + powActivity * 1.5, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.stroke();
+  ctx.restore();
+  label(ctx, "PoW", powCenter.x, powCenter.y, { color: ACCENT, size: 15, weight: 800 });
 
   label(ctx, "Organizations", 250, 20, { color: TEXT, size: 11, weight: 600 });
   label(ctx, "Utility", 421, 286, { color: TEXT, size: 11, weight: 600 });
@@ -1486,12 +1492,13 @@ function ScrollDiagram({
     const paint = () => {
       frame = 0;
       const ratio = Math.min(window.devicePixelRatio || 1, 2);
-      if (canvas.width !== Math.round(500 * ratio) || canvas.height !== Math.round(400 * ratio)) {
+      const logicalHeight = scene === "meter" ? 315 : 400;
+      if (canvas.width !== Math.round(500 * ratio) || canvas.height !== Math.round(logicalHeight * ratio)) {
         canvas.width = Math.round(500 * ratio);
-        canvas.height = Math.round(400 * ratio);
+        canvas.height = Math.round(logicalHeight * ratio);
       }
       context.setTransform(ratio, 0, 0, ratio, 0, 0);
-      context.clearRect(0, 0, 500, 400);
+      context.clearRect(0, 0, 500, logicalHeight);
       context.lineCap = "round";
       context.lineJoin = "round";
       const rect = section.getBoundingClientRect();
@@ -1774,7 +1781,7 @@ export default function Home() {
           <ScrollDiagram
             scene="meter"
             labelText="Two linked stages"
-            caption="Accepted work becomes the unit of both cost and price."
+            caption="The unit changes from activity to accepted work."
           >
             <p>
               More specifically, it is easier to see how PoW reshapes AI economics when we break the shift into
