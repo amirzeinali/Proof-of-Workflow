@@ -1482,12 +1482,14 @@ function ScrollDiagram({
   scene,
   caption,
   children,
+  afterDiagram,
   longCopy = false,
 }: {
   scene: SceneName;
   labelText: string;
   caption: string;
   children: ReactNode;
+  afterDiagram?: ReactNode;
   longCopy?: boolean;
 }) {
   const sectionRef = useRef<HTMLDivElement>(null);
@@ -1501,7 +1503,6 @@ function ScrollDiagram({
     if (!context) return;
     const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     let frame = 0;
-    let manualProgress = 0;
 
     const paint = () => {
       frame = 0;
@@ -1516,14 +1517,22 @@ function ScrollDiagram({
       context.clearRect(0, 0, 500, logicalHeight);
       context.lineCap = "round";
       context.lineJoin = "round";
-      const rect = section.getBoundingClientRect();
       const mobile = window.innerWidth <= 900;
-      const travel = Math.max(300, rect.height - 390);
-      const progress = reduced || mobile
-        ? 0.999
-        : longCopy
-          ? clamp((56 - rect.top) / travel, 0, 0.999)
-          : manualProgress;
+      const track = section.querySelector<HTMLElement>(".diagram-track");
+      const visualization = section.querySelector<HTMLElement>(".section-viz");
+      const trackRect = track?.getBoundingClientRect() ?? section.getBoundingClientRect();
+      const visualizationHeight = visualization?.getBoundingClientRect().height ?? 400;
+      const contentsBar = document.querySelector<HTMLElement>(".contents-table");
+      const bottomAirProperty = contentsBar?.classList.contains("is-stuck")
+        ? "--contents-stuck-bottom-air"
+        : "--contents-bottom-air";
+      const bottomAir = Number.parseFloat(
+        window.getComputedStyle(document.documentElement).getPropertyValue(bottomAirProperty),
+      ) || 0;
+      const pinTop = (contentsBar?.getBoundingClientRect().bottom ?? 90) + bottomAir + 14;
+      const travel = Math.max(1, trackRect.height - visualizationHeight);
+      const scrollProgress = clamp((pinTop - trackRect.top) / travel, 0, 0.999);
+      const progress = reduced || mobile ? 0.999 : scrollProgress;
       drawers[scene](context, progress);
     };
     const requestPaint = () => {
@@ -1536,46 +1545,10 @@ function ScrollDiagram({
       image.addEventListener("load", requestPaint);
       return () => image.removeEventListener("load", requestPaint);
     });
-    const onWheel = (event: WheelEvent) => {
-      if (reduced || longCopy || window.innerWidth <= 900 || event.deltaY === 0) return;
-      const visualization = section.querySelector<HTMLElement>(".section-viz");
-      const rect = visualization?.getBoundingClientRect() ?? section.getBoundingClientRect();
-      const fullyVisible = rect.top >= 54 && rect.bottom <= window.innerHeight + 2;
-      if (!fullyVisible) return;
-      const complete = manualProgress >= 0.985;
-      const empty = manualProgress <= 0.015;
-      const trigger = section.querySelector<HTMLElement>("[data-diagram-trigger]");
-      const triggerReady = !trigger || trigger.getBoundingClientRect().bottom <= window.innerHeight - 40;
-      if (event.deltaY > 0 && empty && !triggerReady) return;
-      const heading = section.closest<HTMLElement>(".act-group")?.querySelector<HTMLElement>(".act-heading");
-      const contentsBar = document.querySelector<HTMLElement>(".contents-table");
-      const bottomAirProperty = contentsBar?.classList.contains("is-stuck")
-        ? "--contents-stuck-bottom-air"
-        : "--contents-bottom-air";
-      const bottomAir = Number.parseFloat(
-        window.getComputedStyle(document.documentElement).getPropertyValue(bottomAirProperty),
-      ) || 0;
-      const titleClearance = (contentsBar?.getBoundingClientRect().bottom ?? 54) + bottomAir;
-      const titleHasScrolledAway = !heading || heading.getBoundingClientRect().bottom <= titleClearance;
-      if (event.deltaY > 0 && empty && !titleHasScrolledAway) return;
-      const movingForward = event.deltaY > 0 && !complete;
-      const movingBackward = event.deltaY < 0 && !empty;
-      if (!movingForward && !movingBackward) return;
-      event.preventDefault();
-      const budget = scene === "criteria"
-        ? 900
-        : scene === "acceptance" || scene === "meter" || scene === "compounding"
-          ? 760
-          : 620;
-      const nextProgress = clamp(manualProgress + event.deltaY / budget, 0, 0.999);
-      manualProgress = nextProgress >= 0.985 ? 0.999 : nextProgress <= 0.015 ? 0 : nextProgress;
-      requestPaint();
-    };
     const observer = new ResizeObserver(requestPaint);
     observer.observe(section);
     window.addEventListener("scroll", requestPaint, { passive: true });
     window.addEventListener("resize", requestPaint);
-    window.addEventListener("wheel", onWheel, { passive: false });
     paint();
     return () => {
       if (frame) window.cancelAnimationFrame(frame);
@@ -1583,9 +1556,8 @@ function ScrollDiagram({
       imageCleanups.forEach((cleanup) => cleanup());
       window.removeEventListener("scroll", requestPaint);
       window.removeEventListener("resize", requestPaint);
-      window.removeEventListener("wheel", onWheel);
     };
-  }, [longCopy, scene]);
+  }, [scene]);
 
   return (
     <div className={`scroll-section has-scene scene-${scene}${longCopy ? " long-copy" : ""}`} ref={sectionRef}>
@@ -1593,10 +1565,13 @@ function ScrollDiagram({
         <div className="section-copy">
           {children}
         </div>
-        <div className="section-viz">
-          <canvas className="diagram-canvas" ref={canvasRef} role="img" aria-label={caption} />
-          <p className="viz-caption">{caption}</p>
+        <div className="diagram-track">
+          <div className="section-viz">
+            <canvas className="diagram-canvas" ref={canvasRef} role="img" aria-label={caption} />
+            <p className="viz-caption">{caption}</p>
+          </div>
         </div>
+        {afterDiagram ? <div className="section-after">{afterDiagram}</div> : null}
       </div>
     </div>
   );
@@ -1755,6 +1730,9 @@ export default function Home() {
             scene="acceptance"
             labelText="Proof-of-Workflow"
             caption="Changing workflow context becomes one acceptance decision."
+            afterDiagram={
+              <p>Now that we know what PoW measures, the next step is to figure out who should actually evaluate the work.</p>
+            }
           >
             <p>
               <a href="https://metr.org/notes/2026-03-10-many-swe-bench-passing-prs-would-not-be-merged-into-main/">Academic studies</a> and <a href="https://aws.amazon.com/blogs/machine-learning/evaluating-ai-agents-real-world-lessons-from-building-agentic-systems-at-amazon/">industry reports</a> have also identified the same gap between benchmark criteria and real approval criteria in practice. As a result, organizations increasingly pair benchmark scores with evaluation approaches that use live measures such as <a href="https://arxiv.org/abs/2512.04123">A/B tests and user feedback</a>. In our view, the most direct and useful of these approaches is to evaluate whether an organization actually accepts AI-generated work in its real workflow. We refer to such approaches collectively as <strong>Proof-of-Workflow.</strong>
@@ -1770,7 +1748,6 @@ export default function Home() {
                 <strong>Second, since PoW tests AI on the organization’s real work,</strong> the evaluation uses the same data and tools the AI would use on the job instead of arbitrary tasks in a fixed test setup. This allows us to test AI in the setting where real value is created.
               </li>
             </ul>
-            <p>Now that we know what PoW measures, the next step is to figure out who should actually evaluate the work.</p>
           </ScrollDiagram>
         </section>
 
@@ -1914,15 +1891,17 @@ export default function Home() {
             scene="compounding"
             labelText="A compounding feedback loop"
             caption="PoW compounds utility."
+            afterDiagram={
+              <p>
+                And as AI takes on more of the world’s work, we will keep coming back to one question. <strong>Did the work count?</strong>
+              </p>
+            }
           >
             <p>
               No matter who runs PoW, however, its immediate promise is practical. A clearer bar gives vendors something real to improve against and gives teams more confidence to hand nuanced work to AI. Each decision about whether the work was good enough feeds the next version. Better evaluation leads to better systems, and better systems earn the chance to take on harder work. Together, they create a strong positive feedback loop.
             </p>
             <p data-diagram-trigger>
               As that loop spreads across companies and industries, the stakes get much bigger. More AI capability turns into useful output, and work that used to be too costly or too slow becomes worth doing. Across the wider economy, those gains could add up to higher productivity and stronger GDP growth. Because the loop stays grounded in human judgment, it could also accelerate recursive self-improvement without losing sight of what people value. That makes the shift positive-sum, turning more AI capability into more utility for everyone.
-            </p>
-            <p>
-              And as AI takes on more of the world’s work, we will keep coming back to one question. <strong>Did the work count?</strong>
             </p>
           </ScrollDiagram>
           <ol className="source-notes">

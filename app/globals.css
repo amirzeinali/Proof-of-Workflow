@@ -10,6 +10,7 @@
   --contents-top-air: 36px;
   --contents-bottom-air: 28px;
   --contents-stuck-bottom-air: 8px;
+  --figure-sticky-top: calc(var(--contents-top-air) + 54px + var(--contents-stuck-bottom-air) + 14px);
   --sticky-top: 106px;
 }
 
@@ -531,6 +532,92 @@ blockquote {
   text-transform: uppercase;
 }
 
+/* Single-column editorial flow with wide, scroll-built figures. */
+.act-heading {
+  width: min(100%, 760px);
+  margin-right: auto;
+  margin-left: auto;
+}
+
+.scroll-section.has-scene .section-inner {
+  display: block;
+}
+
+.scroll-section.has-scene .section-copy,
+.scroll-section.has-scene .section-after,
+.text-only,
+.prose-only,
+.source-notes {
+  width: min(100%, 740px);
+  max-width: 740px;
+  margin-right: auto;
+  margin-left: auto;
+}
+
+.scroll-section.has-scene .section-copy,
+.scroll-section.has-scene .section-after {
+  position: static;
+  padding: 0;
+}
+
+.diagram-track {
+  position: relative;
+  width: min(100%, 1100px);
+  min-height: max(980px, 155vh);
+  margin: 1.4rem auto 2.2rem;
+}
+
+.scene-criteria .diagram-track,
+.scene-proximity .diagram-track,
+.scene-compounding .diagram-track {
+  min-height: max(1100px, 170vh);
+}
+
+.scene-meter .diagram-track {
+  min-height: max(760px, 125vh);
+}
+
+.scene-pie .diagram-track {
+  min-height: max(820px, 135vh);
+}
+
+.scroll-section.has-scene .diagram-track .section-viz {
+  position: sticky !important;
+  top: var(--figure-sticky-top) !important;
+  width: 100%;
+  max-height: none;
+  margin: 0 auto;
+  padding: 0;
+  transform: none;
+}
+
+.scroll-section.has-scene .diagram-canvas {
+  width: 100%;
+  max-width: min(800px, calc(125vh - 225px));
+}
+
+.scroll-section.scene-criteria .diagram-canvas,
+.scroll-section.scene-proximity .diagram-canvas {
+  max-width: min(860px, calc(125vh - 225px));
+}
+
+.scroll-section.scene-meter .diagram-canvas {
+  max-width: min(900px, calc(200vh - 300px));
+}
+
+.scroll-section.scene-pie .diagram-canvas {
+  max-width: min(720px, calc(125vh - 225px));
+}
+
+.scroll-section.scene-compounding .diagram-canvas {
+  max-width: min(820px, calc(125vh - 225px));
+}
+
+.scroll-section.has-scene .viz-caption {
+  max-width: 620px;
+  font-size: 0.9rem;
+}
+
 @media (max-width: 900px) {
   :root {
     --contents-top-air: 20px;
@@ -602,6 +689,25 @@ blockquote {
     min-height: 0;
     flex-direction: column;
     gap: 12px;
+  }
+
+  .scroll-section.has-scene .section-inner {
+    display: flex;
+  }
+
+  .scroll-section.has-scene .diagram-track {
+    width: 100%;
+    min-height: 0;
+    margin: 0.8rem auto 1.35rem;
+  }
+
+  .scroll-section.has-scene .diagram-track .section-viz {
+    position: static !important;
+    top: auto !important;
+  }
+
+  .scroll-section.has-scene .diagram-canvas {
+    max-width: 500px;
   }
 
   .section-copy,
