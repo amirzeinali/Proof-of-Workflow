@@ -1315,13 +1315,13 @@ function drawMeter(ctx: CanvasRenderingContext2D, p: number) {
   const usageOpacity = 1 - smootherEase((flip - 0.02) / 0.58);
   const barStart = 126;
   const barEnd = 374;
-  const activityFill = clamp(0.2 + activity * 0.38 + burdens * 0.34);
+  const activityFill = smootherEase(p / 0.42) * 0.88;
   const firstAttemptX = barStart + (barEnd - barStart) * 0.16;
   const retryX = barStart + (barEnd - barStart) * 0.4;
   const correctionX = barStart + (barEnd - barStart) * 0.72;
-  const firstAttemptReached = smootherEase((activityFill - 0.12) / 0.1) * usageOpacity;
-  const retryReached = smootherEase((activityFill - 0.36) / 0.11) * usageOpacity;
-  const correctionReached = smootherEase((activityFill - 0.67) / 0.11) * usageOpacity;
+  const firstAttemptReached = smootherEase((activityFill - 0.145) / 0.045) * usageOpacity;
+  const retryReached = smootherEase((activityFill - 0.385) / 0.045) * usageOpacity;
+  const correctionReached = smootherEase((activityFill - 0.705) / 0.045) * usageOpacity;
 
   label(ctx, "First Attempt", firstAttemptX, 173, {
     color: POLICY_BLUE,
@@ -1344,9 +1344,6 @@ function drawMeter(ctx: CanvasRenderingContext2D, p: number) {
   line(ctx, firstAttemptX, 179, firstAttemptX, 191, POLICY_BLUE, 1, firstAttemptReached);
   line(ctx, retryX, 179, retryX, 191, ACCENT, 1, retryReached);
   line(ctx, correctionX, 179, correctionX, 191, ACCENT, 1, correctionReached);
-  dot(ctx, firstAttemptX, 197, 3.5, PAPER, POLICY_BLUE, firstAttemptReached);
-  dot(ctx, retryX, 197, 3.5, PAPER, ACCENT, retryReached);
-  dot(ctx, correctionX, 197, 3.5, PAPER, ACCENT, correctionReached);
 
   line(ctx, barStart, 197, barEnd, 197, "rgba(111,127,147,.58)", 3, usageOpacity);
   line(ctx, barStart, 197, barStart + (barEnd - barStart) * activityFill, 197, ACCENT, 3.4, usageOpacity);
