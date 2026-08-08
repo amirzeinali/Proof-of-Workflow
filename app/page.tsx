@@ -1315,13 +1315,26 @@ function drawMeter(ctx: CanvasRenderingContext2D, p: number) {
   const usageOpacity = 1 - smootherEase((flip - 0.02) / 0.58);
   const barStart = 126;
   const barEnd = 374;
-  const activityFill = smootherEase(p / 0.42) * 0.88;
+  let activityFill = 0;
+  if (p < 0.07) {
+    activityFill = 0.16 * smootherEase(p / 0.07);
+  } else if (p < 0.13) {
+    activityFill = 0.16;
+  } else if (p < 0.2) {
+    activityFill = 0.16 + 0.24 * smootherEase((p - 0.13) / 0.07);
+  } else if (p < 0.26) {
+    activityFill = 0.4;
+  } else if (p < 0.33) {
+    activityFill = 0.4 + 0.32 * smootherEase((p - 0.26) / 0.07);
+  } else {
+    activityFill = 0.72;
+  }
   const firstAttemptX = barStart + (barEnd - barStart) * 0.16;
   const retryX = barStart + (barEnd - barStart) * 0.4;
   const correctionX = barStart + (barEnd - barStart) * 0.72;
-  const firstAttemptReached = smootherEase((activityFill - 0.145) / 0.045) * usageOpacity;
-  const retryReached = smootherEase((activityFill - 0.385) / 0.045) * usageOpacity;
-  const correctionReached = smootherEase((activityFill - 0.705) / 0.045) * usageOpacity;
+  const firstAttemptReached = smootherEase((activityFill - 0.12) / 0.04) * usageOpacity;
+  const retryReached = smootherEase((activityFill - 0.36) / 0.04) * usageOpacity;
+  const correctionReached = smootherEase((activityFill - 0.68) / 0.04) * usageOpacity;
 
   label(ctx, "First Attempt", firstAttemptX, 173, {
     color: POLICY_BLUE,
