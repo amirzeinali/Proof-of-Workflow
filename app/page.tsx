@@ -492,7 +492,7 @@ function drawCriteria(ctx: CanvasRenderingContext2D, p: number) {
     size: 10.5,
   });
 
-  box(ctx, 14, 234, 176, 136, false, 1, 8);
+  box(ctx, 14, 234, 176, 124, false, 1, 8);
   label(ctx, "Expected Benchmark Rubric", 102, 253, { color: ACCENT, size: 12.1, weight: 600 });
   wrappedHighlightedLabel(
     ctx,
@@ -506,15 +506,18 @@ function drawCriteria(ctx: CanvasRenderingContext2D, p: number) {
   );
 
   const rows = [
-    { name: "Delta", reason: "Complete both tickets using the customer’s gift card", ok: true, y: 68, start: 0.1, portY: 126, nameHeight: 34, reasonHeight: 56, reasonLines: 3 },
-    { name: "American Airlines", reason: "Use the flight credit only for its named traveler, then request payment for the second ticket", ok: false, y: 139, start: 0.29, portY: 149, nameHeight: 48, reasonHeight: 68, reasonLines: 5 },
-    { name: "Ryanair before", reason: "Verify the customer’s identity before allowing access to the reservation", ok: false, y: 220, start: 0.48, portY: 172, nameHeight: 48, reasonHeight: 64, reasonLines: 4 },
-    { name: "Ryanair now", reason: "Access the reservation without separate verification and continue", ok: true, y: 323, start: 0.78, portY: 195, nameHeight: 48, reasonHeight: 64, reasonLines: 4 },
+    { name: "Delta", reason: "Complete both tickets using the customer’s gift card", ok: true, y: 70, start: 0.1, portY: 126, nameHeight: 34, reasonHeight: 50, reasonLines: 3 },
+    { name: "American Airlines", reason: "Use the flight credit only for its named traveler, then request payment for the second ticket", ok: false, y: 139, start: 0.29, portY: 149, nameHeight: 40, reasonHeight: 56, reasonLines: 4 },
+    { name: "Ryanair before", reason: "Verify the customer’s identity before allowing access to the reservation", ok: false, y: 220, start: 0.48, portY: 172, nameHeight: 48, reasonHeight: 52, reasonLines: 3 },
+    { name: "Ryanair now", reason: "Access the reservation without separate verification and continue", ok: true, y: 323, start: 0.78, portY: 195, nameHeight: 42, reasonHeight: 48, reasonLines: 3 },
   ];
 
-  label(ctx, "Live Setting", 268, 18, { color: TEXT, size: 12.3, weight: 600 });
-  wrappedLabel(ctx, "Passes the Rubric?", 329, 10, 66, 13, { color: TEXT, size: 11, weight: 600 });
-  wrappedLabel(ctx, "What should count as success?", 421, 17, 136, 13, { color: TEXT, size: 11.1, weight: 600 });
+  box(ctx, 230, 2, 76, 34, false, 1, 7);
+  box(ctx, 309, 2, 40, 34, false, 1, 7);
+  box(ctx, 352, 2, 138, 34, false, 1, 7);
+  label(ctx, "Live Setting", 268, 19, { color: TEXT, size: 11.5, weight: 600 });
+  wrappedLabel(ctx, "Passes the Rubric?", 329, 9, 34, 9.5, { color: TEXT, size: 8.3, weight: 600 });
+  wrappedLabel(ctx, "What should count as success?", 421, 12, 128, 12, { color: TEXT, size: 9.9, weight: 600 });
 
   rows.forEach((row, index) => {
     const arrowReveal = smootherEase((p - row.start) / 0.12);
@@ -765,7 +768,7 @@ function drawEvaluatorStory(ctx: CanvasRenderingContext2D, phase: number) {
   const weightTotal = caseWeights.reduce((sum, weight) => sum + weight, 0) || 1;
   const weights = caseWeights.map((weight) => weight / weightTotal);
   const textWeights = weights.map((weight) => smootherEase((weight - 0.52) / 0.26));
-  const lensStops = [154, 382, 550];
+  const lensStops = [154, 382, 535];
   const lensX = lensStops.reduce((sum, stop, index) => sum + stop * weights[index], 0);
   const lensY = 87;
   const modeStops = lensStops;
@@ -874,6 +877,7 @@ function drawEvaluatorStory(ctx: CanvasRenderingContext2D, phase: number) {
   ];
   callouts.forEach((item, index) => {
     const itemOpacity = (0.2 + reveal[index] * 0.8) * ringsOpacity;
+    const calloutHeight = index === 2 ? 58 : 46;
     line(ctx, item.anchorX, item.anchorY, 428, item.y, colors[index], 1.3, itemOpacity);
     ctx.save();
     ctx.globalAlpha = itemOpacity;
@@ -881,24 +885,34 @@ function drawEvaluatorStory(ctx: CanvasRenderingContext2D, phase: number) {
     ctx.strokeStyle = colors[index];
     ctx.lineWidth = reveal[index] > 0.02 ? 1.65 : 1.05;
     ctx.beginPath();
-    ctx.roundRect(432, item.y - 23, 292, 46, 8);
+    ctx.roundRect(432, item.y - calloutHeight / 2, 310, calloutHeight, 8);
     ctx.fill();
     ctx.stroke();
     ctx.restore();
-    label(ctx, item.name, 453, item.y - 7, {
+    label(ctx, item.name, 453, item.y - (index === 2 ? 12 : 7), {
       align: "left",
       color: colors[index],
       size: 17.5,
       weight: 700,
       opacity: itemOpacity,
     });
-    label(ctx, item.detail, 453, item.y + 11, {
-      align: "left",
-      color: TEXT,
-      size: 14.2,
-      weight: 500,
-      opacity: itemOpacity,
-    });
+    if (index === 2) {
+      wrappedLabel(ctx, item.detail, 453, item.y + 5, 270, 13.5, {
+        align: "left",
+        color: TEXT,
+        size: 13.2,
+        weight: 500,
+        opacity: itemOpacity,
+      });
+    } else {
+      label(ctx, item.detail, 453, item.y + 11, {
+        align: "left",
+        color: TEXT,
+        size: 13.5,
+        weight: 500,
+        opacity: itemOpacity,
+      });
+    }
   });
 
 }
@@ -1011,11 +1025,7 @@ function drawPie(ctx: CanvasRenderingContext2D, p: number) {
       const labelRadius = count === 5 ? innerRadius * 0.57 : innerRadius * 0.76;
       const labelX = center.x + Math.cos(middle) * labelRadius;
       const labelY = center.y + Math.sin(middle) * labelRadius;
-      const spacedLabelX = count === 10 && index === 0
-        ? labelX + 20
-        : count === 10 && index === 9
-          ? labelX - 24
-          : labelX;
+      const insetLabelY = count === 10 && (index === 0 || index === 9) ? labelY + 7 : labelY;
       if (count === 1) {
         wrappedLabel(ctx, "Software Development", center.x, center.y - 8, innerRadius * 1.5, 18, {
           color: TEXT,
@@ -1024,9 +1034,9 @@ function drawPie(ctx: CanvasRenderingContext2D, p: number) {
           opacity,
         });
       } else {
-        label(ctx, industry, spacedLabelX, labelY, {
+        label(ctx, industry, labelX, insetLabelY, {
           color: colors[index],
-          size: count === 5 ? 12.4 : industry.length > 10 ? 9.2 : 10.2,
+          size: count === 5 ? 12.4 : industry.length > 10 ? 8.8 : 10.2,
           weight: 700,
           opacity,
         });
@@ -1190,7 +1200,7 @@ function drawAcceptance(ctx: CanvasRenderingContext2D, p: number) {
     weight: 700,
   });
 
-  const outputX = 476;
+  const outputX = 456;
   const acceptedY = 169;
   const rejectedY = 237;
   arrow(ctx, aperture.x + 30, aperture.y - 14, outputX - 19, acceptedY, SUCCESS, accept);
@@ -1359,16 +1369,9 @@ function drawMeter(ctx: CanvasRenderingContext2D, p: number) {
     weight: 700,
     opacity: pricing,
   });
-  dot(ctx, 250, 197, 8.5, "rgba(47,125,50,.08)", SUCCESS, pricing);
-  label(ctx, "$", 250, 197, {
+  label(ctx, "$ / Accepted Workflow", 250, 197, {
     color: SUCCESS,
-    size: 12.2,
-    weight: 800,
-    opacity: pricing,
-  });
-  label(ctx, "Dollars / Accepted Workflow", 267, 197, {
-    color: SUCCESS,
-    size: 10.3,
+    size: 11.4,
     align: "left",
     weight: 700,
     opacity: pricing,
