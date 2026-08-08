@@ -1065,7 +1065,7 @@ function drawAcceptance(ctx: CanvasRenderingContext2D, p: number) {
   const compress = smootherEase((p - 0.5) / 0.27);
   const accept = smootherEase((p - 0.76) / 0.19);
   const core = { x: 108, y: 218 };
-  const aperture = { x: 400, y: 201 };
+  const aperture = { x: 380, y: 201 };
   const registerX = 282;
 
   label(ctx, "The Living Rubric", core.x, 76, { color: TEXT, size: 15, weight: 600 });
@@ -1200,11 +1200,11 @@ function drawAcceptance(ctx: CanvasRenderingContext2D, p: number) {
     weight: 700,
   });
 
-  const outputX = 456;
+  const outputX = 464;
   const acceptedY = 169;
   const rejectedY = 237;
-  arrow(ctx, aperture.x + 30, aperture.y - 14, outputX - 19, acceptedY, SUCCESS, accept);
-  arrow(ctx, aperture.x + 30, aperture.y + 14, outputX - 19, rejectedY, POLICY_RED, accept);
+  arrow(ctx, aperture.x + 47, aperture.y - 14, outputX - 19, acceptedY, SUCCESS, accept);
+  arrow(ctx, aperture.x + 47, aperture.y + 14, outputX - 19, rejectedY, POLICY_RED, accept);
 
   dot(ctx, outputX, acceptedY, 17, "rgba(47,125,50,.08)", SUCCESS, accept);
   if (accept > 0.02) {
@@ -1219,7 +1219,7 @@ function drawAcceptance(ctx: CanvasRenderingContext2D, p: number) {
     ctx.stroke();
     ctx.restore();
   }
-  label(ctx, "Accepted", outputX, acceptedY + 29, {
+  label(ctx, "Accepted", outputX, acceptedY - 30, {
     color: SUCCESS,
     size: 11.5,
     weight: 650,
@@ -1240,7 +1240,7 @@ function drawAcceptance(ctx: CanvasRenderingContext2D, p: number) {
     ctx.stroke();
     ctx.restore();
   }
-  label(ctx, "Rejected", outputX, rejectedY + 29, {
+  label(ctx, "Rejected", outputX, rejectedY + 30, {
     color: POLICY_RED,
     size: 11.5,
     weight: 650,
@@ -1316,11 +1316,19 @@ function drawMeter(ctx: CanvasRenderingContext2D, p: number) {
   const barStart = 126;
   const barEnd = 374;
   const activityFill = clamp(0.2 + activity * 0.38 + burdens * 0.34);
+  const firstAttemptX = barStart + (barEnd - barStart) * 0.16;
   const retryX = barStart + (barEnd - barStart) * 0.4;
   const correctionX = barStart + (barEnd - barStart) * 0.72;
+  const firstAttemptReached = smootherEase((activityFill - 0.12) / 0.1) * usageOpacity;
   const retryReached = smootherEase((activityFill - 0.36) / 0.11) * usageOpacity;
   const correctionReached = smootherEase((activityFill - 0.67) / 0.11) * usageOpacity;
 
+  label(ctx, "First Attempt", firstAttemptX, 173, {
+    color: POLICY_BLUE,
+    size: 10.6,
+    weight: 600,
+    opacity: firstAttemptReached,
+  });
   label(ctx, "Retry", retryX, 173, {
     color: ACCENT,
     size: 11.2,
@@ -1333,8 +1341,10 @@ function drawMeter(ctx: CanvasRenderingContext2D, p: number) {
     weight: 600,
     opacity: correctionReached,
   });
+  line(ctx, firstAttemptX, 179, firstAttemptX, 191, POLICY_BLUE, 1, firstAttemptReached);
   line(ctx, retryX, 179, retryX, 191, ACCENT, 1, retryReached);
   line(ctx, correctionX, 179, correctionX, 191, ACCENT, 1, correctionReached);
+  dot(ctx, firstAttemptX, 197, 3.5, PAPER, POLICY_BLUE, firstAttemptReached);
   dot(ctx, retryX, 197, 3.5, PAPER, ACCENT, retryReached);
   dot(ctx, correctionX, 197, 3.5, PAPER, ACCENT, correctionReached);
 
