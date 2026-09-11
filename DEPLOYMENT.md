@@ -19,12 +19,17 @@ the supplied README-DEPLOY.md.
 
 ## Subsequent adjustments
 
-On September 11, 2026, the verifier speech bubble was shifted 32 canvas units
-farther right as the diagram transitions from Alongside to Inside. The offset
-uses the existing smooth transition, leaves Outside and Alongside unchanged,
-and keeps the bubble's pointer anchored to the verifier. This one-expression
-change is applied directly to the supplied bundle because its editable source
-is missing. The bundle filename and deployment checksums were refreshed.
+On September 11, 2026, the verifier speech bubble was given three explicit
+positions: top-left for Outside, top-center for Alongside, and top-right for
+Inside. Its horizontal offsets are 0, 168.5, and 337 in the 760-unit canvas,
+using the existing smooth transition and keeping the pointer anchored to the
+verifier. This replaces the initial small Inside-only nudge. On narrow screens,
+the canvas and caption now fit the available width instead of overflowing at
+a fixed 500 pixels, so the top-right bubble stays visible.
+
+These targeted changes are applied directly to the supplied bundles because
+their editable source is missing. Asset filenames and deployment checksums
+were refreshed.
 
 The existing React source in the repository is preserved, but it represents the
 previous site and is not the source of this deployed revision. Obtain a complete
