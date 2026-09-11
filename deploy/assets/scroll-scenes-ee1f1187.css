@@ -1,0 +1,38 @@
+/* Each scroll interval belongs to one stationary figure panel. */
+.scroll-section.has-scene.pinned-scene { overflow: visible; }
+.scroll-section.has-scene.pinned-scene .section-inner {
+  position: sticky; top: var(--scene-pin-top); align-items: start;
+}
+.scroll-section.has-scene.pinned-scene .section-copy { position: static; }
+.scroll-section.has-scene.pinned-scene .diagram-track {
+  min-height: 0; height: auto; margin: 0; align-self: start;
+}
+.scroll-section.has-scene.pinned-scene .diagram-track .section-viz {
+  position: static !important; top: auto !important; transform: none; border: 0;
+}
+.scroll-section.has-scene.pinned-scene .diagram-canvas {
+  max-height: var(--pinned-figure-height); width: auto; max-width: 100%; object-fit: contain;
+}
+.scroll-section.has-scene.pinned-scene .viz-caption { margin-bottom: 0; }
+@media (width <= 900px) {
+  .scroll-section.has-scene.pinned-scene .section-inner { display: flex; }
+  .scroll-section.has-scene.pinned-scene .diagram-track { margin: .8rem 0 0; }
+  .scroll-section.has-scene.pinned-scene .section-viz { margin: 0; }
+}
+
+.evaluator-story-scroll-pinned .evaluator-story-viz{top:var(--story-viz-top,145px);background:var(--doc-bg);z-index:12}
+.evaluator-story-scroll-pinned .evaluator-story-track-copy{grid-area:2/1}
+.evaluator-story-step-track{position:relative;width:100%;scroll-margin-top:var(--story-text-top,145px)}
+.evaluator-story-step-track+.evaluator-story-step-track{margin-top:2.15rem}
+.evaluator-story-step-body{position:sticky;top:var(--story-text-top,145px);display:flow-root;width:100%;padding-bottom:1.5rem;background:var(--doc-bg)}
+.evaluator-story-step-body>.evaluator-story-step{margin-top:0!important}
+.evaluator-story-reduced .evaluator-story-step-track{height:auto!important}
+.evaluator-story-reduced .evaluator-story-step-body,.evaluator-story-reduced .evaluator-story-viz{position:static!important}
+@media (width<=900px){
+ .evaluator-story-scroll-pinned{display:block}
+ .evaluator-story-scroll-pinned .evaluator-story-viz{position:sticky;top:var(--story-viz-top,145px);width:100%;margin:0 0 1.5rem;padding:.5rem 0 1rem;background:var(--doc-bg);z-index:20;overflow:visible}
+ .evaluator-story-scroll-pinned .evaluator-story-canvas{width:100%;max-width:600px;aspect-ratio:76/35}
+ .evaluator-story-scroll-pinned .evaluator-story-viz .viz-caption{width:100%;max-width:600px;font-size:.78rem;margin:.65rem 0 0!important}
+ .evaluator-story-step-track+.evaluator-story-step-track{margin-top:1.65rem}
+ .evaluator-story-reduced .evaluator-story-viz{position:static!important}
+}

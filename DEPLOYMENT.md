@@ -41,6 +41,26 @@ of the intervening text: the magnifier fades first, then the coding target
 builds gradually with the three coding examples. Paragraph and case spacing was
 also increased for readability.
 
+A later September 11 adjustment replaces the figure timing heuristic with
+explicit native sticky scroll intervals. A figure is fully visible before its
+progress begins; its panel stays in place through the animation and a short
+completed-state hold, then normal page movement resumes. On narrow screens,
+the main figures pin after their introductory copy. The additional styles are
+kept in the `scroll-scenes-*.css` deployment asset. Reduced-motion preferences
+continue to show completed figures without the extra pinning intervals.
+
+The evaluator story keeps its original paragraphs in normal flow and shares a
+single sticky figure. Only the Alongside, Inside, and coding transitions add
+scroll intervals; their current text stays fixed until each transition ends.
+On mobile, that text pins below the figure and the contents bar. The Outside
+case and the explanatory transition paragraph keep ordinary scrolling.
+
+The last feedback-loop figure again uses the earlier source's four causal
+cycles: arrow arrivals grow intelligence, organizations, and utility in turn,
+instead of filling all three continuously. Its current geometry and palette
+are preserved. The eight header counters now use distinct starting values,
+and the visible Play/Pause animation control was removed.
+
 The existing React source in the repository is preserved, but it represents the
 previous site and is not the source of this deployed revision. Obtain a complete
 copy of the handoff's `source/` directory before resuming source-based builds.
