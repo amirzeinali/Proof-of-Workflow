@@ -31,6 +31,16 @@ These targeted changes are applied directly to the supplied bundles because
 their editable source is missing. Asset filenames and deployment checksums
 were refreshed.
 
+The same day, the scroll-led figures were retimed so each initial state is
+visible before its animation begins. Desktop figures begin only after reaching
+their settled reading position, mobile figures wait until fully visible, and
+each animation receives a longer scroll range. Consecutive figures have a rest
+between their active ranges, with additional separation between the market pie
+and the compounding figure. The magnifier-to-coding transition now follows most
+of the intervening text: the magnifier fades first, then the coding target
+builds gradually with the three coding examples. Paragraph and case spacing was
+also increased for readability.
+
 The existing React source in the repository is preserved, but it represents the
 previous site and is not the source of this deployed revision. Obtain a complete
 copy of the handoff's `source/` directory before resuming source-based builds.
